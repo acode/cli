@@ -47,7 +47,7 @@ npm install stdlib --save
 Example usage
 
 ```javascript
-const stdlib = require('s');
+const stdlib = require('stdlib.com');
 
 stdlib.f('user/namespace/func')(
   'arg0 arg1 -f hi --verbose hello',
