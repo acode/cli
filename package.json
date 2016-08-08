@@ -1,13 +1,13 @@
 {
   "name": "stdlib.com",
   "version": "0.0.1",
-  "description": "Standard Library",
+  "description": "The Standard Library of the Internet",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
-    "stdlib"
+    "stdlib", "stdlib.com"
   ],
   "author": "Keith Horwood",
   "license": "MIT",
@@ -18,7 +18,7 @@
   "dependencies": {
     "api-res": "0.0.4",
     "async": "^2.0.1",
-    "cmnd": "0.1.1",
+    "cmnd": "~0.1.1",
     "inquirer": "~0.11.3"
   }
 }

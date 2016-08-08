@@ -46,18 +46,12 @@ class PolyLoginCommand extends Command {
       message: 'password',
     });
 
-    console.log('WAT?');
-
     inquirer.prompt(questions, (promptResult) => {
-
-      console.log('ELLO?');
 
       email = email || promptResult.email;
       password = password || promptResult.password;
 
       let resource = new APIResource(host, port);
-
-      console.log('WAT');
 
       resource.request('v1/access_tokens').create({}, {grant_type: 'password', username: email, password: password}, (err, response) => {
 
