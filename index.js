@@ -51,7 +51,7 @@ module.exports = {
             }
           }
 
-          callback(null, response);
+          callback(null, response.toString());
 
         });
 
