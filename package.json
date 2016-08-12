@@ -1,6 +1,6 @@
 {
   "name": "stdlib.com",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "The Standard Library of the Internet",
   "main": "index.js",
   "scripts": {
@@ -16,7 +16,7 @@
     "f": "cli/f_bin.js"
   },
   "dependencies": {
-    "api-res": "0.0.4",
+    "api-res": "0.0.5",
     "async": "^2.0.1",
     "cmnd": "~0.1.1",
     "inquirer": "~0.11.3"
