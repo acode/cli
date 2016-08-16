@@ -41,7 +41,7 @@ You can also use `f <function>` as a shortcut for `stdlib f <function>`.
 To add stdlib to a Node.js project, type:
 
 ```
-npm install stdlib --save
+npm install stdlib.com --save
 ```
 
 Example usage
