@@ -1,6 +1,6 @@
 {
   "name": "stdlib.com",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "The Standard Library of the Internet",
   "main": "index.js",
   "scripts": {
