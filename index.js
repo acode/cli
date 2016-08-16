@@ -49,9 +49,15 @@ module.exports = {
             } catch(e) {
               response = null;
             }
+          } else if (contentType.match(/^text\/.*$/i)) {
+            response = response.toString();
           }
 
-          callback(null, response);
+          if (((res.statusCode / 100) | 0) !== 2) {
+            return callback(new Error(response));
+          } else {
+            return callback(null, response);
+          }
 
         });
 
