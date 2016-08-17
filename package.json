@@ -4,10 +4,11 @@
   "description": "The Standard Library of the Internet",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "ava test/ava"
   },
   "keywords": [
-    "stdlib", "stdlib.com"
+    "stdlib",
+    "stdlib.com"
   ],
   "author": "Keith Horwood",
   "license": "MIT",
@@ -20,5 +21,11 @@
     "async": "^2.0.1",
     "cmnd": "~0.1.2",
     "inquirer": "~0.11.3"
+  },
+  "devDependencies": {
+    "ava": "^0.16.0",
+    "path-exists": "^3.0.0",
+    "pify": "^2.3.0",
+    "rimraf": "^2.5.4"
   }
 }
