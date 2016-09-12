@@ -1,9 +1,10 @@
 'use strict';
 const http = require('http');
 const https = require('https');
+const config = require('config');
 
-let host = 'f.stdlib.com';
-let port = 443;
+let host = config.get('host');
+let port = config.get('port');
 
 module.exports = {
   f: (name) => {
