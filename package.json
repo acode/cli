@@ -4,7 +4,7 @@
   "description": "The Standard Library of the Internet",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "./node_modules/mocha/bin/mocha *.spec.js"
   },
   "keywords": [
     "stdlib",
@@ -23,5 +23,13 @@
     "config": "^1.21.0",
     "inquirer": "~0.11.3",
     "stdlib": "^0.5.0"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^3.0.2",
+    "nock": "^8.0.0",
+    "sinon": "^1.17.5",
+    "sinon-chai": "^2.8.0",
+    "supertest": "^2.0.0"
   }
 }
