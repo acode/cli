@@ -16,7 +16,7 @@ class FCommand extends Command {
   help() {
 
     return {
-      description: 'Runs a <stdlib> function'
+      description: 'Runs a stdlib function'
     };
 
   }

@@ -13,16 +13,16 @@ Use stdlib using `stdlib <command>` where commands are;
 
 ```
 f
-	Runs a <stdlib> function
+	Runs a stdlib function
 
 f:compile
-	Compiles <stdlib> Function
+	Compiles stdlib Function
 
 f:new
 	Creates an index.js and package.json file in the current directory
 
 f:unlink
-	Unlinks (removes) current or specified <stdlib> Function
+	Unlinks (removes) current or specified stdlib Function
 
 login
 	Logs in to stdlib in this directory

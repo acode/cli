@@ -18,7 +18,7 @@ class FNewCommand extends Command {
   help() {
 
     return {
-      description: 'Creates an index.js and package.json file in the current directory'
+      description: 'Creates an index.js, package.json and env.json file in the current directory'
     };
 
   }
@@ -27,6 +27,7 @@ class FNewCommand extends Command {
 
     let indexPath = path.join(process.cwd(), 'index.js');
     let packagePath = path.join(process.cwd(), 'package.json');
+    let envPath = path.join(process.cwd(), 'env.json');
     let gitignorePath = path.join(process.cwd(), '.gitignore');
 
     let name = params.args[0];
@@ -43,9 +44,13 @@ class FNewCommand extends Command {
       return callback(new Error('File "package.json" already exists.'));
     }
 
+    if (fs.existsSync(envPath)) {
+      return callback(new Error('File "env.json" already exists.'));
+    }
+
     fs.writeFileSync(indexPath, [
       'module.exports = (params, callback) => {',
-      '  // Node version: 6.2.2',
+      '  // Node version: 6.5.0',
       '  // params has keys: {args, flags, vflags, remoteAddress}',
       '  let a = parseInt(params.args[0]) || 0;',
       '  let b = parseInt(params.args[1]) || 0;',
@@ -57,12 +62,14 @@ class FNewCommand extends Command {
     ].join('\n'));
 
     fs.writeFileSync(packagePath, JSON.stringify({"name": name}, null, 2));
+    fs.writeFileSync(envPath, JSON.stringify({"sample_key": "value"}, null, 2));
 
     if (!fs.existsSync(gitignorePath)) {
       fs.writeFileSync(gitignorePath, [
         '.DS_Store',
         'node_modules/',
-        '.stdlib'
+        '.stdlib',
+        '/env.json'
       ].join('\n'));
     }
 

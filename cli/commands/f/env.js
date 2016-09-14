@@ -7,18 +7,18 @@ const async = require('async');
 const APIResource = require('api-res');
 const Credentials = require('../../credentials.js');
 
-class FUnlinkCommand extends Command {
+class FEnvCommand extends Command {
 
   constructor() {
 
-    super('f', 'unlink');
+    super('f', 'env');
 
   }
 
   help() {
 
     return {
-      description: 'Unlinks (removes) current or specified stdlib Function'
+      description: 'Reads remote env.json of function, optionally sets key-value pairs'
     };
 
   }
@@ -30,6 +30,9 @@ class FUnlinkCommand extends Command {
 
     let hostname = (params.flags.h && params.flags.h[0]) || '';
     let matches = hostname.match(/^(https?:\/\/)?(.*?)(:\d+)?$/);
+
+    let set = (params.flags.s || params.vflags.set || []).slice(0, 2);
+    let remove = (params.flags.r || params.vflags.remove || []).slice(0, 1);
 
     if (hostname && matches) {
       host = matches[2];
@@ -64,8 +67,6 @@ class FUnlinkCommand extends Command {
     let resource = new APIResource(host, port);
     resource.authorize(Credentials.read('ACCESS_TOKEN'));
 
-    console.log('Unlinking function "' + name + '" ...');
-
     return resource.request('v1/functions').index({name: name}, (err, response) => {
 
       if (err) {
@@ -76,16 +77,34 @@ class FUnlinkCommand extends Command {
         return callback(new Error('Could not find function "' + name + '"'));
       }
 
-      var f = response.data[0];
+      let f = response.data[0];
 
-      resource.request('v1/functions').destroy(f.id, {}, function(err, response) {
+      resource.request('v1/functions').show(f.id, {}, function(err, response) {
 
         if (err) {
           return callback(err);
         }
 
-        console.log('Successfully removed "' + name + '"!');
-        callback();
+        let env = response.data[0].env_json;
+
+        if (set.length) {
+          env[set[0]] = set[1];
+        }
+
+        if (remove.length) {
+          delete env[remove[0]];
+        }
+
+        resource.request('v1/functions').update(f.id, {}, {env_json: env}, function(err, response) {
+
+          if (err) {
+            return callback(err);
+          }
+
+          console.log(response.data[0].env_json);
+          callback();
+
+        });
 
       });
 
@@ -95,4 +114,4 @@ class FUnlinkCommand extends Command {
 
 }
 
-module.exports = FUnlinkCommand;
+module.exports = FEnvCommand;

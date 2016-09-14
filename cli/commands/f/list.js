@@ -19,7 +19,7 @@ class FListCommand extends Command {
   help() {
 
     return {
-      description: 'Lists your <stdlib> functions'
+      description: 'Lists your stdlib functions'
     };
 
   }

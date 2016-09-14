@@ -18,7 +18,7 @@ class FCompileCommand extends Command {
   help() {
 
     return {
-      description: 'Compiles <stdlib> Function'
+      description: 'Compiles stdlib Function'
     };
 
   }
@@ -63,7 +63,7 @@ class FCompileCommand extends Command {
 
     console.log('Compiling function "' + packageData.name + '" ...');
 
-    return resource.request('v1/functions').create({}, {
+    return resource.request('v1/function_deployments').create({}, {
       body: fs.readFileSync(indexPath).toString(),
       package_json: fs.readFileSync(packagePath).toString()
     }, (err, response) => {
