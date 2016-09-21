@@ -1,9 +1,7 @@
-# stdlib
+# ![stdlib](http://stdlib.com/static/images/stdlib-256.png)
 ## A Standard Library for the Web
 
 [stdlib is a Standard Library of Functional Microservices for the Web](https://stdlib.com).
-
-![stdlib](http://stdlib.com/static/images/stdlib-256.png)
 
 It's both a platform for creating and launching functional microservices, as well as
 a central directory to share and discover new services by other users.
