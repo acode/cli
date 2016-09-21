@@ -3,7 +3,7 @@
 
 [stdlib is a Standard Library of Functional Microservices for the Web](https://stdlib.com).
 
-![stdlib](http://stdlib.com/static/images/stdlib-new.png =200x)
+![stdlib](http://stdlib.com/static/images/stdlib-256.png)
 
 It's both a platform for creating and launching functional microservices, as well as
 a central directory to share and discover new services by other users.
@@ -75,11 +75,18 @@ current directory.
 
 #### index.js
 
-This file will look something like this (with more boilerplate):
+This file will look something like this:
 
 ```javascript
 module.exports = (params, callback) => {
-	callback(null, 'hello world');
+	// Node version: 6.5.0
+	// params has keys: {args, flags, vflags, env, remoteAddress}
+	let a = parseInt(params.args[0]) || 0;
+	let b = parseInt(params.args[1]) || 0;
+	let name = params.kwargs.name || 'World';
+	// Once this function has compiled, try executing it with:
+	//   f <username>/dev/hello 1 2 --name Name
+	return callback(null, `Hello ${name}, ${a} + ${b} = ${a + b}`);
 };
 ```
 
