@@ -3,7 +3,9 @@
 
 [stdlib is a Standard Library of Functional Microservices for the Web](https://stdlib.com).
 
-It's both a platform for creating and launching functional microservices, as well as
+It plays nicely with `f`, [a CLI tool and Node.js library for Microservice Execution](https://github.com/poly/f).
+
+stdlib is both a platform for creating and launching functional microservices, as well as
 a central directory to share and discover new services by other users.
 
 This repository is the primary SDK and CLI tools for stdlib service development.

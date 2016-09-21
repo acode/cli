@@ -1,7 +1,7 @@
 {
   "name": "stdlib.com",
-  "version": "0.3.1",
-  "description": "The Standard Library of the Internet",
+  "version": "0.3.2",
+  "description": "A Standard Library for the Web",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
