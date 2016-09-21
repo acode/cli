@@ -1,6 +1,6 @@
 {
   "name": "stdlib.com",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "The Standard Library of the Internet",
   "main": "index.js",
   "scripts": {
@@ -13,8 +13,7 @@
   "author": "Keith Horwood",
   "license": "MIT",
   "bin": {
-    "stdlib": "cli/bin.js",
-    "f": "cli/f_bin.js"
+    "stdlib": "cli/bin.js"
   },
   "dependencies": {
     "api-res": "0.0.5",
