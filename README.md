@@ -3,7 +3,7 @@
 
 [stdlib is a Standard Library of Functional Microservices for the Web](https://stdlib.com).
 
-![stdlib](http://stdlib.com/static/images/stdlib-new.png)
+![stdlib](http://stdlib.com/static/images/stdlib-new.png =200x)
 
 It's both a platform for creating and launching functional microservices, as well as
 a central directory to share and discover new services by other users.
