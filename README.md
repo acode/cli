@@ -1,194 +1,325 @@
 # ![stdlib](http://stdlib.com/static/images/stdlib-256.png)
-## A Standard Library for the Web
+## A Standard Library for Microservices
 
-[stdlib is a Standard Library of Functional Microservices for the Web](https://stdlib.com).
+[stdlib is a Standard Library for Microservices](https://stdlib.com).
 
-It plays nicely with `f`, [a CLI tool and Node.js library for Microservice Execution](https://github.com/poly/f).
+stdlib has three components:
 
-stdlib is both a platform for creating and launching functional microservices, as well as
-a central directory to share and discover new services by other users.
+1. A central registry for microservices
+2. A distribution platform for hosting at scale
+3. A development framework for package management and service creation
 
-This repository is the primary SDK and CLI tools for stdlib service development.
+It is the *fastest, easiest* way to begin building microservices on your own
+or with a team, and currently supports Node.js 0.6.5. The distribution and hosting
+platform for execution of your services is built atop AWS Lambda ensuring
+both the scale and reliability you would expect for production-ready services.
+
+## Table of Contents
+
+1. [Getting Started](#getting-started)
+2. [Creating Your First Service](#creating-your-first-service)
+3. [Connecting Service Endpoints](#connecting-service-endpoints)
+4. [Accessing Your Microservices From Other Applications](#accessing-your-microservices-from-other-applications)
+5. [Accessing Your Microservices Over HTTP](#accessing-your-microservices-over-http)
+6. [Version Control and Package Management](#version-control-and-package-management)
+7. [Additional Functionality](#additional-functionality)
+8. [Acknowledgements](#acknowledgements)
+9. [Contact](#contact)
 
 ## Getting Started
 
-Getting started with stdlib is easy. We'll walk you through a few steps;
-
-1. Installing the stdlib CLI Tools
-2. Create a Function Directory
-3. Registration / Login
-4. Function Creation (Development)
-5. Function Compilation
-6. Function Execution
-7. Deleting (Unlinking) Functions
-8. Listing Functions
-
-### Installing the stdlib CLI Tools
-
-To install the stdlib command line tools, simply install the `stdlib.com`
-package from npm globally.
+To get started with stdlib, first make sure you have Node 6.x installed,
+[available from the official Node.js website](https://nodejs.org). Next install
+the stdlib CLI tools with:
 
 ```
-$ npm install stdlib.com -g
+$ npm install stdlib@1.0.0-dev -g
 ```
 
-### Create a Function Directory
+And you're now ready to start building!
 
-Next, Create a directory for the function you'll be working with.
+## Creating Your First Service
 
-```
-$ mkdir my-func
-$ cd my-func
-```
-
-### Registration / Login
-
-Make sure you're in your function directory, `my-func`.
-
-If you haven't registered for stdlib yet, register using;
+The first thing you'll want to do is create a workspace. Create a new directory
+you intend to build your services in and initialize the workspace.
 
 ```
-$ stdlib register
+$ mkdir stdlib-workspace
+$ cd stdlib-workspace
+$ stdlib init
 ```
 
-Alternatively, login using:
+You'll be asked for an e-mail address to log in to the stdlib registry,
+via the Polybit API server. If you don't yet have an account, you can create
+one from the command line. Note that you can skip account creation with
+`stdlib init --no-login`. You'll be unable to use the registry, but it's useful
+for creating workspaces when you don't have internet access.
+
+Next, create your service:
 
 ```
-$ stdlib login
+$ stdlib create <service>
 ```
 
-A command prompt will guide you through the process.
+You'll be asked for a default function name, which is the entry point
+into your service (useful if you only want entry point). This will automatically
+generate a service project scaffold in `stdlib-workspace/<username>/<service>`.
 
-### Function Creation (Development)
-
-To create a function, type:
+Once created, enter the service directory:
 
 ```
-$ stdlib f:new <username>/<namespace>/<name>
+$ cd your-username/your-service
 ```
 
-You'll want to make sure your username is your username or an organization
-you have access to, otherwise `namespace` and `name` are completely up to you.
+In this directory, you'll see something like:
 
-This will create a `index.js`, `package.json` and `env.json` file in the
-current directory.
+```
+- f/
+  - defaultFunction/
+	  - function.json
+		- index.js
+- package.json
+- env.json
+- README.md
+```
 
-#### index.js
+At this point, there's a "hello world" function that's been automatically
+created. stdlib comes paired with a simple `f` command for testing your functions
+locally and running them in the cloud. To test your function:
 
-This file will look something like this:
+```
+$ f .
+> "hello world"
+```
+
+If we examine the file, we see the following:
 
 ```javascript
 module.exports = (params, callback) => {
-	// Node version: 6.5.0
-	// params has keys: {args, flags, vflags, env, remoteAddress}
-	let a = parseInt(params.args[0]) || 0;
-	let b = parseInt(params.args[1]) || 0;
-	let name = params.kwargs.name || 'World';
-	// Once this function has compiled, try executing it with:
-	//   f <username>/dev/hello 1 2 --name Name
-	return callback(null, `Hello ${name}, ${a} + ${b} = ${a + b}`);
+
+  callback(null, 'hello world');
+
 };
 ```
 
-Here's what you need to know:
-
-`params` is an Object that contains:
-
-- `args`: Array of function arguments passed to the service
-- `kwargs`: Object (key-values) of function keyword arguments
-- `buffer`: Raw POST data (for file manipulation)
-- `env`: Contains your `env.json` data
-- `remoteAddress`: The requesting IPv4/IPv6 address
-
-`callback` is a function that takes two parameters, an error (or `null` if
-	no error) and a JSON-serializable response (or `Buffer` for files).
-
-`callback` should be executed when your function has completed. Do not expect
-background processes to finish --- if you're waiting on asynchronous events
-use a synchronization library like `async`.
-
-**Please note** that you can declare variables outside of the `module.exports`
-statement to speed up subsequent service calls, but do not rely on them for
-memory storage in any predictable fashion --- treat each execution as if it's
-stateless.
-
-#### package.json
-
-This is your basic npm package.json. Define `dependencies` as you would normally,
-they'll be installed for production when you compile your microservice. You can
-do this using:
+If necessary, we can pass some of these parameters to it (`params.args` and `params.kwargs`)
+using:
 
 ```
-$ npm install <package> --save
+f . arg0 arg1 --kwarg0 "Hello World" --kwarg1 Goodbye
 ```
 
-The name will be where your service is deployed to, following the
-`<username>/<namespace>/<name>` pattern. Note that setting `"private": true`
-will prevent your microservice from being listed in the stdlib search results.
-
-#### env.json
-
-Contains environment variables (for development environment) in `params.env`.
-Note that these values will *not* be pushed to production. To change production
-environment variables, use:
+Though it won't change the function output as-is. To push your function to a
+development environment in the cloud:
 
 ```
-$ stdlib f:env --set <key> <value>
+$ stdlib up dev
+$ f your-username/your-service@dev
+> "hello world"
 ```
 
-and
+And to release it (when you're ready!)
 
 ```
-$ stdlib f:env --remove <key>
+$ stdlib release
+$ f your-username/your-service
+> "hello world"
 ```
 
-### Function Compilation
-
-Compilation is also known as deployment, and it's how you push your microservices
-to production. As long as you're logged in, when you're ready to share your
-creation with the world just type:
+You can check out your service on the web, and use it in applications at:
 
 ```
-$ stdlib f:compile
+https://f.stdlib.com/your-username/your-service
 ```
 
-You'll be given instructions on how to access it once it's live.
+That's it! You haven't written a line of code yet, and you have mastery over
+building a service, testing it in a development (staging) environment online,
+and releasing it for private (or public) consumption.
 
-### Function Execution
+**Note:** You'll need to set `"publish": true` in the `stdlib` key of your
+`package.json` file to see your service appear in the public registry. It's
+set to `false` by default.
 
-To run your function, you can access it via the web using the stdlib gateway
-service (f.stdlib.com) and the function name.
+**Another Note:** Staging environments (like the one created with `stdlib up dev`)
+are *mutable* and can be replaced indefinitely. Releases (`stdlib release`) are
+*immutable* and can never be overwritten. However, any service can be torn down
+with `stdlib down <environment>` or `stdlib down -r <version>` (but releases
+	can't be replaced once removed, to prevent mistakes and / or bad actors).
 
-We've created a [Node.js and Web library called "f"](https://github.com/poly/f)
-for running your functions from other applications and the command line.
+## Connecting Service Endpoints
 
-### Deleting (Unlinking) Functions
-
-To delete a function simply type:
-
-```
-$ stdlib f:unlink <username>/<namespace>/<name>
-```
-
-The namespace will likely be recompiled, so this may take a few minutes.
-
-### Listing Functions
-
-The command to see all available functions in production is straightforward as well.
+You'll notice that you can create more than one function per service. While
+you can structure your project however you'd like internally, it should also
+be noted that these functions have zero-latency access to each other. You
+can access them internally with the `f` [package on NPM](https://github.com/poly/f),
+which behaves similarly to the `f` command for testing. Use:
 
 ```
-$ stdlib f:list
+$ npm install f --save
+```
+
+In your main service directory to add it, and use it like so:
+
+```javascript
+// File: f/add/index.js
+module.exports = (params, callback) => {
+
+	return callback(null, params.args[1] + params.args[2]);
+
+};
+```
+
+```javascript
+// File: f/add-double/index.js
+const f = require('f');
+
+module.exports = (params, callback) => {
+
+	return f('./add')(params.args[0], params.args[1], (err, result) => {
+
+		callback(err, result * 2);
+
+	});
+
+};
+```
+
+In this case, calling `f ./add 1 2` will return `3` and `f ./add-double 1 2`
+will return `6`. These map directly to individual service endpoints. **Note** that
+when chaining like this, *a single service execution instance* is being used so
+be careful about setting service timeouts appropriately.
+
+## Accessing Your Microservices From Other Applications
+
+As mentioned in the previous section, you can use the `f` library that's
+[available on GitHub and NPM](https://github.com/poly/f) to access your
+microservices from legacy Node.js applications and even the web browser. We'll
+have more SDKs coming out in the following months.
+
+A legacy app would call a function with...
+
+```javascript
+// Legacy code
+var f = require('f');
+
+f('username/liveService@0.2.1')('hello', 'world', {keyword: 'argument'}, function (err, result) {
+
+	if (err) {
+		// handle it
+	}
+
+	// do something with result
+
+});
+
+```
+
+Which would speak to your microservice...
+
+```javascript
+module.exports = (params, callback) => {
+
+	params.args[0] === 'hello'; // true
+	params.args[1] === 'world'; // true
+	params.kwargs.keyword === 'argument'; // true
+
+	callback(null, 'Done!');
+
+};
+```
+
+## Accessing Your Microservices Over HTTP
+
+We definitely recommend using the [browser-based version of f](https://github.com/poly/f)
+to make microservice calls as specified above, but you can also make HTTPS
+requests directly to the stdlib gateway. HTTP query parameters are mapped
+automatically to keyword arguments:
+
+```
+https://f.stdlib.com/username/liveService@1.12.2?name=Keith
+```
+
+Maps directly to:
+
+```javascript
+module.exports = (params, callback) => {
+
+	params.kwargs.name === 'Keith'; // true
+
+	callback(null, 'Done!');
+
+};
+```
+
+**Note** that you will not be able to pass in anything to the `params.args`
+parameter.
+
+## Version Control and Package Management
+
+A quick note on version control - stdlib is *not* a replacement for normal
+git-based workflows, it is a supplement focused around service creation and
+execution. You have unlimited access to any release (that hasn't been torn down)
+with `stdlib pkg <serviceIdentifier>` to download the tarball (`.tgz`) and
+`stdlib get <serviceIdentifier>` to automatically download and unpack the
+tarball to a working directory. Tarballs (and package contents) are *closed-source*.
+Nobody but you (and potentially your teammates) has access to these. It's up to
+you whether or not you share the guts of your service with others on GitHub or NPM.
+
+As mentioned above: releases are *immutable* and can not be overwritten (but can
+	be removed, just not replaced afterwards) and development / staging environments
+	are *mutable*, you can overwrite them as much as you'd like.
+
+## Additional Functionality
+
+stdlib comes packed with a bunch of other goodies - if your service goes down
+for any reason (the service platform is acting up), use `stdlib restart`.
+Similarly, as we roll out updates to the platform the builds we're using on
+AWS Lambda may change. You can update your service to our latest build using
+`stdlib rebuild`. We may recommend this from time-to-time, so pay attention
+to e-mails and the community.
+
+To see a full list of commands available for the CLI tools, type:
+
+```
+$ stdlib help
+```
+
+We've conveniently copy-and-pasted the output here for you to peruse;
+
+```
 ```
 
 ## That's it!
 
-Yep, it's really that simple. We're in open beta, so please don't hesitate to
-file GitHub issues if you need to!
+Yep, it's really that easy. To keep up-to-date on developments, please
+star us here on GitHub, and sign up a user account for the registry. You
+can read more about service hosting and keep track of official updates on
+[the official stdlib website, stdlib.com](https://stdlib.com).
 
-stdlib is &copy; 2016 Polybit Inc.
+## Acknowledgements
 
-Want to support us? [Sign up on the web for stdlib](https://stdlib.com/).
+stdlib is a product of and &copy; 2016 Polybit Inc.
 
-Check out our [library for microservice execution, f](https://github.com/poly/f).
+It wouldn't have been possible without a bunch of amazing people.
 
-Follow us on Twitter, [@polybit](https://twitter.com/polybit)
+[Brian LeRoux](https://twitter.com/brianleroux) kickstarted us in this direction.
+
+[Boris Mann](https://twitter.com/bmann) threw his support in from day one when
+we first launched [Nodal](https://github.com/keithwhor/nodal).
+
+[TJ Holowaychuk](https://twitter.com/tjholowaychuk) has been sharing great
+ideas about the server-less movement and his [Apex Framework](https://github.com/apex/apex)
+has certainly been an inspiration.
+
+The amazingly talented people and friends of [AngelPad](https://angelpad.org)
+who pick us up when we're low and put us in our place when we need to get work done.
+
+## Contact
+
+We'd love for you to pay attention to [@Polybit](https://twitter.com/polybit) and
+what we're building next! If you'd consider joining the team, [shoot us an e-mail](mailto:careers@polybit.com).
+
+You can also follow me, the original author, on Twitter: [@keithwhor](https://twitter.com/keithwhor).
+
+Issues encouraged, PRs welcome, and we're happy to have
+you on board! Enjoy and happy building :)

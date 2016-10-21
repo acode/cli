@@ -1,0 +1,15 @@
+{
+  "name": "service",
+  "version": "0.0.0",
+  "description": "Service",
+  "author": "Author",
+  "main": "f/function/index.js",
+  "dependencies": {},
+  "private": true,
+  "stdlib": {
+    "name": "username/service",
+    "defaultFunction": "function",
+    "timeout": 10000,
+    "publish": false
+  }
+}

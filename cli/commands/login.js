@@ -3,6 +3,7 @@
 const Command = require('cmnd').Command;
 const APIResource = require('api-res');
 const Credentials = require('../credentials.js');
+const errorLog = require('../error_log.js');
 
 const inquirer = require('inquirer');
 const async = require('async');
@@ -28,8 +29,10 @@ class PolyLoginCommand extends Command {
     let host = params.flags.h ? params.flags.h[0] : 'https://api.polybit.com';
     let port = params.flags.p && params.flags.p[0];
 
-    let email = params.vflags.email && params.vflags.email[0];
-    let password = params.vflags.password && params.vflags.password[0];
+    let email = params.vflags.email || params.vflags.email || []
+    email = email[0];
+    let password = params.vflags.password || params.vflags.password || [];
+    password = password[0];
 
     let questions = [];
 
@@ -37,34 +40,42 @@ class PolyLoginCommand extends Command {
       name: 'email',
       type: 'input',
       default: '',
-      message: 'e-mail',
+      message: 'E-mail',
     });
 
     password || questions.push({
       name: 'password',
       type: 'password',
-      message: 'password',
+      message: 'Password',
     });
 
-    inquirer.prompt(questions, (promptResult) => {
+    let loopCb = (err) => {
 
-      email = email || promptResult.email;
-      password = password || promptResult.password;
+      err && errorLog(err);
 
-      let resource = new APIResource(host, port);
+      inquirer.prompt(questions, (promptResult) => {
 
-      resource.request('v1/access_tokens').create({}, {grant_type: 'password', username: email, password: password}, (err, response) => {
+        email = email || promptResult.email;
+        password = password || promptResult.password;
 
-        if (err) {
-          return callback(err);
-        }
+        let resource = new APIResource(host, port);
 
-        Credentials.write('ACCESS_TOKEN', response.data[0].access_token);
-        return callback(null, 'Logged in successfully');
+        resource.request('v1/access_tokens').create({}, {grant_type: 'password', username: email, password: password}, (err, response) => {
+
+          if (err) {
+            return loopCb(err);
+          }
+
+          Credentials.write('ACCESS_TOKEN', response.data[0].access_token);
+          return callback(null, 'Logged in successfully');
+
+        });
 
       });
 
-    });
+    };
+
+    loopCb();
 
   }
 

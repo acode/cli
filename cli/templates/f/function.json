@@ -1,0 +1,15 @@
+{
+  "name": "function",
+  "description": "Function",
+  "args": [
+    "First argument",
+    "Second argument"
+  ],
+  "kwargs": {
+    "alpha": "Keyword argument alpha",
+    "beta": "Keyword argument beta"
+  },
+  "http": {
+    "headers": {}
+  }
+}

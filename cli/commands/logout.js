@@ -17,7 +17,7 @@ class LogoutCommand extends Command {
   help() {
 
     return {
-      description: 'Logs out of stdlib in this directory'
+      description: 'Logs out of stdlib in this workspace'
     };
 
   }
