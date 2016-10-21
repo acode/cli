@@ -62,7 +62,7 @@ $ stdlib create <service>
 ```
 
 You'll be asked for a default function name, which is the entry point
-into your service (useful if you only want entry point). This will automatically
+into your service (useful if you only want a single entry point). This will automatically
 generate a service project scaffold in `stdlib-workspace/<username>/<service>`.
 
 Once created, enter the service directory:
@@ -92,7 +92,7 @@ $ f .
 > "hello world"
 ```
 
-If we examine the file, we see the following:
+If we examine the `f/defaultFunction/index.js` file, we see the following:
 
 ```javascript
 module.exports = (params, callback) => {
@@ -109,8 +109,13 @@ using:
 f . arg0 arg1 --kwarg0 "Hello World" --kwarg1 Goodbye
 ```
 
-Though it won't change the function output as-is. To push your function to a
-development environment in the cloud:
+Though it won't change the function output as-is. `params.args` would be equal
+to `["arg0", "arg1"]` and `params.kwargs` would be
+`{"kwarg0":"Hello World","kwarg1":"Goodbye"}`.
+
+### Pushing to the Cloud
+
+To push your function to adevelopment environment in the cloud:
 
 ```
 $ stdlib up dev
@@ -160,8 +165,8 @@ $ npm install f --save
 
 In your main service directory to add it, and use it like so:
 
+#### f/add/index.js
 ```javascript
-// File: f/add/index.js
 module.exports = (params, callback) => {
 
 	return callback(null, params.args[1] + params.args[2]);
@@ -169,8 +174,8 @@ module.exports = (params, callback) => {
 };
 ```
 
+#### f/add-double/index.js
 ```javascript
-// File: f/add-double/index.js
 const f = require('f');
 
 module.exports = (params, callback) => {
@@ -302,16 +307,17 @@ stdlib is a product of and &copy; 2016 Polybit Inc.
 
 It wouldn't have been possible without a bunch of amazing people.
 
-[Brian LeRoux](https://twitter.com/brianleroux) kickstarted us in this direction.
+- [Brian LeRoux](https://twitter.com/brianleroux) gave us our first push and
+kickstarted us in this direction.
 
-[Boris Mann](https://twitter.com/bmann) threw his support in from day one when
+- [Boris Mann](https://twitter.com/bmann) threw his support in from day one when
 we first launched [Nodal](https://github.com/keithwhor/nodal).
 
-[TJ Holowaychuk](https://twitter.com/tjholowaychuk) has been sharing great
-ideas about the server-less movement and his [Apex Framework](https://github.com/apex/apex)
+- [TJ Holowaychuk](https://twitter.com/tjholowaychuk) has been consistently sharing
+great ideas about the server-less movement and his [Apex Framework](https://github.com/apex/apex)
 has certainly been an inspiration.
 
-The amazingly talented people and friends of [AngelPad](https://angelpad.org)
+- The amazingly talented people and friends of [AngelPad](https://angelpad.org)
 who pick us up when we're low and put us in our place when we need to get work done.
 
 ## Contact
