@@ -14,7 +14,7 @@ or with a team, and currently supports Node.js 0.6.5. The distribution and hosti
 platform for execution of your services is built atop AWS Lambda ensuring
 both the scale and reliability you would expect for production-ready services.
 
-## Table of Contents
+# Table of Contents
 
 1. [Getting Started](#getting-started)
 2. [Creating Your First Service](#creating-your-first-service)
@@ -26,7 +26,7 @@ both the scale and reliability you would expect for production-ready services.
 8. [Acknowledgements](#acknowledgements)
 9. [Contact](#contact)
 
-## Getting Started
+# Getting Started
 
 To get started with stdlib, first make sure you have Node 6.x installed,
 [available from the official Node.js website](https://nodejs.org). Next install
@@ -38,7 +38,7 @@ $ npm install stdlib@1.0.0-dev -g
 
 And you're now ready to start building!
 
-## Creating Your First Service
+# Creating Your First Service
 
 The first thing you'll want to do is create a workspace. Create a new directory
 you intend to build your services in and initialize the workspace.
@@ -113,7 +113,7 @@ Though it won't change the function output as-is. `params.args` would be equal
 to `["arg0", "arg1"]` and `params.kwargs` would be
 `{"kwarg0":"Hello World","kwarg1":"Goodbye"}`.
 
-### Pushing to the Cloud
+## Pushing to the Cloud
 
 To push your function to adevelopment environment in the cloud:
 
@@ -151,7 +151,7 @@ are *mutable* and can be replaced indefinitely. Releases (`stdlib release`) are
 with `stdlib down <environment>` or `stdlib down -r <version>` (but releases
 	can't be replaced once removed, to prevent mistakes and / or bad actors).
 
-## Connecting Service Endpoints
+# Connecting Service Endpoints
 
 You'll notice that you can create more than one function per service. While
 you can structure your project however you'd like internally, it should also
@@ -194,7 +194,7 @@ will return `6`. These map directly to individual service endpoints. **Note** th
 when chaining like this, *a single service execution instance* is being used so
 be careful about setting service timeouts appropriately.
 
-## Accessing Your Microservices From Other Applications
+# Accessing Your Microservices From Other Applications
 
 As mentioned in the previous section, you can use the `f` library that's
 [available on GitHub and NPM](https://github.com/poly/f) to access your
@@ -233,7 +233,7 @@ module.exports = (params, callback) => {
 };
 ```
 
-## Accessing Your Microservices Over HTTP
+# Accessing Your Microservices Over HTTP
 
 We definitely recommend using the [browser-based version of f](https://github.com/poly/f)
 to make microservice calls as specified above, but you can also make HTTPS
@@ -259,7 +259,7 @@ module.exports = (params, callback) => {
 **Note** that you will not be able to pass in anything to the `params.args`
 parameter.
 
-## Version Control and Package Management
+# Version Control and Package Management
 
 A quick note on version control - stdlib is *not* a replacement for normal
 git-based workflows, it is a supplement focused around service creation and
@@ -274,7 +274,7 @@ As mentioned above: releases are *immutable* and can not be overwritten (but can
 	be removed, just not replaced afterwards) and development / staging environments
 	are *mutable*, you can overwrite them as much as you'd like.
 
-## Additional Functionality
+# Additional Functionality
 
 stdlib comes packed with a bunch of other goodies - if your service goes down
 for any reason (the service platform is acting up), use `stdlib restart`.
@@ -294,14 +294,14 @@ We've conveniently copy-and-pasted the output here for you to peruse;
 ```
 ```
 
-## That's it!
+# That's it!
 
 Yep, it's really that easy. To keep up-to-date on developments, please
 star us here on GitHub, and sign up a user account for the registry. You
 can read more about service hosting and keep track of official updates on
 [the official stdlib website, stdlib.com](https://stdlib.com).
 
-## Acknowledgements
+# Acknowledgements
 
 stdlib is a product of and &copy; 2016 Polybit Inc.
 
@@ -318,14 +318,14 @@ great ideas about the server-less movement and his [Apex Framework](https://gith
 has certainly been an inspiration.
 
 - The amazingly talented people and friends of [AngelPad](https://angelpad.org)
-who pick us up when we're low and put us in our place when we need to get work done.
+always pick us up when we're low and put us in our place when we need to get work done.
 
-## Contact
+# Contact
 
 We'd love for you to pay attention to [@Polybit](https://twitter.com/polybit) and
 what we're building next! If you'd consider joining the team, [shoot us an e-mail](mailto:careers@polybit.com).
 
 You can also follow me, the original author, on Twitter: [@keithwhor](https://twitter.com/keithwhor).
 
-Issues encouraged, PRs welcome, and we're happy to have
-you on board! Enjoy and happy building :)
+Issues encouraged, PRs welcome, and we're happy to have you on board!
+Enjoy and happy building :)
