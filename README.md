@@ -10,7 +10,7 @@ stdlib has three components:
 3. A development framework for package management and service creation
 
 It is the *fastest, easiest* way to begin building microservices on your own
-or with a team, and currently supports Node.js 0.6.5. The distribution and hosting
+or with a team, and currently supports Node.js 6.5.0. The distribution and hosting
 platform for execution of your services is built atop AWS Lambda ensuring
 both the scale and reliability you would expect for production-ready services.
 
