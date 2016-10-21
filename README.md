@@ -14,6 +14,8 @@ or with a team, and currently supports Node.js 0.6.5. The distribution and hosti
 platform for execution of your services is built atop AWS Lambda ensuring
 both the scale and reliability you would expect for production-ready services.
 
+![stdlib-process](http://stdlib.com/static/images/stdlib_usage.gif)
+
 # Table of Contents
 
 1. [Getting Started](#getting-started)
@@ -263,10 +265,14 @@ parameter.
 
 A quick note on version control - stdlib is *not* a replacement for normal
 git-based workflows, it is a supplement focused around service creation and
-execution. You have unlimited access to any release (that hasn't been torn down)
+execution.
+
+You have unlimited access to any release (that hasn't been torn down)
 with `stdlib pkg <serviceIdentifier>` to download the tarball (`.tgz`) and
 `stdlib get <serviceIdentifier>` to automatically download and unpack the
-tarball to a working directory. Tarballs (and package contents) are *closed-source*.
+tarball to a working directory.
+
+Tarballs (and package contents) are *closed-source*.
 Nobody but you (and potentially your teammates) has access to these. It's up to
 you whether or not you share the guts of your service with others on GitHub or NPM.
 
@@ -292,6 +298,91 @@ $ stdlib help
 We've conveniently copy-and-pasted the output here for you to peruse;
 
 ```
+create [service]
+	-n                   No login - don't require an internet connection
+	-w                   Write over - overwrite the current directory contents
+	-x                   The default function name
+	--function           The default function name
+	--no-login           No login - don't require an internet connection
+	--write-over         Write over - overwrite the current directory contents
+
+	Creates a new (local) service
+
+down [environment]
+	-r                   Remove a release version (provide number)
+	--release            Remove a release version (provide number)
+
+	Removes stdlib package from registry and cloud environment
+
+f:create [function name]
+	-w                   Overwrite existing function
+	--write-over         Overwrite existing function
+
+	Creates a new function for a (local) service
+
+get [environment]
+	-f                   Force command if not in root directory
+	-r                   Specify a release package
+	-w                   Write over - overwrite the target directory contents
+	--force              Force command if not in root directory
+	--release            Specify a release package
+	--write-over         Write over - overwrite the target directory contents
+
+	Retrieves and extracts stdlib package
+
+info [username | full service name]
+	Retrieves information about a user or package
+
+init [environment]
+	-f                   Force command to overwrite existing workspace
+	-n                   No login - don't require an internet connection
+	--force              Force command to overwrite existing workspace
+	--no-login           No login - don't require an internet connection
+
+	Initializes stdlib workspace
+
+login
+	Logs in to stdlib in this directory
+
+logout
+	Logs out of stdlib in this workspace
+
+pkg [full service name]
+	-f                   Force command if not in root directory
+	-o                   Output path for the .tgz package
+	--force              Force command if not in root directory
+	--output             Output path for the .tgz package
+
+	Downloads stdlib tarball (.tgz)
+
+rebuild [environment]
+	-r                   Rebuild a release package
+	--release            Rebuild a release package
+
+	Rebuilds a service (useful for registry performance updates), alias of stdlib restart -b
+
+register
+	Registers a new stdlib user account
+
+release
+	Pushes release of stdlib package to registry and cloud (Alias of stdlib up -r)
+
+restart [environment]
+	-b                   Rebuild service fully
+	-r                   Restart a release package
+	--build              Rebuild service fully
+	--release            Restart a release package
+
+	Restarts a service (if necessary)
+
+rollback
+	Rolls back (removes) release of stdlib package
+
+up [environment]
+	-r                   Upload a release package
+	--release            Upload a release package
+
+	Pushes stdlib package to registry and cloud environment
 ```
 
 # That's it!

@@ -21,7 +21,20 @@ class GetCommand extends Command {
   help() {
 
     return {
-      description: 'Retrieves and extracts stdlib package'
+      description: 'Retrieves and extracts stdlib package',
+      args: [
+        'environment'
+      ],
+      flags: {
+        r: 'Specify a release package',
+        f: 'Force command if not in root directory',
+        w: 'Write over - overwrite the target directory contents'
+      },
+      vflags: {
+        'release': 'Specify a release package',
+        'force': 'Force command if not in root directory',
+        'write-over': 'Write over - overwrite the target directory contents'
+      }
     };
 
   }

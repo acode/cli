@@ -19,7 +19,18 @@ class InitCommand extends Command {
   help() {
 
     return {
-      description: 'Initializes stdlib workspace'
+      description: 'Initializes stdlib workspace',
+      args: [
+        'environment'
+      ],
+      flags: {
+        f: 'Force command to overwrite existing workspace',
+        n: 'No login - don\'t require an internet connection'
+      },
+      vflags: {
+        'force': 'Force command to overwrite existing workspace',
+        'no-login': 'No login - don\'t require an internet connection'
+      }
     };
 
   }

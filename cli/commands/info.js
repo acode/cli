@@ -44,7 +44,10 @@ class InfoCommand extends Command {
   help() {
 
     return {
-      description: 'Retrieves information about a user or package'
+      description: 'Retrieves information about a user or package',
+      args: [
+        'username | full service name'
+      ]
     };
 
   }

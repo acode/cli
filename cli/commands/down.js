@@ -18,7 +18,16 @@ class DownCommand extends Command {
   help() {
 
     return {
-      description: 'Removes stdlib package from registry and cloud environment'
+      description: 'Removes stdlib package from registry and cloud environment',
+      args: [
+        'environment'
+      ],
+      flags: {
+        r: 'Remove a release version (provide number)',
+      },
+      vflags: {
+        release: 'Remove a release version (provide number)',
+      }
     };
 
   }

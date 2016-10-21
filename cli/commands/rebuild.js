@@ -14,7 +14,16 @@ class RebuildCommand extends Command {
   help() {
 
     return {
-      description: 'Rebuilds a service (useful for registry performance updates)'
+      description: 'Rebuilds a service (useful for registry performance updates), alias of stdlib restart -b',
+      args: [
+        'environment'
+      ],
+      flags: {
+        r: 'Rebuild a release package'
+      },
+      vflags: {
+        release: 'Rebuild a release package'
+      }
     };
 
   }

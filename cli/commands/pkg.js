@@ -20,7 +20,18 @@ class PkgCommand extends Command {
   help() {
 
     return {
-      description: 'Downloads stdlib tarball'
+      description: 'Downloads stdlib tarball (.tgz)',
+      args: [
+        'full service name'
+      ],
+      flags: {
+        f: 'Force command if not in root directory',
+        o: 'Output path for the .tgz package'
+      },
+      vflags: {
+        force: 'Force command if not in root directory',
+        output: 'Output path for the .tgz package'
+      }
     };
 
   }

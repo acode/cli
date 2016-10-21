@@ -22,7 +22,20 @@ class CreateCommand extends Command {
   help() {
 
     return {
-      description: 'Creates a new (local) service'
+      description: 'Creates a new (local) service',
+      args: [
+        'service'
+      ],
+      flags: {
+        x: 'The default function name',
+        n: 'No login - don\'t require an internet connection',
+        w: 'Write over - overwrite the current directory contents'
+      },
+      vflags: {
+        'function': 'The default function name',
+        'no-login': 'No login - don\'t require an internet connection',
+        'write-over': 'Write over - overwrite the current directory contents'
+      }
     };
 
   }

@@ -59,7 +59,16 @@ class UpCommand extends Command {
   help() {
 
     return {
-      description: 'Pushes stdlib package to registry and cloud environment'
+      description: 'Pushes stdlib package to registry and cloud environment',
+      args: [
+        'environment'
+      ],
+      flags: {
+        r: 'Upload a release package',
+      },
+      vflags: {
+        release: 'Upload a release package',
+      }
     };
 
   }

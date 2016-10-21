@@ -18,7 +18,18 @@ class RestartCommand extends Command {
   help() {
 
     return {
-      description: 'Restarts a service (if necessary)'
+      description: 'Restarts a service (if necessary)',
+      args: [
+        'environment'
+      ],
+      flags: {
+        r: 'Restart a release package',
+        b: 'Rebuild service fully'
+      },
+      vflags: {
+        release: 'Restart a release package',
+        build: 'Rebuild service fully'
+      }
     };
 
   }

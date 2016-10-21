@@ -20,7 +20,16 @@ class FCreateCommand extends Command {
   help() {
 
     return {
-      description: 'Creates a new function for a (local) service'
+      description: 'Creates a new function for a (local) service',
+      args: [
+        'function name'
+      ],
+      flags: {
+        'w': 'Overwrite existing function'
+      },
+      vflags: {
+        'write-over': 'Overwrite existing function'
+      }
     };
 
   }
