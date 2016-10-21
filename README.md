@@ -117,7 +117,7 @@ to `["arg0", "arg1"]` and `params.kwargs` would be
 
 ## Pushing to the Cloud
 
-To push your function to adevelopment environment in the cloud:
+To push your function to a development environment in the cloud...
 
 ```
 $ stdlib up dev
