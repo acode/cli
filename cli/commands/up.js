@@ -38,7 +38,7 @@ function readFiles(base, properties, dir, data) {
     if (fs.statSync(fullpath).isDirectory()) {
       return readFiles(base, properties, pathname, data);
     } else {
-      let filename = pathname[0] === '/' ? pathname.substr(1) : pathname;
+      let filename = pathname[0] === path.sep ? pathname.substr(1) : pathname;
       let buffer = fs.readFileSync(fullpath);
       filename = filename.split(path.sep).join('/'); // Windows
       data.push({filename: filename, buffer: buffer});
