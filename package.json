@@ -1,6 +1,6 @@
 {
   "name": "stdlib.com",
-  "version": "1.0.0-dev4s",
+  "version": "1.0.0-dev4",
   "description": "A Standard Library for Microservices",
   "main": "index.js",
   "scripts": {
