@@ -1,7 +1,11 @@
 # ![stdlib](http://stdlib.com/static/images/stdlib-256.png)
 ## A Standard Library for Microservices
 
-[stdlib is a Standard Library for Microservices](https://stdlib.com).
+[stdlib is a Standard Library for Microservices](https://stdlib.com)
+
+### We just launched our Developer Preview!
+
+Use stdlib to build production-ready, auto-scaled, "server-less" microservices in *minutes*.
 
 stdlib has three components:
 
