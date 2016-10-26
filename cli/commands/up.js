@@ -25,7 +25,7 @@ function readFiles(base, properties, dir, data) {
 
     for (let i = 0; i < ignore.length; i++) {
       if (ignore[i][0] === '/') {
-        if (pathname === ignore[i]) {
+        if (pathname.split(path.sep).join('/') === ignore[i]) {
           return data;
         }
       } else {
@@ -138,7 +138,7 @@ class UpCommand extends Command {
           '/node_modules',
           '/.stdlib',
           '/.git',
-          '.DS_Store'
+          '.DS_Store',
         ]
       }
     );

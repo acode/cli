@@ -39,7 +39,7 @@ To get started with stdlib, first make sure you have Node 6.x installed,
 the stdlib CLI tools with:
 
 ```
-$ npm install stdlib.com@1.0.0-dev4 -g
+$ npm install stdlib.com@1.0.0-dev5 -g
 ```
 
 And you're now ready to start building!
