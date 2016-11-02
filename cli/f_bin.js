@@ -62,6 +62,7 @@ if (typeof name === 'string' && name[0] === '.') {
   try {
     fn = require(path.join(process.cwd(), 'f', name, 'index.js'));
   } catch (e) {
+    console.error(e);
     throw new Error('No valid index.js in ' + path.join(process.cwd(), 'f', name));
     return true;
   }
