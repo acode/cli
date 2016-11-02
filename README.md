@@ -18,6 +18,8 @@ or with a team, and currently supports Node.js 6.5.0. The distribution and hosti
 platform for execution of your services is built atop AWS Lambda ensuring
 both the scale and reliability you would expect for production-ready services.
 
+You can view publicly available services [on the stdlib search page](https://stdlib.com/search).
+
 ![stdlib-process](http://stdlib.com/static/images/stdlib_usage.gif)
 
 # Table of Contents
@@ -39,7 +41,7 @@ To get started with stdlib, first make sure you have Node 6.x installed,
 the stdlib CLI tools with:
 
 ```
-$ npm install stdlib.com@1.0.0-dev5 -g
+$ npm install lib@1.0.0 -g
 ```
 
 And you're now ready to start building!
@@ -52,19 +54,19 @@ you intend to build your services in and initialize the workspace.
 ```
 $ mkdir stdlib-workspace
 $ cd stdlib-workspace
-$ stdlib init
+$ lib init
 ```
 
 You'll be asked for an e-mail address to log in to the stdlib registry,
 via the Polybit API server. If you don't yet have an account, you can create
 one from the command line. Note that you can skip account creation with
-`stdlib init --no-login`. You'll be unable to use the registry, but it's useful
+`lib init --no-login`. You'll be unable to use the registry, but it's useful
 for creating workspaces when you don't have internet access.
 
 Next, create your service:
 
 ```
-$ stdlib create <service>
+$ lib create <service>
 ```
 
 You'll be asked for a default function name, which is the entry point
@@ -124,7 +126,7 @@ to `["arg0", "arg1"]` and `params.kwargs` would be
 To push your function to a development environment in the cloud...
 
 ```
-$ stdlib up dev
+$ lib up dev
 $ f your-username/your-service@dev
 > "hello world"
 ```
@@ -132,7 +134,7 @@ $ f your-username/your-service@dev
 And to release it (when you're ready!)
 
 ```
-$ stdlib release
+$ lib release
 $ f your-username/your-service
 > "hello world"
 ```
@@ -147,14 +149,14 @@ That's it! You haven't written a line of code yet, and you have mastery over
 building a service, testing it in a development (staging) environment online,
 and releasing it for private (or public) consumption.
 
-**Note:** You'll need to set `"publish": true` in the `stdlib` key of your
+**Note:** You'll need to set `"publish": true` in the `lib` key of your
 `package.json` file to see your service appear in the public registry. It's
 set to `false` by default.
 
-**Another Note:** Staging environments (like the one created with `stdlib up dev`)
-are *mutable* and can be replaced indefinitely. Releases (`stdlib release`) are
+**Another Note:** Staging environments (like the one created with `lib up dev`)
+are *mutable* and can be replaced indefinitely. Releases (`lib release`) are
 *immutable* and can never be overwritten. However, any service can be torn down
-with `stdlib down <environment>` or `stdlib down -r <version>` (but releases
+with `lib down <environment>` or `lib down -r <version>` (but releases
 	can't be replaced once removed, to prevent mistakes and / or bad actors).
 
 # Connecting Service Endpoints
@@ -272,8 +274,8 @@ git-based workflows, it is a supplement focused around service creation and
 execution.
 
 You have unlimited access to any release (that hasn't been torn down)
-with `stdlib pkg <serviceIdentifier>` to download the tarball (`.tgz`) and
-`stdlib get <serviceIdentifier>` to automatically download and unpack the
+with `lib pkg <serviceIdentifier>` to download the tarball (`.tgz`) and
+`lib get <serviceIdentifier>` to automatically download and unpack the
 tarball to a working directory.
 
 Tarballs (and package contents) are *closed-source*.
@@ -287,16 +289,16 @@ As mentioned above: releases are *immutable* and can not be overwritten (but can
 # Additional Functionality
 
 stdlib comes packed with a bunch of other goodies - if your service goes down
-for any reason (the service platform is acting up), use `stdlib restart`.
+for any reason (the service platform is acting up), use `lib restart`.
 Similarly, as we roll out updates to the platform the builds we're using on
 AWS Lambda may change. You can update your service to our latest build using
-`stdlib rebuild`. We may recommend this from time-to-time, so pay attention
+`lib rebuild`. We may recommend this from time-to-time, so pay attention
 to e-mails and the community.
 
 To see a full list of commands available for the CLI tools, type:
 
 ```
-$ stdlib help
+$ lib help
 ```
 
 We've conveniently copy-and-pasted the output here for you to peruse;

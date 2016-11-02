@@ -36,13 +36,13 @@ Environment configuration for your service. Each top level key (i.e.
 
 `"dev"` is the *non-configurable* name of the local environment, but can
 also be used as an environment name for compilation
-(i.e. `$ stdlib up development`).
+(i.e. `$ lib up development`).
 
 `"release"` is the *non-configurable* name of the production environment when
-you create releases with `$ stdlib release`.
+you create releases with `$ lib release`.
 
 You can add additional environments and key-value pairs, and use them for
-compilation with `stdlib up <environment>`. Note that free accounts are
+compilation with `lib up <environment>`. Note that free accounts are
 restricted to one compilation environment (aside from `"release"`).
 
 *We recommend against checking this file in to version control*. It will be

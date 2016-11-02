@@ -1,12 +1,15 @@
 {
-  "name": "stdlib.com",
-  "version": "1.0.0-dev5",
-  "description": "A Standard Library for Microservices",
+  "name": "lib",
+  "version": "1.0.0",
+  "description": "Standard Library for Microservices",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
+    "lib",
+    "serverless",
+    "microservice",
     "stdlib",
     "stdlib.com"
   ],
@@ -18,6 +21,7 @@
   "license": "MIT",
   "bin": {
     "stdlib": "cli/bin.js",
+    "lib": "cli/bin.js",
     "f": "cli/f_bin.js"
   },
   "dependencies": {
