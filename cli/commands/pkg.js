@@ -52,7 +52,7 @@ class PkgCommand extends Command {
       console.log(`But you're not in a root stdlib project directory.`);
       console.log(`We recommend against this.`);
       console.log();
-      console.log(`Use ${chalk.bold('stdlib pkg ' + service + ' --force')} to override.`);
+      console.log(`Use ${chalk.bold('lib pkg ' + service + ' --force')} to override.`);
       console.log();
       return callback(null);
     }

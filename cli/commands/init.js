@@ -54,7 +54,7 @@ class InitCommand extends Command {
       console.log(`The path of the stdlib workspace is:`)
       console.log(`  ${chalk.bold(cloc)}`);
       console.log();
-      console.log(`Use ${chalk.bold('stdlib init --force')} to override.`);
+      console.log(`Use ${chalk.bold('lib init --force')} to override.`);
       console.log();
       return callback(null);
     }
@@ -69,10 +69,10 @@ class InitCommand extends Command {
       console.log(chalk.bold.green(`Congratulations!`));
       console.log(`Your stdlib development environment has been initialized.`);
       console.log();
-      console.log(`Use ${chalk.bold('stdlib create <service>')} to create a new (local) service package.`);
-      console.log(`or type ${chalk.bold('stdlib get <service>')} to download an existing service package.`);
+      console.log(`Use ${chalk.bold('lib create <service>')} to create a new (local) service package.`);
+      console.log(`or type ${chalk.bold('lib get <service>')} to download an existing service package.`);
       console.log()
-      console.log(`Additionally, use ${chalk.bold('stdlib help')} to see more commands.`)
+      console.log(`Additionally, use ${chalk.bold('lib help')} to see more commands.`)
       console.log();
       console.log(chalk.bold('Happy building! :)'));
       console.log();

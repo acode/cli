@@ -23,15 +23,13 @@ class GetCommand extends Command {
     return {
       description: 'Retrieves and extracts stdlib package',
       args: [
-        'environment'
+        'full service name'
       ],
       flags: {
-        r: 'Specify a release package',
         f: 'Force command if not in root directory',
         w: 'Write over - overwrite the target directory contents'
       },
       vflags: {
-        'release': 'Specify a release package',
         'force': 'Force command if not in root directory',
         'write-over': 'Write over - overwrite the target directory contents'
       }
@@ -51,6 +49,15 @@ class GetCommand extends Command {
     let pathname = path.join(outputPath, service);
     pathname = outputPath[0] !== '/' ? path.join(process.cwd(), pathname) : pathname;
 
+    if (!service) {
+      console.log();
+      console.log(chalk.bold.red('Oops!'));
+      console.log();
+      console.log(`Please specify a service name`);
+      console.log();
+      return callback(null);
+    }
+
     if (!force && !Credentials.location(1)) {
       console.log();
       console.log(chalk.bold.red('Oops!'));
@@ -59,7 +66,7 @@ class GetCommand extends Command {
       console.log(`But you're not in a root stdlib project directory.`);
       console.log(`We recommend against this.`);
       console.log();
-      console.log(`Use ${chalk.bold('stdlib get ' + service + ' --force')} to override.`);
+      console.log(`Use ${chalk.bold('lib get ' + service + ' --force')} to override.`);
       console.log();
       return callback(null);
     }
@@ -73,7 +80,7 @@ class GetCommand extends Command {
       console.log();
       console.log(`Try removing the existing directory first.`);
       console.log();
-      console.log(`Use ${chalk.bold('stdlib get ' + service + ' --write-over')} to override.`);
+      console.log(`Use ${chalk.bold('lib get ' + service + ' --write-over')} to override.`);
       console.log();
       return callback(null);
     }

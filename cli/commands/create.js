@@ -63,7 +63,7 @@ class CreateCommand extends Command {
       console.log(`But you're not in a root stdlib project directory.`);
       console.log(`We recommend against this.`);
       console.log();
-      console.log(`Use ${chalk.bold('stdlib create --force')} to override.`);
+      console.log(`Use ${chalk.bold('lib create --force')} to override.`);
       console.log();
       return callback(null);
     }
@@ -142,7 +142,7 @@ class CreateCommand extends Command {
             console.log();
             console.log(`Try removing the existing directory first.`);
             console.log();
-            console.log(`Use ${chalk.bold('stdlib create --write-over')} to override.`);
+            console.log(`Use ${chalk.bold('lib create --write-over')} to override.`);
             console.log();
             return callback(null);
 

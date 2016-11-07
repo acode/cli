@@ -83,7 +83,7 @@ class FCreateCommand extends Command {
             console.log();
             console.log(`Try removing the existing directory first.`);
             console.log();
-            console.log(`Use ${chalk.bold('stdlib f:create ' + functionName + ' --write-over')} to override.`);
+            console.log(`Use ${chalk.bold('lib f:create ' + functionName + ' --write-over')} to override.`);
             console.log();
             return callback(null);
           }
