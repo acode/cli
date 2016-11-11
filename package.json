@@ -1,6 +1,6 @@
 {
   "name": "lib",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Standard Library for Microservices",
   "main": "index.js",
   "scripts": {

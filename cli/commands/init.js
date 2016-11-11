@@ -45,11 +45,11 @@ class InitCommand extends Command {
 
     let cloc = Credentials.location();
 
-    if (!force && cloc) {
+    if (!force && cloc !== process.cwd()) {
       console.log();
       console.log(chalk.bold.red('Oops!'));
       console.log();
-      console.log(`A stdlib workspace already exists.`);
+      console.log(`A stdlib workspace already exists above this one.`);
       console.log(`We recommend you do not initialize another.`);
       console.log(`The path of the stdlib workspace is:`)
       console.log(`  ${chalk.bold(cloc)}`);

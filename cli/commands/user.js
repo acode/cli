@@ -5,6 +5,7 @@ const APIResource = require('api-res');
 const Credentials = require('../credentials.js');
 
 const chalk = require('chalk');
+const inquirer = require('inquirer');
 
 let formatDigits = (num, figs) => {
 
@@ -50,6 +51,7 @@ class UserCommand extends Command {
       },
       vflags: {
         set: '<key> <value> Sets a specified key-value pair',
+        'new-password': 'Sets a new password via a prompt',
         'reset-password': '<email> Sends a password reset request for the specified e-mail address'
       }
     };
@@ -87,12 +89,65 @@ class UserCommand extends Command {
       });
     }
 
+    if (params.vflags['new-password']) {
+      return inquirer.prompt(
+        [
+          {
+            name: 'password',
+            type: 'password',
+            default: '',
+            message: 'New Password'
+          },
+          {
+            name: 'repeat_password',
+            type: 'password',
+            default: '',
+            message: 'Repeat Password'
+          }
+        ],
+        (promptResult) => {
+
+          resource.request('v1/users').index({me: true}, (err, response) => {
+
+            if (err) {
+              return callback(err);
+            }
+
+            let user = response.data[0];
+            if (!user) {
+              return callback(new Error('We couldn\'t retrieve your user data. Try again shortly.'));
+            }
+
+            resource.request('v1/users').update(user.id, {}, promptResult, (err, response) => {
+
+              if (err) {
+                return callback(err);
+              }
+
+              let user = response.data[0];
+              if (!user) {
+                return callback(new Error('We couldn\'t change your password. Try again shortly.'));
+              }
+
+              return callback(null, 'Password changed successfully.');
+
+            });
+
+          });
+
+        }
+      );
+    }
+
     let set = params.vflags.set || params.flags.s || [];
     let update = null;
 
     if (set.length) {
       update = {};
       update[set[0]] = set.slice(1).join(' ');
+      if (update.password) {
+        return callback(new Error('Please use --new-password to set your password'));
+      }
     }
 
     let fnComplete = (user, callback) => {
