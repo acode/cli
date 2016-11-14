@@ -45,7 +45,7 @@ class InitCommand extends Command {
 
     let cloc = Credentials.location();
 
-    if (!force && cloc !== process.cwd()) {
+    if (!force && cloc && (cloc !== process.cwd())) {
       console.log();
       console.log(chalk.bold.red('Oops!'));
       console.log();
