@@ -93,6 +93,12 @@ class UserCommand extends Command {
       return inquirer.prompt(
         [
           {
+            name: 'old_password',
+            type: 'password',
+            default: '',
+            message: 'Old Password'
+          },
+          {
             name: 'password',
             type: 'password',
             default: '',
