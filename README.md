@@ -177,7 +177,7 @@ In your main service directory to add it, and use it like so:
 ```javascript
 module.exports = (params, callback) => {
 
-	return callback(null, params.args[1] + params.args[2]);
+	return callback(null, parseInt(params.args[0]) + parseInt(params.args[1]));
 
 };
 ```
