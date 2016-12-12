@@ -105,7 +105,7 @@ class CreateCommand extends Command {
     inquirer.prompt(questions, (promptResult) => {
 
       name = name || promptResult.name;
-      functionName = functionName || promptResult.functionName;
+      functionName = functionName || promptResult.functionName || 'main';
       let username;
 
       if (name.indexOf('/') > -1) {
