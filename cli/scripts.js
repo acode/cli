@@ -28,10 +28,11 @@ module.exports = {
         continue;
       }
       if (BACKGROUND) {
+        let n = i;
         let command = spawn(cmd[0], cmd.slice(1), {stdio: [0, null, null]});
         command.stdout.on('data', data => {
           data = (data || '').toString();
-          data = data.split('\n').map(d => `[${type}] ${d}`).join('\n');
+          data = data.split('\n').map(d => `[${type}${n ? ' ' + n : ''}] ${d}`).join('\n');
           process.stdout.write(data + '\n');
         });
         bgproc.push(command);
@@ -39,7 +40,7 @@ module.exports = {
         let command = spawnSync(cmd[0], cmd.slice(1), {stdio: [0, 1, 2]});
         if (command.status !== 0) {
           process.env.PATH = PATH;
-          return callback(new Error(`Error running ${type} scripts`));
+          return callback(new Error(`Error running "${type}" script (${i})`));
         }
       }
     }
