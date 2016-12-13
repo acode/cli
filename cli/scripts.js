@@ -35,6 +35,11 @@ module.exports = {
           data = data.split('\n').map(d => `[${type}${n ? ' ' + n : ''}] ${d}`).join('\n');
           process.stdout.write(data + '\n');
         });
+        command.stderr.on('data', data => {
+          data = (data || '').toString();
+          data = data.split('\n').map(d => `[${type}${n ? ' ' + n : ''}] ${d}`).join('\n');
+          process.stdout.write(data + '\n');
+        });
         bgproc.push(command);
       } else {
         let command = spawnSync(cmd[0], cmd.slice(1), {stdio: [0, 1, 2]});
