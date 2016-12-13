@@ -4,6 +4,7 @@ const Command = require('cmnd').Command;
 const path = require('path');
 
 const parser = require('../parser.js');
+const scripts = require('../scripts.js');
 
 class HTTPCommand extends Command {
 
@@ -35,6 +36,8 @@ class HTTPCommand extends Command {
       throw new Error('Invalid package.json in this directory');
       return true;
     }
+
+    scripts.run(pkg, '+http');
 
     if (!offline) {
       parser.check(err => parser.createServer(pkg, port, !!err));

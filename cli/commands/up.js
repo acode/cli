@@ -3,14 +3,15 @@
 const Command = require('cmnd').Command;
 const APIResource = require('api-res');
 const Credentials = require('../credentials.js');
+const scripts = require('../scripts.js');
 
 const fs = require('fs');
 const zlib = require('zlib');
 const path = require('path');
-const spawnSync = require('child_process').spawnSync;
 
 const async = require('async');
 const tar = require('tar-stream');
+
 
 function readFiles(base, properties, dir, data) {
 
@@ -120,105 +121,98 @@ class UpCommand extends Command {
       return callback(new Error('No stdlib name set in "package.json"'));
     }
 
-    if (pkg.stdlib.scripts && pkg.stdlib.scripts.preup) {
-      let preup = pkg.stdlib.scripts.preup;
-      let cmds = preup instanceof Array ? preup : [preup];
-      for (let i = 0; i < cmds.length; i++) {
-        let cmd = cmds[i].split(' ');
-        if (!cmd.length) {
-          continue;
-        }
-        let command = spawnSync(cmd[0], cmd.slice(1), {stdio: [0, 1, 2]});
-        if (command.status !== 0) {
-          return callback(new Error('Error running preup scripts'));
-        }
-      }
-    }
-
-    let resource = new APIResource(host, port);
-    resource.authorize(Credentials.read('ACCESS_TOKEN'));
-
-    !fs.existsSync('/tmp') && fs.mkdirSync('/tmp');
-    !fs.existsSync('/tmp/stdlib') && fs.mkdirSync('/tmp/stdlib');
-    let tmpPath = `/tmp/stdlib/${pkg.stdlib.name.replace(/\//g, '.')}.${new Date().valueOf()}.tar.gz`;
-
-    let start = new Date().valueOf();
-
-    let tarball = fs.createWriteStream(tmpPath);
-
-    let pack = tar.pack();
-
-    let defignore = ['/node_modules', '/.stdlib', '/.git', '.DS_Store'];
-    let libignore = fs.existsSync('.libignore') ? fs.readFileSync('.libignore').toString() : '';
-    libignore = libignore.split('\n').map(v => v.replace(/^\s(.*)\s$/, '$1')).filter(v => v);
-    while (defignore.length) {
-      let ignore = defignore.pop();
-      (libignore.indexOf(ignore) === -1) && libignore.push(ignore);
-    }
-
-    let data = readFiles(
-      process.cwd(),
-      {ignore: libignore}
-    );
-
-    // pipe the pack stream to your file
-    pack.pipe(tarball);
-
-    // Run everything in parallel...
-
-    async.parallel(data.map((file) => {
-      return (callback) => {
-        pack.entry({name: file.filename}, file.buffer, callback);
-      };
-    }), (err) => {
+    scripts.run(pkg, 'preup', err => {
 
       if (err) {
         return callback(err);
       }
 
-      pack.finalize();
+      let resource = new APIResource(host, port);
+      resource.authorize(Credentials.read('ACCESS_TOKEN'));
 
-    });
+      !fs.existsSync('/tmp') && fs.mkdirSync('/tmp');
+      !fs.existsSync('/tmp/stdlib') && fs.mkdirSync('/tmp/stdlib');
+      let tmpPath = `/tmp/stdlib/${pkg.stdlib.name.replace(/\//g, '.')}.${new Date().valueOf()}.tar.gz`;
 
-    tarball.on('close', () => {
+      let start = new Date().valueOf();
 
-      let buffer = fs.readFileSync(tmpPath);
-      fs.unlinkSync(tmpPath);
+      let tarball = fs.createWriteStream(tmpPath);
 
-      zlib.gzip(buffer, (err, result) => {
+      let pack = tar.pack();
+
+      let defignore = ['/node_modules', '/.stdlib', '/.git', '.DS_Store'];
+      let libignore = fs.existsSync('.libignore') ? fs.readFileSync('.libignore').toString() : '';
+      libignore = libignore.split('\n').map(v => v.replace(/^\s(.*)\s$/, '$1')).filter(v => v);
+      while (defignore.length) {
+        let ignore = defignore.pop();
+        (libignore.indexOf(ignore) === -1) && libignore.push(ignore);
+      }
+
+      let data = readFiles(
+        process.cwd(),
+        {ignore: libignore}
+      );
+
+      // pipe the pack stream to your file
+      pack.pipe(tarball);
+
+      // Run everything in parallel...
+
+      async.parallel(data.map((file) => {
+        return (callback) => {
+          pack.entry({name: file.filename}, file.buffer, callback);
+        };
+      }), (err) => {
 
         if (err) {
           return callback(err);
         }
 
-        let t = new Date().valueOf() - start;
-        // console.log(`Service "${pkg.stdlib.name}" compressed in ${t}ms.`);
-        // console.log(`File size: ${result.length} bytes`);
+        pack.finalize();
 
-        let endpoint = environment ?
-          `${pkg.stdlib.name}@${environment}` :
-          `${pkg.stdlib.name}@${pkg.version}`;
+      });
 
-        return resource.request(endpoint).stream(
-          'POST',
-          result,
-          (data) => {
-            data.length > 1 && process.stdout.write(data.toString());
-          },
-          (err, response) => {
+      tarball.on('close', () => {
 
-            if (err) {
-              return callback(err);
-            }
+        let buffer = fs.readFileSync(tmpPath);
+        fs.unlinkSync(tmpPath);
 
-            if (response[response.length - 1] === 1) {
-              return callback(new Error('There was an error processing your request'));
-            } else {
-              return callback(null);
-            }
+        zlib.gzip(buffer, (err, result) => {
 
+          if (err) {
+            return callback(err);
           }
-        );
+
+          let t = new Date().valueOf() - start;
+          // console.log(`Service "${pkg.stdlib.name}" compressed in ${t}ms.`);
+          // console.log(`File size: ${result.length} bytes`);
+
+          let endpoint = environment ?
+            `${pkg.stdlib.name}@${environment}` :
+            `${pkg.stdlib.name}@${pkg.version}`;
+
+          return resource.request(endpoint).stream(
+            'POST',
+            result,
+            (data) => {
+              data.length > 1 && process.stdout.write(data.toString());
+            },
+            (err, response) => {
+
+              if (err) {
+                return callback(err);
+              }
+
+              if (response[response.length - 1] === 1) {
+                return callback(new Error('There was an error processing your request'));
+              } else {
+                return callback(null);
+              }
+
+            }
+          );
+
+        });
 
       });
 
