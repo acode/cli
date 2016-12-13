@@ -5,10 +5,12 @@ const APIResource = require('api-res');
 const Credentials = require('../credentials.js');
 
 const fs = require('fs');
-const async = require('async');
-const tar = require('tar-stream');
 const zlib = require('zlib');
 const path = require('path');
+const spawnSync = require('child_process').spawnSync;
+
+const async = require('async');
+const tar = require('tar-stream');
 
 function readFiles(base, properties, dir, data) {
 
@@ -118,6 +120,21 @@ class UpCommand extends Command {
       return callback(new Error('No stdlib name set in "package.json"'));
     }
 
+    if (pkg.stdlib.scripts && pkg.stdlib.scripts.preup) {
+      let preup = pkg.stdlib.scripts.preup;
+      let cmds = preup instanceof Array ? preup : [preup];
+      for (let i = 0; i < cmds.length; i++) {
+        let cmd = cmds[i].split(' ');
+        if (!cmd.length) {
+          continue;
+        }
+        let command = spawnSync(cmd[0], cmd.slice(1), {stdio: [0, 1, 2]});
+        if (command.status !== 0) {
+          return callback(new Error('Error running preup scripts'));
+        }
+      }
+    }
+
     let resource = new APIResource(host, port);
     resource.authorize(Credentials.read('ACCESS_TOKEN'));
 
@@ -131,16 +148,17 @@ class UpCommand extends Command {
 
     let pack = tar.pack();
 
+    let defignore = ['/node_modules', '/.stdlib', '/.git', '.DS_Store'];
+    let libignore = fs.existsSync('.libignore') ? fs.readFileSync('.libignore').toString() : '';
+    libignore = libignore.split('\n').map(v => v.replace(/^\s(.*)\s$/, '$1')).filter(v => v);
+    while (defignore.length) {
+      let ignore = defignore.pop();
+      (libignore.indexOf(ignore) === -1) && libignore.push(ignore);
+    }
+
     let data = readFiles(
       process.cwd(),
-      {
-        ignore: [
-          '/node_modules',
-          '/.stdlib',
-          '/.git',
-          '.DS_Store',
-        ]
-      }
+      {ignore: libignore}
     );
 
     // pipe the pack stream to your file

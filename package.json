@@ -1,6 +1,6 @@
 {
   "name": "lib",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Standard Library for Microservices",
   "main": "index.js",
   "scripts": {
@@ -34,6 +34,6 @@
     "cmnd": "~0.1.3",
     "inquirer": "~0.11.3",
     "tar-stream": "^1.5.2",
-    "f": "1.1.0"
+    "f": "1.1.1"
   }
 }
