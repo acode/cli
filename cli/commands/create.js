@@ -84,6 +84,11 @@ class CreateCommand extends Command {
       return callback(null);
     }
 
+    console.log();
+    console.log(`Awesome! Let's create a ${chalk.bold.green('stdlib')} service!`);
+    extPkgName && console.log(`We'll use the template ${chalk.bold.green(extPkgName)} to proceed.`);
+    console.log();
+
     let questions = [];
 
     name || questions.push({
@@ -139,11 +144,20 @@ class CreateCommand extends Command {
 
         if (extPkgName) {
 
-          console.log(`\nFetching template ${chalk.bold.green(extPkgName)}...`);
+          console.log(`Fetching template ${chalk.bold.green(extPkgName)}...`);
+          console.log();
 
           extPkgCalls = [
-            cb => f(`stdlib/templates@dev/package?name=${extPkgName}`)(cb),
-            cb => f(`stdlib/templates@dev/files?name=${extPkgName}`)(cb)
+            cb => {
+              f(`stdlib/templates@dev/package?name=${extPkgName}`)((err, result) => {
+                cb(err, result);
+              });
+            },
+            cb => {
+              f(`stdlib/templates@dev/files?name=${extPkgName}`)((err, result) => {
+                cb(err, result);
+              });
+            }
           ];
 
         }
@@ -277,11 +291,27 @@ class CreateCommand extends Command {
             fs.unlinkSync(tmpPath);
           }
 
-          console.log();
+          if (
+            (json.pkg.depenencies && Object.keys(json.pkg.dependencies).length) ||
+            (json.pkg.devDependencies && Object.keys(json.pkg.devDependencies).length)
+          ) {
+            console.log(`Installing npm packages...`);
+            console.log();
+            let command = spawnSync('npm', ['install'], {stdio: [0, 1, 2], cwd: servicePath});
+            if (command.status !== 0) {
+              console.log(chalk.bold.yellow('Warn: ') + 'Error with npm install');
+            }
+          }
+
           console.log(chalk.bold.green('Success!'));
           console.log();
           console.log(`Service ${chalk.bold([username, name].join('/'))} created at:`);
           console.log(`  ${chalk.bold(servicePath)}`);
+          console.log();
+          console.log(`Use the following to enter your service directory:`);
+          console.log(`  ${chalk.bold('cd ' + [username, name].join('/'))}`);
+          console.log();
+          console.log(`Type ${chalk.bold('lib help')} for more commands.`);
           console.log();
           return callback(null);
 
