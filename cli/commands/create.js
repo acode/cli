@@ -149,12 +149,12 @@ class CreateCommand extends Command {
 
           extPkgCalls = [
             cb => {
-              f(`stdlib/templates@dev/package?name=${extPkgName}`)((err, result) => {
+              f(`stdlib/templates/package?name=${extPkgName}`)((err, result) => {
                 cb(err, result);
               });
             },
             cb => {
-              f(`stdlib/templates@dev/files?name=${extPkgName}`)((err, result) => {
+              f(`stdlib/templates/files?name=${extPkgName}`)((err, result) => {
                 cb(err, result);
               });
             }
