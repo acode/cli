@@ -3,7 +3,9 @@ const https = require('https');
 const http = require('http');
 const url = require('url');
 const f = require('f');
-f.config.cache = false;
+
+// Disable caching of functions for hot reloading
+f.config.local.cache = false;
 
 const chalk = require('chalk');
 
@@ -33,9 +35,9 @@ module.exports = {
       pathname = pathname.split('?')[0];
       pathname = pathname === '/' ? pathname + (defaultFunction || '') : pathname;
 
-      console.log(`Request to .${pathname}`);
-
       let response = (err, params) => {
+
+        console.log(`[function: ${pathname}] ${JSON.stringify({args: params.args, kwargs: params.kwargs})}`);
 
         if (err) {
           res.writeHead(400, {'Content-Type': 'text/plain'});
@@ -43,13 +45,13 @@ module.exports = {
         }
 
         let fn = f(`.${pathname}`);
-        fn.apply(null, params.args.concat(params.kwargs, (err, result) => {
+        fn.apply(null, params.args.concat(params.kwargs, (err, result, headers) => {
 
           if (err) {
             res.writeHead(400, {'Content-Type': 'text/plain'});
             res.end(`Error: ${err.message}`);
           } else {
-            res.writeHead(200, {'Content-Type': 'text/plain'});
+            res.writeHead(200, headers);
             if (result instanceof Buffer || typeof result !== 'object') {
               res.end(result);
             } else {
@@ -75,7 +77,9 @@ module.exports = {
     });
 
     server.listen(port);
-    console.log(`HTTP development server listening for service ${chalk.bold(serviceName)} on port ${chalk.bold(port)}`);
+    console.log();
+    console.log(`HTTP development server listening for service ${chalk.bold.green(serviceName)} on port ${chalk.bold(port)}`);
+    console.log();
 
   },
   check: function check(callback) {
