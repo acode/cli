@@ -1,8 +1,16 @@
 // Uses stdlib reflect service to parse args, kwargs
 const https = require('https');
 const http = require('http');
+const path = require('path');
 const url = require('url');
+const fs = require('fs');
 const f = require('f');
+
+// set env
+let env = {};
+if (fs.existsSync(path.join(process.cwd(), 'env.json'))) {
+  env = require(path.join(process.cwd(), 'env.json')).dev || {};
+}
 
 // Disable caching of functions for hot reloading
 f.config.local.cache = false;
@@ -45,7 +53,15 @@ module.exports = {
         }
 
         let fn = f(`.${pathname}`);
+
+        // FIXME: Async will not have fun with this. Run in new context.
+        let oldenv = process.env;
+        process.env = env;
+
         fn.apply(null, params.args.concat(params.kwargs, (err, result, headers) => {
+
+          // FIXME: Reset process.env
+          process.env = oldenv;
 
           if (err) {
             res.writeHead(400, {'Content-Type': 'text/plain'});

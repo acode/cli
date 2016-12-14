@@ -80,5 +80,13 @@ f(name, 'command')(argv.join(' '), function(err, response) {
   if (err) {
     return console.error(err);
   }
-  console.log(response);
+  if (response === null) {
+    console.log(response);
+  } else if (response instanceof Buffer) {
+    console.log(response.toString());
+  } else if (typeof response === 'object') {
+    console.log(JSON.stringify(response, null, 2));
+  } else {
+    console.log(response);
+  }
 });
