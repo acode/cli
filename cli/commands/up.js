@@ -131,12 +131,12 @@ class UpCommand extends Command {
       resource.authorize(Credentials.read('ACCESS_TOKEN'));
 
       !fs.existsSync('/tmp') && fs.mkdirSync('/tmp');
-      !fs.existsSync('/tmp/stdlib') && fs.mkdirSync('/tmp/stdlib');
+      !fs.existsSync('/tmp/stdlib') && fs.mkdirSync('/tmp/stdlib', 0o777);
       let tmpPath = `/tmp/stdlib/${pkg.stdlib.name.replace(/\//g, '.')}.${new Date().valueOf()}.tar.gz`;
 
       let start = new Date().valueOf();
 
-      let tarball = fs.createWriteStream(tmpPath);
+      let tarball = fs.createWriteStream(tmpPath, {mode: 0o777});
 
       let pack = tar.pack();
 
