@@ -282,6 +282,7 @@ class CreateCommand extends Command {
           // EXTERNAL: Unzip tar
           if (extPkg && extPkg.files && extPkg.files.length) {
             let tmpPath = `/tmp/stdlib-addon.tgz`;
+            !fs.existsSync('/tmp') && fs.mkdirSync('/tmp');
             fs.existsSync(tmpPath) && fs.unlinkSync(tmpPath);
             fs.writeFileSync(tmpPath, extPkg.files);
             let command = spawnSync('tar', `-xzf ${tmpPath} -C ${servicePath}`.split(' '), {stdio: [0, 1, 2]});
