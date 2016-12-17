@@ -127,7 +127,8 @@ class CreateCommand extends Command {
         name = name.split('/').slice(1).join('/').replace(/\//g, '-');
       }
 
-      login = username ? [] : login;
+      // NOTE: Not offline friendly. Always log in user...
+      // login = username ? [] : login;
 
       async.series(login, (err, results) => {
 
@@ -135,7 +136,9 @@ class CreateCommand extends Command {
           return callback(err);
         }
 
-        let user = nologin ? {username: 'dev', email: ''} : results[0];
+        let defaultUser = {username: 'dev', email: ''};
+        let user = nologin ? defaultUser : results[0];
+        user = user || defaultUser;
 
         username = username || user.username;
 
