@@ -59,6 +59,8 @@ if (typeof name === 'string' && name[0] === '.') {
     return true;
   }
 
+  let fn;
+
   try {
     fn = require(path.join(process.cwd(), 'f', name, 'index.js'));
   } catch (e) {
