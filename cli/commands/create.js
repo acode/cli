@@ -289,9 +289,12 @@ class CreateCommand extends Command {
             !fs.existsSync(tmpPath) && fs.mkdirSync(tmpPath);
             fs.existsSync(tarPath) && fs.unlinkSync(tarPath);
             fs.writeFileSync(tarPath, extPkg.files);
+            let tarCommands = ['-xzf', tarPath];
+            // Win32 support
+            /^win/.test(process.platform) && tarCommands.push('--force-local');
             let command = spawnSync(
               'tar',
-              `-xzf ${tarPath} --force-local`.split(' '),
+              tarCommands,
               {
                 stdio: [0, 1, 2],
                 cwd: servicePath
