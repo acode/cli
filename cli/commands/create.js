@@ -284,15 +284,23 @@ class CreateCommand extends Command {
 
           // EXTERNAL: Unzip tar
           if (extPkg && extPkg.files && extPkg.files.length) {
-            let tmpPath = `/tmp/stdlib-addon.tgz`;
-            !fs.existsSync('/tmp') && fs.mkdirSync('/tmp');
-            fs.existsSync(tmpPath) && fs.unlinkSync(tmpPath);
-            fs.writeFileSync(tmpPath, extPkg.files);
-            let command = spawnSync('tar', `-xzf ${tmpPath} -C ${servicePath}`.split(' '), {stdio: [0, 1, 2]});
+            let tmpPath = path.join(path.parse(process.cwd()).root, 'tmp');
+            let tarPath = path.join(tmpPath, 'stdlib-addon.tgz');
+            !fs.existsSync(tmpPath) && fs.mkdirSync(tmpPath);
+            fs.existsSync(tarPath) && fs.unlinkSync(tarPath);
+            fs.writeFileSync(tarPath, extPkg.files);
+            let command = spawnSync(
+              'tar',
+              `-xzf ${tarPath} --force-local`.split(' '),
+              {
+                stdio: [0, 1, 2],
+                cwd: servicePath
+              }
+            );
+            fs.unlinkSync(tarPath);
             if (command.status !== 0) {
-              console.log(chalk.bold.yellow('Warn: ') + 'Error extracting addon package files');
+              return callback(new Error(`Could not install template ${extPkgName}`));
             }
-            fs.unlinkSync(tmpPath);
           }
 
           if (
@@ -301,8 +309,17 @@ class CreateCommand extends Command {
           ) {
             console.log(`Installing npm packages...`);
             console.log();
-            let command = spawnSync('npm', ['install'], {stdio: [0, 1, 2], cwd: servicePath});
+            let command = spawnSync(
+              /^win/.test(process.platform) ? 'npm.cmd' : 'npm',
+              ['install'],
+              {
+                stdio: [0, 1, 2],
+                cwd: servicePath,
+                env: process.env
+              }
+            );
             if (command.status !== 0) {
+              console.log(command.error);
               console.log(chalk.bold.yellow('Warn: ') + 'Error with npm install');
             }
           }
