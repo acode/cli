@@ -3,7 +3,7 @@
 var path = require('path');
 var fs = require('fs');
 
-var f = require('f');
+// var f = require('f');
 
 var name = process.argv[2];
 var argv = process.argv.slice(3).map(function(arg) {
