@@ -1,11 +1,12 @@
 'use strict';
 
 const Command = require('cmnd').Command;
+const lib = require('lib');
 
 function parseLibPath(name) {
 
-  let version = '@latest';
-  let versionMatch = name.match(/^[^\.]*?\.[^\.]*?(\[(@.*?)\]).*$/);
+  let version = 'release';
+  let versionMatch = name.match(/^[^\.]*?\.[^\.]*?(\[@(.*?)\]).*$/);
 
   if (versionMatch) {
     version = versionMatch[2];
@@ -19,7 +20,7 @@ function parseLibPath(name) {
     }
   }
 
-  return names.slice(0, 2).concat(version, names.slice(2));
+  return names.slice(0, 2).concat(`@${version}`, names.slice(2));
 
 }
 
@@ -45,12 +46,18 @@ class __nomethod__Command extends Command {
 
     if (isLocal) {
       // do a thing
+      console.log('LOCAL');
     } else {
       let names = parseLibPath(params.name);
       if (!names) {
         return callback(new Error(`Invalid service: "${params.name}"`));
       }
-      console.log(names);
+      let func = lib(names);
+      func({q: 'ATGC'}, (err, result) => {
+        console.log(err);
+        console.log(result);
+        callback();
+      });
     }
 
   }
