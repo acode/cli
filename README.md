@@ -1,7 +1,82 @@
-# ![stdlib](http://stdlib.com/static/images/stdlib-256.png)
+# ![StdLib](http://stdlib.com/static/images/stdlib-256.png)
 ## A Standard Library for Microservices
 
-[stdlib is a Standard Library for Microservices](https://stdlib.com)
+[StdLib is a Standard Library for Microservices](https://stdlib.com)
+
+StdLib allows you to turn functions into infinitely scalable, self-healing
+web services with a single command. Based on Function as a Service ("server-less")
+architecture, popularized by AWS Lambda, StdLib has three parts; an application
+framework, a service registry, and a service distribution platform. In only a
+couple of minutes you can use StdLib to build modular, scalable web services
+without having to manage servers, gateways or domains. You've never shipped
+web services and APIs as quickly as you will with StdLib.
+
+## Introduction
+
+The central focus of StdLib revolves around *simplicity*, *readability* and
+*maintainability*. StdLib provides built-in documentation generation
+for your services along with easy to use SDKs in Node.js, Ruby and Python. This
+allows your customers and other developers to seamlessly integrate with your services
+without any additional effort on your behalf. StdLib represents a careful distillation
+of the best features of containerization, microservice deployment and API
+generation. You write the code, StdLib takes care of everything else.
+
+A typical StdLib workflow might look like this;
+
+1. Use the CLI to create functions locally with `$ lib create myService`
+2. Test and debug locally using `$ lib .myFunction`
+3. Deploy to a cloud development environment, `$ lib up dev`
+4. Test and debug in the cloud, `$ lib user.myService.myFunction`
+5. Release your service when you're ready; `$ lib release`
+6. Explore and integrate with other services at https://stdlib.com/search
+
+Integration with StdLib services is easy. Here's a simple example of how you can
+use StdLib to fetch your publicly visible IP address over HTTPS, or using Node.js,
+Ruby or Python.
+
+### HTTPS
+
+https://stdlib.stdlib.com/reflect?exampleArgument=10
+
+### Node.js
+
+```shell
+$ npm install lib --save
+```
+
+```javascript
+const lib = require('lib');
+
+lib.stdlib.reflect({exampleArgument: 10}, (err, result) => {
+  console.log(result.remoteAddress);
+});
+```
+
+### Ruby
+
+```shell
+$ gem install lib
+```
+
+```ruby
+require 'lib'
+
+result = lib.stdlib.reflect! exampleArgument: 10
+puts result['remoteAddress']
+```
+
+### Python
+
+```shell
+$ pip install lib
+```
+
+```python
+import 'lib'
+
+result = lib.stdlib.reflect(exampleArgument=10)
+print(result['remoteAddress'])
+```
 
 ### We just launched our Developer Preview!
 
