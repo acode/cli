@@ -4,30 +4,24 @@ const http = require('http');
 const path = require('path');
 const url = require('url');
 const fs = require('fs');
-const f = require('f');
+
+const chalk = require('chalk');
+const lib = require('lib');
 
 // set env
 let env = {};
 if (fs.existsSync(path.join(process.cwd(), 'env.json'))) {
-  env = require(path.join(process.cwd(), 'env.json')).dev || {};
+  let envName = 'dev';
+  env = require(path.join(process.cwd(), 'env.json'))[envName] || {};
+  env.ENV = envName;
 }
-
-// Disable caching of functions for hot reloading
-f.config.local.cache = false;
-
-const chalk = require('chalk');
 
 module.exports = {
   createServer: function createServer(pkg, port, offline) {
 
     offline = !!offline;
 
-    let defaultFunction = '';
     let serviceName = (pkg.stdlib && pkg.stdlib.name) || pkg.name || '';
-
-    if (pkg.stdlib && pkg.stdlib.defaultFunction) {
-      defaultFunction = pkg.stdlib.defaultFunction;
-    }
 
     if (offline) {
       console.warn(
@@ -41,27 +35,18 @@ module.exports = {
       let urlParts = url.parse(req.url, true);
       let pathname = req.url[0] !== '/' ? `/${req.url}` : req.url;
       pathname = pathname.split('?')[0];
-      pathname = pathname === '/' ? pathname + (defaultFunction || '') : pathname;
+      let libname = pathname.split('/').join('.');
 
       let response = (err, params) => {
 
-        console.log(`[function: ${pathname}] ${JSON.stringify({args: params.args, kwargs: params.kwargs})}`);
+        console.log(`[function: ${libname}] ${JSON.stringify({args: params.args, kwargs: params.kwargs})}`);
 
         if (err) {
           res.writeHead(400, {'Content-Type': 'text/plain'});
           return res.end(`Error: ${err.message}`);
         }
 
-        let fn = f(`.${pathname}`);
-
-        // FIXME: Async will not have fun with this. Run in new context.
-        let oldenv = process.env;
-        process.env = env;
-
-        fn.apply(null, params.args.concat(params.kwargs, (err, result, headers) => {
-
-          // FIXME: Reset process.env
-          process.env = oldenv;
+        lib[`${libname}`](...params.args, params.kwargs, (err, result, headers) => {
 
           if (err) {
             res.writeHead(400, {'Content-Type': 'text/plain'});
@@ -80,7 +65,7 @@ module.exports = {
             }
           }
 
-        }));
+        });
 
       };
 

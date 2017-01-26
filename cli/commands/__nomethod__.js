@@ -14,6 +14,19 @@ class __nomethod__Command extends Command {
 
   help() {
 
+    return {
+      description: 'Runs a StdLib Function (requires a period)',
+      args: [
+        'all arguments converted to params.args'
+      ],
+      flags: {
+        f: 'Specify a file to send (overrides args and kwargs)'
+      },
+      vflags: {
+        '*': 'all verbose flagss converted to params.kwargs'
+      }
+    };
+
   }
 
   run(params, callback) {
