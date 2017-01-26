@@ -4,6 +4,8 @@ const Command = require('cmnd').Command;
 const lib = require('lib');
 const path = require('path');
 
+const env = require('../env.js');
+
 class __nomethod__Command extends Command {
 
   constructor() {
@@ -58,6 +60,7 @@ class __nomethod__Command extends Command {
     };
 
     try {
+      process.env = env();
       lib[params.name](...args, kwargs, cb);
     } catch(e) {
       return callback(e);

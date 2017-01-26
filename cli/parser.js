@@ -8,13 +8,7 @@ const fs = require('fs');
 const chalk = require('chalk');
 const lib = require('lib');
 
-// set env
-let env = {};
-if (fs.existsSync(path.join(process.cwd(), 'env.json'))) {
-  let envName = 'dev';
-  env = require(path.join(process.cwd(), 'env.json'))[envName] || {};
-  env.ENV = envName;
-}
+const env = require('./env.js');
 
 module.exports = {
   createServer: function createServer(pkg, port, offline) {
@@ -22,6 +16,7 @@ module.exports = {
     offline = !!offline;
 
     let serviceName = (pkg.stdlib && pkg.stdlib.name) || pkg.name || '';
+    process.env = env();
 
     if (offline) {
       console.warn(
