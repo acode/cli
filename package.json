@@ -27,7 +27,8 @@
   "license": "MIT",
   "bin": {
     "stdlib": "cli/bin.js",
-    "lib": "cli/bin.js"
+    "lib": "cli/bin.js",
+    "f": "cli/bin.js"
   },
   "dependencies": {
     "api-res": "^0.0.7",

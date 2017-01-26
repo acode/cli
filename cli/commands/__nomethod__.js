@@ -34,6 +34,9 @@ class __nomethod__Command extends Command {
   run(params, callback) {
 
     if (params.name.indexOf('.') === -1) {
+      if (params.name.indexOf('/') > -1) {
+        return callback(new Error(`Deprecated service path usage, please try \`lib ${params.name.split('/').join('.')}\` instead`));
+      }
       return callback(new Error(`Command "${params.name}" does not exist.`));
     }
 

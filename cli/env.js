@@ -7,7 +7,12 @@ module.exports = () => {
 
   if (fs.existsSync(path.join(process.cwd(), 'env.json'))) {
     let envName = 'dev';
-    env = require(path.join(process.cwd(), 'env.json'))[envName] || {};
+    try {
+      env = require(path.join(process.cwd(), 'env.json'))[envName] || {};
+    } catch (e) {
+      env = {};
+      console.warn('Warning: invalid JSON in env.json');
+    }
     env.ENV = envName;
   }
 
