@@ -11,6 +11,10 @@ couple of minutes you can use StdLib to build modular, scalable web services
 without having to manage servers, gateways or domains. You've never shipped
 web services and APIs as quickly as you will with StdLib.
 
+You can view publicly available services [on the StdLib search page](https://stdlib.com/search).
+
+![stdlib-process](http://stdlib.com/static/images/stdlib_usage.gif)
+
 ## Introduction
 
 The central focus of StdLib revolves around *simplicity*, *readability* and
@@ -34,11 +38,15 @@ Integration with StdLib services is easy. Here's a simple example of how you can
 use StdLib to fetch your publicly visible IP address over HTTPS, or using Node.js,
 Ruby or Python.
 
+## Remote Function Execution
+
 ### HTTPS
 
 https://stdlib.stdlib.com/reflect?exampleArgument=10
 
 ### Node.js
+
+GitHub: [stdlib/lib-node](https://github.com/stdlib/lib-node)
 
 ```shell
 $ npm install lib --save
@@ -51,51 +59,6 @@ lib.stdlib.reflect({exampleArgument: 10}, (err, result) => {
   console.log(result.remoteAddress);
 });
 ```
-
-### Ruby
-
-```shell
-$ gem install lib
-```
-
-```ruby
-require 'lib'
-
-result = lib.stdlib.reflect! exampleArgument: 10
-puts result['remoteAddress']
-```
-
-### Python
-
-```shell
-$ pip install lib
-```
-
-```python
-import 'lib'
-
-result = lib.stdlib.reflect(exampleArgument=10)
-print(result['remoteAddress'])
-```
-
-### We just launched our Developer Preview!
-
-Use stdlib to build production-ready, auto-scaled, "server-less" microservices in *minutes*.
-
-stdlib has three components:
-
-1. A central registry for microservices
-2. A distribution platform for hosting at scale
-3. A development framework for package management and service creation
-
-It is the *fastest, easiest* way to begin building microservices on your own
-or with a team, and currently supports Node.js 6.5.0. The distribution and hosting
-platform for execution of your services is built atop AWS Lambda ensuring
-both the scale and reliability you would expect for production-ready services.
-
-You can view publicly available services [on the stdlib search page](https://stdlib.com/search).
-
-![stdlib-process](http://stdlib.com/static/images/stdlib_usage.gif)
 
 # Table of Contents
 
@@ -111,12 +74,12 @@ You can view publicly available services [on the stdlib search page](https://std
 
 # Getting Started
 
-To get started with stdlib, first make sure you have Node 6.x installed,
+To get started with StdLib, first make sure you have Node 6.x installed,
 [available from the official Node.js website](https://nodejs.org). Next install
-the stdlib CLI tools with:
+the StdLib CLI tools with:
 
 ```
-$ npm install lib -g
+$ npm install lib.cli -g
 ```
 
 And you're now ready to start building!
@@ -132,7 +95,7 @@ $ cd stdlib-workspace
 $ lib init
 ```
 
-You'll be asked for an e-mail address to log in to the stdlib registry,
+You'll be asked for an e-mail address to log in to the StdLib registry,
 via the Polybit API server. If you don't yet have an account, you can create
 one from the command line. Note that you can skip account creation with
 `lib init --no-login`. You'll be unable to use the registry, but it's useful
@@ -167,7 +130,7 @@ In this directory, you'll see something like:
 ```
 
 At this point, there's a "hello world" function that's been automatically
-created. stdlib comes paired with a simple `f` command for testing your functions
+created. StdLib comes paired with a simple `f` command for testing your functions
 locally and running them in the cloud. To test your function:
 
 ```
@@ -320,7 +283,7 @@ module.exports = (params, callback) => {
 
 We definitely recommend using the [browser-based version of f](https://github.com/poly/f)
 to make microservice calls as specified above, but you can also make HTTPS
-requests directly to the stdlib gateway. HTTP query parameters are mapped
+requests directly to the StdLib gateway. HTTP query parameters are mapped
 automatically to keyword arguments:
 
 ```
@@ -344,7 +307,7 @@ parameter.
 
 # Version Control and Package Management
 
-A quick note on version control - stdlib is *not* a replacement for normal
+A quick note on version control - StdLib is *not* a replacement for normal
 git-based workflows, it is a supplement focused around service creation and
 execution.
 
@@ -363,7 +326,7 @@ As mentioned above: releases are *immutable* and can not be overwritten (but can
 
 # Additional Functionality
 
-stdlib comes packed with a bunch of other goodies - if your service goes down
+StdLib comes packed with a bunch of other goodies - if your service goes down
 for any reason (the service platform is acting up), use `lib restart`.
 Similarly, as we roll out updates to the platform the builds we're using on
 AWS Lambda may change. You can update your service to our latest build using
@@ -379,12 +342,18 @@ $ lib help
 We've conveniently copy-and-pasted the output here for you to peruse;
 
 ```
+* [all arguments converted to params.args]
+	-f                   Specify a file to send (overrides args and kwargs)
+	--*                  all verbose flagss converted to params.kwargs
+
+	Runs a StdLib Function (requires a period)
+
 create [service]
 	-n                   No login - don't require an internet connection
+	-t                   Template - a stdlib service template to use
 	-w                   Write over - overwrite the current directory contents
-	-x                   The default function name
-	--function           The default function name
 	--no-login           No login - don't require an internet connection
+	--template           Template - a stdlib service template to use
 	--write-over         Write over - overwrite the current directory contents
 
 	Creates a new (local) service
@@ -393,7 +362,7 @@ down [environment]
 	-r                   Remove a release version (provide number)
 	--release            Remove a release version (provide number)
 
-	Removes stdlib package from registry and cloud environment
+	Removes StdLib package from registry and cloud environment
 
 f:create [function name]
 	-w                   Overwrite existing function
@@ -401,15 +370,19 @@ f:create [function name]
 
 	Creates a new function for a (local) service
 
-get [environment]
+get [full service name]
 	-f                   Force command if not in root directory
-	-r                   Specify a release package
 	-w                   Write over - overwrite the target directory contents
 	--force              Force command if not in root directory
-	--release            Specify a release package
 	--write-over         Write over - overwrite the target directory contents
 
-	Retrieves and extracts stdlib package
+	Retrieves and extracts StdLib package
+
+http
+	-p                   Port (Default 8170)
+	--port               Port (Default 8170)
+
+	Creates HTTP Server for Current Service
 
 info [username | full service name]
 	Retrieves information about a user or package
@@ -420,13 +393,13 @@ init [environment]
 	--force              Force command to overwrite existing workspace
 	--no-login           No login - don't require an internet connection
 
-	Initializes stdlib workspace
+	Initializes StdLib workspace
 
 login
-	Logs in to stdlib in this directory
+	Logs in to StdLib in this directory
 
 logout
-	Logs out of stdlib in this workspace
+	Logs out of StdLib in this workspace
 
 pkg [full service name]
 	-f                   Force command if not in root directory
@@ -434,19 +407,19 @@ pkg [full service name]
 	--force              Force command if not in root directory
 	--output             Output path for the .tgz package
 
-	Downloads stdlib tarball (.tgz)
+	Downloads StdLib tarball (.tgz)
 
 rebuild [environment]
 	-r                   Rebuild a release package
 	--release            Rebuild a release package
 
-	Rebuilds a service (useful for registry performance updates), alias of stdlib restart -b
+	Rebuilds a service (useful for registry performance updates), alias of `lib restart -b`
 
 register
-	Registers a new stdlib user account
+	Registers a new StdLib user account
 
 release
-	Pushes release of stdlib package to registry and cloud (Alias of stdlib up -r)
+	Pushes release of StdLib package to registry and cloud (Alias of `lib up -r`)
 
 restart [environment]
 	-b                   Rebuild service fully
@@ -454,16 +427,27 @@ restart [environment]
 	--build              Rebuild service fully
 	--release            Restart a release package
 
-	Restarts a service (if necessary)
+	Restarts a StdLib service (if necessary)
 
 rollback
-	Rolls back (removes) release of stdlib package
+	Rolls back (removes) release of StdLib package (alias of `lib down -r`)
 
 up [environment]
 	-r                   Upload a release package
 	--release            Upload a release package
 
-	Pushes stdlib package to registry and cloud environment
+	Pushes StdLib package to registry and cloud environment
+
+user
+	-s                   <key> <value> Sets a specified key-value pair
+	--new-password       Sets a new password via a prompt
+	--reset-password     <email> Sends a password reset request for the specified e-mail address
+	--set                <key> <value> Sets a specified key-value pair
+
+	Retrieves (and sets) current user information
+
+version
+	Returns currently installed version of StdLib command lines tools
 ```
 
 # That's it!
@@ -471,33 +455,23 @@ up [environment]
 Yep, it's really that easy. To keep up-to-date on developments, please
 star us here on GitHub, and sign up a user account for the registry. You
 can read more about service hosting and keep track of official updates on
-[the official stdlib website, stdlib.com](https://stdlib.com).
+[the official StdLib website, stdlib.com](https://stdlib.com).
 
 # Acknowledgements
 
-stdlib is a product of and &copy; 2016 Polybit Inc.
-
-It wouldn't have been possible without a bunch of amazing people.
-
-- [Brian LeRoux](https://twitter.com/brianleroux) gave us our first push and
-kickstarted us in this direction.
-
-- [Boris Mann](https://twitter.com/bmann) threw his support in from day one when
-we first launched [Nodal](https://github.com/keithwhor/nodal).
-
-- [TJ Holowaychuk](https://twitter.com/tjholowaychuk) has been consistently sharing
-great ideas about the server-less movement and his [Apex Framework](https://github.com/apex/apex)
-has certainly been an inspiration.
-
-- The amazingly talented people and friends of [AngelPad](https://angelpad.org)
-always pick us up when we're low and put us in our place when we need to get work done.
-
-# Contact
+StdLib is a product of and &copy; 2016 - 2017 Polybit Inc.
 
 We'd love for you to pay attention to [@Polybit](https://twitter.com/polybit) and
-what we're building next! If you'd consider joining the team, [shoot us an e-mail](mailto:careers@polybit.com).
+what we're building next! If you'd consider joining the team, [shoot us an e-mail](mailto:careers@stdlib.com).
 
 You can also follow me, the original author, on Twitter: [@keithwhor](https://twitter.com/keithwhor).
 
 Issues encouraged, PRs welcome, and we're happy to have you on board!
 Enjoy and happy building :)
+
+# Thanks
+
+Special thanks to; [AngelPad](https://angelpad.org),
+[Brian LeRoux](https://twitter.com/brianleroux),
+[Boris Mann](https://twitter.com/bmann),
+[TJ Holowaychuk](https://twitter.com/tjholowaychuk)

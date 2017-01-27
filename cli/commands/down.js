@@ -18,7 +18,7 @@ class DownCommand extends Command {
   help() {
 
     return {
-      description: 'Removes stdlib package from registry and cloud environment',
+      description: 'Removes StdLib package from registry and cloud environment',
       args: [
         'environment'
       ],

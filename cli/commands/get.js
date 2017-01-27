@@ -21,7 +21,7 @@ class GetCommand extends Command {
   help() {
 
     return {
-      description: 'Retrieves and extracts stdlib package',
+      description: 'Retrieves and extracts StdLib package',
       args: [
         'full service name'
       ],

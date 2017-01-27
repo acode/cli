@@ -19,7 +19,7 @@ class InitCommand extends Command {
   help() {
 
     return {
-      description: 'Initializes stdlib workspace',
+      description: 'Initializes StdLib workspace',
       args: [
         'environment'
       ],

@@ -20,7 +20,7 @@ class PkgCommand extends Command {
   help() {
 
     return {
-      description: 'Downloads stdlib tarball (.tgz)',
+      description: 'Downloads StdLib tarball (.tgz)',
       args: [
         'full service name'
       ],

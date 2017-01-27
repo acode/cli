@@ -18,7 +18,7 @@ class RestartCommand extends Command {
   help() {
 
     return {
-      description: 'Restarts a service (if necessary)',
+      description: 'Restarts a StdLib service (if necessary)',
       args: [
         'environment'
       ],

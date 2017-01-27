@@ -19,7 +19,7 @@ class PolyLoginCommand extends Command {
   help() {
 
     return {
-      description: 'Logs in to stdlib in this directory'
+      description: 'Logs in to StdLib in this directory'
     };
 
   }

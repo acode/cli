@@ -13,7 +13,7 @@ class VersionCommand extends Command {
   help() {
 
     return {
-      description: 'Returns currently installed version of lib'
+      description: 'Returns currently installed version of StdLib command lines tools'
     };
 
   }

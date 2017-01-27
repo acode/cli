@@ -14,7 +14,7 @@ class RollbackCommand extends Command {
   help() {
 
     return {
-      description: 'Rolls back (removes) release of stdlib package'
+      description: 'Rolls back (removes) release of StdLib package (alias of `lib down -r`)'
     };
 
   }

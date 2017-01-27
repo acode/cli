@@ -19,7 +19,7 @@ class RegisterCommand extends Command {
   help() {
 
     return {
-      description: 'Registers a new stdlib user account'
+      description: 'Registers a new StdLib user account'
     };
 
   }
