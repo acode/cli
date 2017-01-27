@@ -1,4 +1,4 @@
-# ![StdLib](http://stdlib.com/static/images/stdlib-256.png)
+# ![StdLib](http://stdlib.com/static/images/stdlib-logo-wordmark-128.png)
 ## A Standard Library for Microservices
 
 [StdLib is a Standard Library for Microservices](https://stdlib.com)
