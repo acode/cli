@@ -1,6 +1,6 @@
 {
   "name": "lib.cli",
-  "version": "0.0.0-dev",
+  "version": "2.0.0-rc1",
   "description": "Standard Library for Microservices",
   "main": "index.js",
   "scripts": {
@@ -37,6 +37,6 @@
     "cmnd": "~0.2.0",
     "inquirer": "~0.11.3",
     "tar-stream": "^1.5.2",
-    "lib": "git://github.com/stdlib/lib-node.git"
+    "lib": "~2.0.0"
   }
 }

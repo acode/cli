@@ -126,7 +126,7 @@ If necessary, we can pass some of these parameters to it (`params.args` and `par
 using:
 
 ```
-f . arg0 arg1 --kwarg0 "Hello World" --kwarg1 Goodbye
+lib . arg0 arg1 --kwarg0 "Hello World" --kwarg1 Goodbye
 ```
 
 Though it won't change the function output as-is. `params.args` would be equal
@@ -176,7 +176,7 @@ with `lib down <environment>` or `lib down -r <version>` (but releases
 You'll notice that you can create more than one function per service. While
 you can structure your project however you'd like internally, it should also
 be noted that these functions have zero-latency access to each other. You
-can access them internally with the `lib` [package on NPM](https://github.com/poly/f),
+can access them internally with the `lib` [package on NPM](https://github.com/stdlib/lib-node),
 which behaves similarly to the `lib` command for testing. Use:
 
 ```
@@ -216,7 +216,7 @@ be careful about setting service timeouts appropriately.
 
 # Accessing Your Microservices From Other Applications
 
-As mentioned in the previous section, you can use the `lib` library that's
+As mentioned in the previous section, you can use the NPM `lib` package that's
 [available on GitHub and NPM](https://github.com/stdlib/lib-node) to access your
 microservices from legacy Node.js applications and even the web browser. We'll
 have more SDKs coming out in the following months.
