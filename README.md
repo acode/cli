@@ -46,6 +46,17 @@ $ npm install lib.cli -g
 
 And you're now ready to start building!
 
+# Upgrading From Previous Versions
+
+If you're running a previous version of StdLib and having issues with the CLI,
+try cleaning up the old CLI binary links first;
+
+```
+$ rm /usr/local/bin/f
+$ rm /usr/local/bin/lib
+$ rm /usr/local/bin/stdlib
+```
+
 # Creating Your First Service
 
 The first thing you'll want to do is create a workspace. Create a new directory

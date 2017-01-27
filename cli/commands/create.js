@@ -6,11 +6,11 @@ const Credentials = require('../credentials.js');
 
 const async = require('async');
 const inquirer = require('inquirer');
-const f = require('f');
 
 const fs = require('fs');
 const path = require('path');
 const chalk = require('chalk');
+const lib = require('lib');
 
 const spawnSync = require('child_process').spawnSync;
 
@@ -152,12 +152,12 @@ class CreateCommand extends Command {
 
           extPkgCalls = [
             cb => {
-              f(`stdlib/templates/package?name=${extPkgName}`)((err, result) => {
+              lib.stdlib.templates({name: extPkgName}, (err, result) => {
                 cb(err, result);
               });
             },
             cb => {
-              f(`stdlib/templates/files?name=${extPkgName}`)((err, result) => {
+              lib.stdlib.templates.files({name: extPkgName}, (err, result) => {
                 cb(err, result);
               });
             }
