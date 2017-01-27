@@ -1,6 +1,6 @@
 {
   "name": "lib.cli",
-  "version": "2.0.0-rc1",
+  "version": "2.0.0",
   "description": "Standard Library for Microservices",
   "main": "index.js",
   "scripts": {
