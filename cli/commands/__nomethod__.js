@@ -1,6 +1,7 @@
 'use strict';
 
 const Command = require('cmnd').Command;
+const fs = require('fs');
 const lib = require('lib');
 const path = require('path');
 
@@ -64,7 +65,12 @@ class __nomethod__Command extends Command {
 
     try {
       process.env = env();
-      lib[params.name](...args, kwargs, cb);
+      if (params.flags.f && params.flags.f.length === 1) {
+        const buffer = fs.readFileSync(params.flags.f[0]);
+        lib[params.name](buffer, cb);
+      } else {
+        lib[params.name](...args, kwargs, cb);
+      }
     } catch(e) {
       return callback(e);
     }
