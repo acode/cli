@@ -4,9 +4,7 @@
 [StdLib is a Standard Library for Microservices](https://stdlib.com)
 
 StdLib is the *fastest, easiest* way to turn functions into infinitely scalable, self-healing
-web services.
-
-StdLib has three components:
+web services. It has three components:
 
 1. A central registry for microservices
 2. A distribution platform for hosting at scale
@@ -15,9 +13,12 @@ StdLib has three components:
 StdLib is based on Function as a Service ("server-less") architecture,
 popularized by AWS Lambda. You can use StdLib to build modular, scalable web services
 for yourself and other developers in *minutes* without having to manage servers,
-gateways, domains, write documentation, or build SDKs.
+gateways, domains, write documentation, or build SDKs. Your development workflow
+has never been easier - focus on writing code you love, let StdLib handle
+everything else.
 
-You can view publicly available services [on the StdLib search page](https://stdlib.com/search).
+You can view services published by our large and growing developer community
+[on the StdLib search page](https://stdlib.com/search).
 
 ![stdlib-process](http://stdlib.com/static/images/stdlib_usage.gif)
 
