@@ -25,7 +25,7 @@ class __nomethod__Command extends Command {
         f: 'Specify a file to send (overrides args and kwargs)'
       },
       vflags: {
-        '*': 'all verbose flagss converted to params.kwargs'
+        '*': 'all verbose flags converted to params.kwargs'
       }
     };
 

@@ -315,7 +315,7 @@ We've conveniently copy-and-pasted the output here for you to peruse;
 ```
 * [all arguments converted to params.args]
 	-f                   Specify a file to send (overrides args and kwargs)
-	--*                  all verbose flagss converted to params.kwargs
+	--*                  all verbose flags converted to params.kwargs
 
 	Runs a StdLib Function (requires a period)
 
@@ -418,7 +418,7 @@ user
 	Retrieves (and sets) current user information
 
 version
-	Returns currently installed version of StdLib command lines tools
+	Returns currently installed version of StdLib command line tools
 ```
 
 # That's it!
