@@ -34,32 +34,6 @@ A typical StdLib workflow might look like this;
 5. Release your service when you're ready; `$ lib release`
 6. Explore and integrate with other services at https://stdlib.com/search
 
-Integration with StdLib services is easy. Here's a simple example of how you can
-use StdLib to fetch your publicly visible IP address over HTTPS, or using Node.js,
-Ruby or Python.
-
-## Remote Function Execution
-
-### HTTPS
-
-https://stdlib.stdlib.com/reflect?exampleArgument=10
-
-### Node.js
-
-GitHub: [stdlib/lib-node](https://github.com/stdlib/lib-node)
-
-```shell
-$ npm install lib --save
-```
-
-```javascript
-const lib = require('lib');
-
-lib.stdlib.reflect({exampleArgument: 10}, (err, result) => {
-  console.log(result.remoteAddress);
-});
-```
-
 # Table of Contents
 
 1. [Getting Started](#getting-started)
@@ -134,7 +108,7 @@ created. StdLib comes paired with a simple `f` command for testing your function
 locally and running them in the cloud. To test your function:
 
 ```
-$ f .
+$ lib .
 > "hello world"
 ```
 
@@ -165,7 +139,7 @@ To push your function to a development environment in the cloud...
 
 ```
 $ lib up dev
-$ f your-username/your-service@dev
+$ lib your-username.your-service[@dev]
 > "hello world"
 ```
 
@@ -173,14 +147,14 @@ And to release it (when you're ready!)
 
 ```
 $ lib release
-$ f your-username/your-service
+$ lib your-username.your-service
 > "hello world"
 ```
 
 You can check out your service on the web, and use it in applications at:
 
 ```
-https://f.stdlib.com/your-username/your-service
+https://your-username.stdlib.com/your-service
 ```
 
 That's it! You haven't written a line of code yet, and you have mastery over
@@ -202,11 +176,11 @@ with `lib down <environment>` or `lib down -r <version>` (but releases
 You'll notice that you can create more than one function per service. While
 you can structure your project however you'd like internally, it should also
 be noted that these functions have zero-latency access to each other. You
-can access them internally with the `f` [package on NPM](https://github.com/poly/f),
-which behaves similarly to the `f` command for testing. Use:
+can access them internally with the `lib` [package on NPM](https://github.com/poly/f),
+which behaves similarly to the `lib` command for testing. Use:
 
 ```
-$ npm install f --save
+$ npm install lib --save
 ```
 
 In your main service directory to add it, and use it like so:
@@ -222,11 +196,11 @@ module.exports = (params, callback) => {
 
 #### f/add-double/index.js
 ```javascript
-const f = require('f');
+const lib = require('lib');
 
 module.exports = (params, callback) => {
 
-	return f('./add')(params.args[0], params.args[1], (err, result) => {
+	return lib['.add'](params.args[0], params.args[1], (err, result) => {
 
 		callback(err, result * 2);
 
@@ -235,25 +209,24 @@ module.exports = (params, callback) => {
 };
 ```
 
-In this case, calling `f ./add 1 2` will return `3` and `f ./add-double 1 2`
+In this case, calling `lib .add 1 2` will return `3` and `lib .add-double 1 2`
 will return `6`. These map directly to individual service endpoints. **Note** that
 when chaining like this, *a single service execution instance* is being used so
 be careful about setting service timeouts appropriately.
 
 # Accessing Your Microservices From Other Applications
 
-As mentioned in the previous section, you can use the `f` library that's
-[available on GitHub and NPM](https://github.com/poly/f) to access your
+As mentioned in the previous section, you can use the `lib` library that's
+[available on GitHub and NPM](https://github.com/stdlib/lib-node) to access your
 microservices from legacy Node.js applications and even the web browser. We'll
 have more SDKs coming out in the following months.
 
-A legacy app would call a function with...
+A legacy app would call a function (username.liveService with version 0.2.1):
 
 ```javascript
-// Legacy code
-var f = require('f');
+const lib = require('lib');
 
-f('username/liveService@0.2.1')('hello', 'world', {keyword: 'argument'}, function (err, result) {
+lib.username.liveService['@0.2.1']('hello', 'world', {keyword: 'argument'}, function (err, result) {
 
 	if (err) {
 		// handle it
@@ -262,7 +235,6 @@ f('username/liveService@0.2.1')('hello', 'world', {keyword: 'argument'}, functio
 	// do something with result
 
 });
-
 ```
 
 Which would speak to your microservice...
@@ -281,13 +253,13 @@ module.exports = (params, callback) => {
 
 # Accessing Your Microservices Over HTTP
 
-We definitely recommend using the [browser-based version of f](https://github.com/poly/f)
+We definitely recommend using the [lib library on NPM](https://github.com/stdlib/lib-node)
 to make microservice calls as specified above, but you can also make HTTPS
 requests directly to the StdLib gateway. HTTP query parameters are mapped
 automatically to keyword arguments:
 
 ```
-https://f.stdlib.com/username/liveService@1.12.2?name=Keith
+https://username.stdlib.com/liveService@1.12.2?name=Keith
 ```
 
 Maps directly to:
