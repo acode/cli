@@ -95,8 +95,8 @@ In this directory, you'll see something like:
 ```
 - f/
   - defaultFunction/
-	  - function.json
-		- index.js
+    - function.json
+    - index.js
 - package.json
 - env.json
 - README.md
