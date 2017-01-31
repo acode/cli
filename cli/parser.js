@@ -30,7 +30,9 @@ module.exports = {
       let urlParts = url.parse(req.url, true);
       let pathname = req.url[0] !== '/' ? `/${req.url}` : req.url;
       pathname = pathname.split('?')[0];
-      let libname = pathname.split('/').join('.');
+      let libname = pathname.split('/');
+      libname[libname.length - 1] || libname.pop();
+      libname = libname.join('.');
 
       let response = (err, params) => {
 
