@@ -307,7 +307,7 @@ class CreateCommand extends Command {
           }
 
           if (
-            (json.pkg.depenencies && Object.keys(json.pkg.dependencies).length) ||
+            (json.pkg.dependencies && Object.keys(json.pkg.dependencies).length) ||
             (json.pkg.devDependencies && Object.keys(json.pkg.devDependencies).length)
           ) {
             console.log(`Installing npm packages...`);
