@@ -86,7 +86,7 @@ class InitCommand extends Command {
     console.log();
     console.log(chalk.bold.green('Welcome to stdlib! :)'))
     console.log();
-    console.log(`To use the ${chalk.bold('stdlib')} registry, you must have a registered Polybit account.`);
+    console.log(`To use the ${chalk.bold('stdlib')} registry, you must have a registered StdLib account.`);
     console.log(`It will allow you to push your services to the cloud and manage environments.`);
     console.log(`It\'s ${chalk.bold.underline.green('free')} to create an account. Let's get started!`);
     console.log();

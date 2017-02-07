@@ -68,11 +68,11 @@ $ cd stdlib-workspace
 $ lib init
 ```
 
-You'll be asked for an e-mail address to log in to the StdLib registry,
-via the Polybit API server. If you don't yet have an account, you can create
-one from the command line. Note that you can skip account creation with
-`lib init --no-login`. You'll be unable to use the registry, but it's useful
-for creating workspaces when you don't have internet access.
+You'll be asked for an e-mail address to log in to the StdLib registry.
+If you don't yet have an account, you can create one from the command line.
+Note that you can skip account creation with `lib init --no-login`.
+You'll be unable to use the registry, but it's useful for creating workspaces
+when you don't have internet access.
 
 Next, create your service:
 
