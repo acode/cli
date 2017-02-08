@@ -66,8 +66,11 @@ class __nomethod__Command extends Command {
     try {
       process.env = env();
       if (params.flags.f && params.flags.f.length === 1) {
-        const buffer = fs.readFileSync(params.flags.f[0]);
-        lib[params.name](buffer, cb);
+        const filepath = params.flags.f[0];
+        const filename = filepath.split('/').pop();
+        const buffer = fs.readFileSync(filepath);
+        kwargs.filename = kwargs.hasOwnProperty('filename') ? kwargs.filename : filename;
+        lib[params.name](buffer, kwargs, cb);
       } else {
         lib[params.name](...args, kwargs, cb);
       }
