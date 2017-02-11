@@ -3,6 +3,7 @@
 const Command = require('cmnd').Command;
 const APIResource = require('api-res');
 const Credentials = require('../credentials.js');
+const extract = require('../extract.js');
 
 const async = require('async');
 const inquirer = require('inquirer');
@@ -10,6 +11,7 @@ const inquirer = require('inquirer');
 const fs = require('fs');
 const path = require('path');
 const chalk = require('chalk');
+
 const lib = require('lib');
 
 const spawnSync = require('child_process').spawnSync;
@@ -179,6 +181,7 @@ class CreateCommand extends Command {
           }
 
           !fs.existsSync(username) && fs.mkdirSync(username);
+          let serviceName = [username, name].join('/');
           let servicePath = path.join(process.cwd(), username, name);
           let fPath = path.join(servicePath, 'f');
           let functionPath;
@@ -282,62 +285,61 @@ class CreateCommand extends Command {
             fs.writeFileSync(path.join(functionPath, filename), files.func.copy[filename])
           });
 
-          // EXTERNAL: Unzip tar
+          let fns = [];
           if (extPkg && extPkg.files && extPkg.files.length) {
-            let tmpPath = path.join(path.parse(process.cwd()).root, 'tmp');
-            let tarPath = path.join(tmpPath, 'stdlib-addon.tgz');
-            !fs.existsSync(tmpPath) && fs.mkdirSync(tmpPath);
-            fs.existsSync(tarPath) && fs.unlinkSync(tarPath);
-            fs.writeFileSync(tarPath, extPkg.files);
-            let tarCommands = ['-xzf', tarPath];
-            // Win32 support
-            /^win/.test(process.platform) && tarCommands.push('--force-local');
-            let command = spawnSync(
-              'tar',
-              tarCommands,
-              {
-                stdio: [0, 1, 2],
-                cwd: servicePath
-              }
-            );
-            fs.unlinkSync(tarPath);
-            if (command.status !== 0) {
-              return callback(new Error(`Could not install template ${extPkgName}`));
-            }
+            fns.push(cb => {
+              extract(serviceName, extPkg.files, (err) => {
+
+                if (err) {
+                  return cb(new Error(`Could not install template ${extPkgName}`));
+                }
+
+                cb();
+
+              });
+            });
           }
 
-          if (
-            (json.pkg.dependencies && Object.keys(json.pkg.dependencies).length) ||
-            (json.pkg.devDependencies && Object.keys(json.pkg.devDependencies).length)
-          ) {
-            console.log(`Installing npm packages...`);
+          async.series(fns, (err) => {
+
+            if (err) {
+              return callback(err);
+            }
+
+            if (
+              (json.pkg.dependencies && Object.keys(json.pkg.dependencies).length) ||
+              (json.pkg.devDependencies && Object.keys(json.pkg.devDependencies).length)
+            ) {
+              console.log(`Installing npm packages...`);
+              console.log();
+              let command = spawnSync(
+                /^win/.test(process.platform) ? 'npm.cmd' : 'npm',
+                ['install'],
+                {
+                  stdio: [0, 1, 2],
+                  cwd: servicePath,
+                  env: process.env
+                }
+              );
+              if (command.status !== 0) {
+                console.log(command.error);
+                console.log(chalk.bold.yellow('Warn: ') + 'Error with npm install');
+              }
+            }
+
+            console.log(chalk.bold.green('Success!'));
             console.log();
-            let command = spawnSync(
-              /^win/.test(process.platform) ? 'npm.cmd' : 'npm',
-              ['install'],
-              {
-                stdio: [0, 1, 2],
-                cwd: servicePath,
-                env: process.env
-              }
-            );
-            if (command.status !== 0) {
-              console.log(command.error);
-              console.log(chalk.bold.yellow('Warn: ') + 'Error with npm install');
-            }
-          }
+            console.log(`Service ${chalk.bold([username, name].join('/'))} created at:`);
+            console.log(`  ${chalk.bold(servicePath)}`);
+            console.log();
+            console.log(`Use the following to enter your service directory:`);
+            console.log(`  ${chalk.bold('cd ' + [username, name].join('/'))}`);
+            console.log();
+            console.log(`Type ${chalk.bold('lib help')} for more commands.`);
+            console.log();
+            return callback(null);
 
-          console.log(chalk.bold.green('Success!'));
-          console.log();
-          console.log(`Service ${chalk.bold([username, name].join('/'))} created at:`);
-          console.log(`  ${chalk.bold(servicePath)}`);
-          console.log();
-          console.log(`Use the following to enter your service directory:`);
-          console.log(`  ${chalk.bold('cd ' + [username, name].join('/'))}`);
-          console.log();
-          console.log(`Type ${chalk.bold('lib help')} for more commands.`);
-          console.log();
-          return callback(null);
+          });
 
         });
 
