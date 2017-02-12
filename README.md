@@ -1,7 +1,5 @@
 # ![StdLib](http://stdlib.com/static/images/stdlib-logo-wordmark-128.png)
-## A Standard Library for Microservices
-
-[StdLib is a Standard Library for Microservices](https://stdlib.com)
+## [StdLib is a Standard Library for Microservices](https://stdlib.com)
 
 **StdLib Setup** |
 [Node](https://github.com/stdlib/lib-node) |
