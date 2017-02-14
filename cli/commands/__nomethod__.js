@@ -80,6 +80,8 @@ class __nomethod__Command extends Command {
         console.log(result);
       }
 
+      callback();
+
     };
 
     try {
