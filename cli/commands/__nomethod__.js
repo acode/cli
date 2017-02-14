@@ -36,7 +36,15 @@ class __nomethod__Command extends Command {
 
     if (params.name.indexOf('.') === -1) {
       if (params.name.indexOf('/') > -1) {
-        return callback(new Error(`Deprecated service path usage, please try \`lib ${params.name.split('/').join('.')}\` instead`));
+        let names = params.name.split('/');
+        if (names[1].indexOf('@') > -1) {
+          names[1] = names[1].split('@');
+          if (names[1].length > 1) {
+            names[1][1] = names[1][1] && `[@${names[1][1]}]`;
+          }
+          names[1] = names[1].slice(0, 2).join('');
+        }
+        return callback(new Error(`Deprecated service path usage, please try \`lib ${names.join('.')}\` instead`));
       }
       return callback(new Error(`Command "${params.name}" does not exist.`));
     }
@@ -46,6 +54,17 @@ class __nomethod__Command extends Command {
       kwargs[key] = params.vflags[key].join(' ');
       return kwargs
     }, {});
+
+    let token = (params.flags.t && params.flags.t[0]) || null;
+    let hostname = (params.flags.h && params.flags.h[0]) || '';
+    let matches = hostname.match(/^(https?:\/\/)?(.*?)(:\d+)?$/);
+    let host;
+    let port;
+
+    if (hostname && matches) {
+      host = matches[2];
+      port = parseInt((matches[3] || '').substr(1) || (hostname.indexOf('https') === 0 ? 443 : 80));
+    }
 
     let cb = (err, result) => {
 
@@ -70,9 +89,9 @@ class __nomethod__Command extends Command {
         const filename = filepath.split('/').pop();
         const buffer = fs.readFileSync(filepath);
         kwargs.filename = kwargs.hasOwnProperty('filename') ? kwargs.filename : filename;
-        lib[params.name](buffer, kwargs, cb);
+        lib({token: token, host: host, port: port})[params.name](buffer, kwargs, cb);
       } else {
-        lib[params.name](...args, kwargs, cb);
+        lib({token: token, host: host, port: port})[params.name](...args, kwargs, cb);
       }
     } catch(e) {
       return callback(e);
