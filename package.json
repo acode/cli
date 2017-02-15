@@ -1,6 +1,6 @@
 {
   "name": "lib.cli",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "StdLib: Standard Library for Microservices Command Line Tools",
   "main": "index.js",
   "scripts": {
@@ -33,7 +33,7 @@
     "f": "cli/bin.js"
   },
   "dependencies": {
-    "api-res": "^0.0.7",
+    "api-res": "^0.0.8",
     "async": "^2.0.1",
     "chalk": "^1.1.3",
     "cmnd": "~0.2.1",
