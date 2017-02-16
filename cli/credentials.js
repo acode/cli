@@ -42,8 +42,11 @@ function readCredentials() {
     .split('\n')
     .filter(v => v)
     .map(l => l.split('='))
-    .reduce((p, c) => { return (p[c[0]] = c[1]), p; }, {})
+    .reduce((p, c) => {
+      p[c[0]] = process.env[c[0]] || c[1];
 
+      return p;
+    }, {});
 }
 
 function writeCredentials(obj, pathname) {
