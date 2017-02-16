@@ -136,6 +136,7 @@ module.exports = {
     req.on('end', () => {
 
       let buffer = Buffer.concat(buffers);
+      req.headers['user-agent'] = null;
       this.send(search, req.method, req.headers, buffer, callback);
 
     });
