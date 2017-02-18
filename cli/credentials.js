@@ -29,24 +29,30 @@ function findPath(maxDepth) {
 
 function readCredentials() {
 
-  let cred = '';
-  let stdlibPath = findPath();
+  if(process.env.STDLIB_ACCESS_TOKEN) {
+    return {
+      ACCESS_TOKEN: process.env.STDLIB_ACCESS_TOKEN
+    };
+  } else {
+    let cred = '';
+    let stdlibPath = findPath();
 
-  if (!stdlibPath) {
-    throw new Error(`Please initialize stdlib in directory tree`);
+    if (!stdlibPath) {
+      throw new Error(`Please initialize stdlib in directory tree or set STDLIB_ACCESS_TOKEN as environment variable`);
+    }
+
+    cred = fs.readFileSync(stdlibPath).toString();
+
+    return cred
+      .split('\n')
+      .filter(v => v)
+      .map(l => l.split('='))
+      .reduce((p, c) => {
+        p[c[0]] = c[1];
+
+        return p;
+      }, {});
   }
-
-  cred = fs.readFileSync(stdlibPath).toString();
-
-  return cred
-    .split('\n')
-    .filter(v => v)
-    .map(l => l.split('='))
-    .reduce((p, c) => {
-      p[c[0]] = process.env[c[0]] || c[1];
-
-      return p;
-    }, {});
 }
 
 function writeCredentials(obj, pathname) {
