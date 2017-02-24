@@ -18,7 +18,7 @@ function writeFile(directory, pathname, buffer, dirs) {
     }
   }
 
-  fs.writeFileSync(path.join(process.cwd(), pathname), buffer);
+  fs.writeFileSync(path.join(process.cwd(), pathname), buffer, {mode: 0o777});
   return dirs;
 
 }

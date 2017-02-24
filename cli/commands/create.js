@@ -69,6 +69,7 @@ class CreateCommand extends Command {
 
     let force = params.flags.hasOwnProperty('f') || params.vflags.hasOwnProperty('force');
     let write = params.flags.hasOwnProperty('w') || params.vflags.hasOwnProperty('write-over');
+    let tdev = params.flags.hasOwnProperty('tdev');
 
     let extPkgName = (params.flags.t || params.vflags.template || [])[0];
     let extPkg = null;
@@ -154,12 +155,12 @@ class CreateCommand extends Command {
 
           extPkgCalls = [
             cb => {
-              lib.stdlib.templates({name: extPkgName}, (err, result) => {
+              lib.stdlib.templates[tdev ? '@dev' : '@release']({name: extPkgName}, (err, result) => {
                 cb(err, result);
               });
             },
             cb => {
-              lib.stdlib.templates.files({name: extPkgName}, (err, result) => {
+              lib.stdlib.templates[tdev ? '@dev' : '@release'].files({name: extPkgName}, (err, result) => {
                 cb(err, result);
               });
             }
