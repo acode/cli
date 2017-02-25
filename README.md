@@ -439,7 +439,7 @@ can read more about service hosting and keep track of official updates on
 
 StdLib is a product of and &copy; 2016 - 2017 Polybit Inc.
 
-We'd love for you to pay attention to [@Polybit](https://twitter.com/polybit) and
+We'd love for you to pay attention to [@StdLibHQ](https://twitter.com/StdLibHQ) and
 what we're building next! If you'd consider joining the team, [shoot us an e-mail](mailto:careers@stdlib.com).
 
 You can also follow me, the original author, on Twitter: [@keithwhor](https://twitter.com/keithwhor).
