@@ -47,12 +47,14 @@ class CreateCommand extends Command {
       flags: {
         n: 'No login - don\'t require an internet connection',
         w: 'Write over - overwrite the current directory contents',
-        t: 'Template - a stdlib service template to use'
+        t: 'Template - a stdlib service template to use',
+        d: 'Dev Mode - Specify another HTTP address for the service (e.g. localhost:8170)'
       },
       vflags: {
         'no-login': 'No login - don\'t require an internet connection',
         'write-over': 'Write over - overwrite the current directory contents',
-        'template': 'Template - a stdlib service template to use'
+        'template': 'Template - a stdlib service template to use',
+        'develop': 'Dev Mode - Specify another HTTP address for the service (e.g. localhost:8170)'
       }
     };
 
@@ -70,6 +72,8 @@ class CreateCommand extends Command {
     let force = params.flags.hasOwnProperty('f') || params.vflags.hasOwnProperty('force');
     let write = params.flags.hasOwnProperty('w') || params.vflags.hasOwnProperty('write-over');
     let tdev = params.flags.hasOwnProperty('tdev');
+
+    let develop = (params.flags.d || params.vflags.develop || [])[0];
 
     let extPkgName = (params.flags.t || params.vflags.template || [])[0];
     let extPkg = null;
@@ -152,15 +156,18 @@ class CreateCommand extends Command {
 
           console.log(`Fetching template ${chalk.bold.green(extPkgName)}...`);
           console.log();
+          let utils = develop ?
+            lib({host: develop.split(':')[0], port: develop.split(':')[1], debug: true}).utils :
+            lib.utils;
 
           extPkgCalls = [
             cb => {
-              lib.stdlib.templates[tdev ? '@dev' : '@release']({name: extPkgName}, (err, result) => {
+              utils.templates[tdev ? '@dev' : '@release'].package({name: extPkgName}, (err, result) => {
                 cb(err, result);
               });
             },
             cb => {
-              lib.stdlib.templates[tdev ? '@dev' : '@release'].files({name: extPkgName}, (err, result) => {
+              utils.templates[tdev ? '@dev' : '@release'].files({name: extPkgName}, (err, result) => {
                 cb(err, result);
               });
             }

@@ -97,7 +97,7 @@ module.exports = {
     let libreq = https.request({
       hostname: 'f.stdlib.com',
       port: 443,
-      path: `/stdlib/reflect${search}`,
+      path: `/utils/reflect/${search}`,
       method: method,
       headers: headers
     }, (libres) => {
