@@ -17,7 +17,10 @@ module.exports = {
       return callback();
     }
 
-    let npmPathCommand = spawnSync('npm', ['bin']);
+    let npmPathCommand = spawnSync(
+      /^win/.test(process.platform) ? 'npm.cmd' : 'npm',
+      ['bin']
+    );
     let npmPath = npmPathCommand.stdout.toString().trim();
     process.env.PATH = npmPath + ':' + process.env.PATH;
 
