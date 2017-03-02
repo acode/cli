@@ -23,7 +23,9 @@ class __nomethod__Command extends Command {
         'all arguments converted to params.args'
       ],
       flags: {
-        f: 'Specify a file to send (overrides args and kwargs)'
+        f: 'Specify a file to send (overrides args and kwargs)',
+        t: 'Specify a Library Token',
+        w: 'Specify a Webhook'
       },
       vflags: {
         '*': 'all verbose flags converted to params.kwargs'
@@ -56,6 +58,7 @@ class __nomethod__Command extends Command {
     }, {});
 
     let token = (params.flags.t && params.flags.t[0]) || null;
+    let webhook = (params.flags.w && params.flags.w[0]) || null;
     let hostname = (params.flags.h && params.flags.h[0]) || '';
     let matches = hostname.match(/^(https?:\/\/)?(.*?)(:\d+)?$/);
     let host;
@@ -86,14 +89,15 @@ class __nomethod__Command extends Command {
 
     try {
       process.env = env();
+      let cfg = {token: token, host: host, port: port, webhook: webhook};
       if (params.flags.f && params.flags.f.length === 1) {
         const filepath = params.flags.f[0];
         const filename = filepath.split('/').pop();
         const buffer = fs.readFileSync(filepath);
         kwargs.filename = kwargs.hasOwnProperty('filename') ? kwargs.filename : filename;
-        lib({token: token, host: host, port: port})[params.name](buffer, kwargs, cb);
+        lib(cfg)[params.name](buffer, kwargs, cb);
       } else {
-        lib({token: token, host: host, port: port})[params.name](...args, kwargs, cb);
+        lib(cfg)[params.name](...args, kwargs, cb);
       }
     } catch(e) {
       return callback(e);
