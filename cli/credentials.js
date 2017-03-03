@@ -29,10 +29,16 @@ function findPath(maxDepth) {
 
 function readCredentials() {
 
-  if(process.env.STDLIB_ACCESS_TOKEN) {
-    return {
-      ACCESS_TOKEN: process.env.STDLIB_ACCESS_TOKEN
-    };
+  if (process.env.hasOwnProperty('STDLIB_ACCESS_TOKEN')) {
+    let prefix = 'STDLIB_';
+
+    return Object.keys(process.env)
+      .filter(key => key.indexOf(prefix) === 0)
+      .map(key => key.substr(prefix.length))
+      .reduce((obj, key) => {
+        obj[key] = process.env[prefix + key];
+        return obj;
+      }, {});
   } else {
     let cred = '';
     let stdlibPath = findPath();
