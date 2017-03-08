@@ -100,6 +100,7 @@ class __nomethod__Command extends Command {
         lib(cfg)[params.name](...args, kwargs, cb);
       }
     } catch(e) {
+      console.error(e);
       return callback(e);
     }
 
