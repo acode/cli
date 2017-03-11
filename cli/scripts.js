@@ -3,7 +3,7 @@ const spawn = require('child_process').spawn;
 
 module.exports = {
 
-  run: (pkg, type, callback) => {
+  run: (pkg, type, subtype, callback) => {
 
     callback = callback || function() {};
 
@@ -11,7 +11,16 @@ module.exports = {
     const BACKGROUND = type && type[0] === '+';
     let bgproc = [];
 
-    let scripts = pkg && pkg.stdlib && pkg.stdlib.scripts && pkg.stdlib.scripts[type];
+    let allScripts = pkg && pkg.stdlib && pkg.stdlib.scripts;
+
+    if (!allScripts) {
+      return callback();
+    }
+
+    let baseScripts = allScripts[type];
+    let specificScripts = subtype ? allScripts[`${type}:${subtype}`] : null;
+
+    let scripts = specificScripts || baseScripts;
 
     if (!scripts) {
       return callback();
@@ -22,7 +31,7 @@ module.exports = {
       ['bin']
     );
     let npmPath = npmPathCommand.stdout.toString().trim();
-    process.env.PATH = npmPath + ':' + process.env.PATH;
+    let pathVar = npmPath + ':' + process.env.PATH;
 
     let cmds = scripts instanceof Array ? scripts : [scripts];
     for (let i = 0; i < cmds.length; i++) {
@@ -32,7 +41,17 @@ module.exports = {
       }
       if (BACKGROUND) {
         let n = i;
-        let command = spawn(cmd[0], cmd.slice(1), {stdio: [0, null, null]});
+        let command = spawn(
+          cmd[0],
+          cmd.slice(1),
+          {
+            stdio: [0, null, null],
+            env: {
+              PATH: pathVar,
+              SUBTYPE: subtype
+            }
+          }
+        );
         command.stdout.on('data', data => {
           data = (data || '').toString();
           data = data.split('\n').map(d => `[${type}${n ? ' ' + n : ''}] ${d}`).join('\n');
@@ -45,9 +64,20 @@ module.exports = {
         });
         bgproc.push(command);
       } else {
-        let command = spawnSync(cmd[0], cmd.slice(1), {stdio: [0, 1, 2]});
+        let command = spawnSync(
+          cmd[0],
+          cmd.slice(1),
+          {
+            stdio: [0, 1, 2],
+            env: {
+              PATH: pathVar,
+              SUBTYPE: subtype
+            }
+          }
+        );
         if (command.status !== 0) {
           process.env.PATH = PATH;
+          console.log(command);
           return callback(new Error(`Error running "${type}" script (${i})`));
         }
       }

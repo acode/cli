@@ -12,6 +12,7 @@ const path = require('path');
 const async = require('async');
 const tar = require('tar-stream');
 
+const RELEASE_ENV = 'release';
 
 function readFiles(base, properties, dir, data) {
 
@@ -82,16 +83,19 @@ class UpCommand extends Command {
     let environment = params.args[0];
     let release = params.flags.r || params.vflags.release;
 
-    if (release && environment) {
-      return callback(new Error('Can not release to an environment'));
-    }
-
-    if (!environment && !release) {
+    if (environment) {
+      if (environment === RELEASE_ENV) {
+        release = [];
+      } else if (release) {
+        return callback(new Error('Can not release to an environment'));
+      }
+    } else if (release) {
+      environment = RELEASE_ENV;
+      if (release[0]) {
+        return callback(new Error('Can only release to the version specified in "package.json"'));
+      }
+    } else {
       return callback(new Error('Please specify an environment'));
-    }
-
-    if (release && release[0]) {
-      return callback(new Error('Can only release to the version specified in "package.json"'));
     }
 
     let host = 'registry.stdlib.com';
@@ -121,7 +125,7 @@ class UpCommand extends Command {
       return callback(new Error('No stdlib name set in "package.json"'));
     }
 
-    scripts.run(pkg, 'preup', err => {
+    scripts.run(pkg, 'preup', environment, err => {
 
       if (err) {
         return callback(err);
@@ -187,9 +191,9 @@ class UpCommand extends Command {
           // console.log(`Service "${pkg.stdlib.name}" compressed in ${t}ms.`);
           // console.log(`File size: ${result.length} bytes`);
 
-          let endpoint = environment ?
-            `${pkg.stdlib.name}@${environment}` :
-            `${pkg.stdlib.name}@${pkg.version}`;
+          let endpoint = environment === RELEASE_ENV ?
+            `${pkg.stdlib.name}@${pkg.version}` :
+            `${pkg.stdlib.name}@${environment}`;
 
           return resource.request(endpoint).stream(
             'POST',
