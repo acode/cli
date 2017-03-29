@@ -3,9 +3,11 @@ const spawn = require('child_process').spawn;
 
 module.exports = {
 
-  run: (pkg, type, subtype, callback) => {
+  run: (pkg, type, subtype, data, callback) => {
 
     callback = callback || function() {};
+    data = data || {};
+    data = typeof data === 'object' ? data : {};
 
     const PATH = process.env.PATH; // cache path
     const BACKGROUND = type && type[0] === '+';
@@ -32,6 +34,15 @@ module.exports = {
     );
     let npmPath = npmPathCommand.stdout.toString().trim();
     let pathVar = npmPath + ':' + process.env.PATH;
+    let envVars = {
+      PATH: pathVar,
+      FORCE_COLOR: 1,
+      SUBTYPE: subtype,
+    };
+    envVars = Object.keys(data).reduce((envVars, key) => {
+      envVars['DATA_' + key] = data[key];
+      return envVars;
+    }, envVars);
 
     let cmds = scripts instanceof Array ? scripts : [scripts];
     for (let i = 0; i < cmds.length; i++) {
@@ -46,10 +57,7 @@ module.exports = {
           cmd.slice(1),
           {
             stdio: [0, null, null],
-            env: {
-              PATH: pathVar,
-              SUBTYPE: subtype
-            }
+            env: envVars
           }
         );
         command.stdout.on('data', data => {
@@ -64,22 +72,22 @@ module.exports = {
         });
         bgproc.push(command);
       } else {
-        let command = spawnSync(
+        let command = spawn(
           cmd[0],
           cmd.slice(1),
           {
             stdio: [0, 1, 2],
-            env: {
-              PATH: pathVar,
-              SUBTYPE: subtype
-            }
+            env: envVars
           }
         );
-        if (command.status !== 0) {
+        command.on('exit', (code) => {
           process.env.PATH = PATH;
-          console.log(command);
-          return callback(new Error(`Error running "${type}" script (${i})`));
-        }
+          if (code) {
+            return callback(new Error(`Error running "${type}" script (${code})`));
+          }
+          return callback();
+        });
+        return;
       }
     }
 

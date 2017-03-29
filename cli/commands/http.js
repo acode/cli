@@ -37,13 +37,13 @@ class HTTPCommand extends Command {
       return true;
     }
 
-    scripts.run(pkg, 'prehttp', null, err => {
+    scripts.run(pkg, 'prehttp', null, null, err => {
 
       if (err) {
         return callback(err);
       }
 
-      scripts.run(pkg, '+http', null);
+      scripts.run(pkg, '+http', null, null);
 
       if (!offline) {
         parser.check(err => parser.createServer(pkg, port, !!err));

@@ -125,7 +125,7 @@ class UpCommand extends Command {
       return callback(new Error('No stdlib name set in "package.json"'));
     }
 
-    scripts.run(pkg, 'preup', environment, err => {
+    scripts.run(pkg, 'preup', environment, {version: pkg.version}, err => {
 
       if (err) {
         return callback(err);
@@ -210,7 +210,7 @@ class UpCommand extends Command {
               if (response[response.length - 1] === 1) {
                 return callback(new Error('There was an error processing your request'));
               } else {
-                return callback(null);
+                scripts.run(pkg, 'postup', environment, {version: pkg.version}, err => callback(err));
               }
 
             }
