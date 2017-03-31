@@ -100,7 +100,7 @@ $ cd your-username/your-service
 In this directory, you'll see something like:
 
 ```
-- f/
+- functions/
   - defaultFunction/
     - function.json
     - index.js
@@ -118,7 +118,7 @@ $ lib .
 > "hello world"
 ```
 
-If we examine the `f/defaultFunction/index.js` file, we see the following:
+If we examine the `functions/defaultFunction/index.js` file, we see the following:
 
 ```javascript
 module.exports = (params, callback) => {
@@ -191,7 +191,7 @@ $ npm install lib --save
 
 In your main service directory to add it, and use it like so:
 
-#### f/add/index.js
+#### functions/add/index.js
 ```javascript
 module.exports = (params, callback) => {
 
@@ -200,7 +200,7 @@ module.exports = (params, callback) => {
 };
 ```
 
-#### f/add-double/index.js
+#### functions/add-double/index.js
 ```javascript
 const lib = require('lib');
 
@@ -342,7 +342,7 @@ down [environment]
 
 	Removes StdLib package from registry and cloud environment
 
-f:create [function name]
+function:create [function name]
 	-w                   Overwrite existing function
 	--write-over         Overwrite existing function
 

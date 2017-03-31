@@ -13,7 +13,7 @@ class FCreateCommand extends Command {
 
   constructor() {
 
-    super('f', 'create');
+    super('function', 'create');
 
   }
 
@@ -64,7 +64,7 @@ class FCreateCommand extends Command {
 
       functionName = functionName || promptResult.functionName;
 
-      let fPath = path.join(process.cwd(), 'f');
+      let fPath = path.join(process.cwd(), 'functions');
       let functionPath;
 
       !fs.existsSync(fPath) && fs.mkdirSync(fPath);
@@ -83,7 +83,7 @@ class FCreateCommand extends Command {
             console.log();
             console.log(`Try removing the existing directory first.`);
             console.log();
-            console.log(`Use ${chalk.bold('lib f:create ' + functionName + ' --write-over')} to override.`);
+            console.log(`Use ${chalk.bold('lib function:create ' + functionName + ' --write-over')} to override.`);
             console.log();
             return callback(null);
           }
@@ -93,7 +93,7 @@ class FCreateCommand extends Command {
       }
 
       let json = {
-        func: require(path.join(__dirname, '../../templates/f/function.json'))
+        func: require(path.join(__dirname, '../../templates/functions/function.json'))
       };
 
       json.func.name = functionName;
@@ -106,7 +106,7 @@ class FCreateCommand extends Command {
       let files = {
         func: {
           copy: {
-            'index.js': fs.readFileSync(path.join(__dirname, '../../templates/f/index.js')),
+            'index.js': fs.readFileSync(path.join(__dirname, '../../templates/functions/index.js')),
           }
         }
       };

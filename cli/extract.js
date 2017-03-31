@@ -5,6 +5,11 @@ const tar = require('tar-stream');
 const stream = require('stream');
 const path = require('path');
 
+// Figure out what function Directory we're using, and what we're fetching
+//  from the template
+const functionDir = fs.existsSync('f') ? 'f' : 'functions';
+const unusedFunctionDir = functionDir !== 'f' ? 'f' : 'functions';
+
 function writeFile(directory, pathname, buffer, dirs) {
 
   pathname = path.join.apply(path, [].concat(directory.split('/'), pathname.split('/')));
@@ -28,7 +33,13 @@ function writeFiles(directory, files, callback) {
   try {
     Object.keys(files)
       .reduce((dirs, pathname) => {
-        return writeFile(directory, pathname, files[pathname], dirs);
+        // Makes sure templates work with new directory names
+        let writePath = pathname;
+        let unused = `${unusedFunctionDir}/`;
+        if (pathname.substr(0, unused.length) === unused) {
+          writePath = `${functionDir}/${pathname.substr(unused.length)}`;
+        }
+        return writeFile(directory, writePath, files[pathname], dirs);
       }, {});
   } catch (e) {
     return callback(e);

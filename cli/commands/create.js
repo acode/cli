@@ -191,7 +191,7 @@ class CreateCommand extends Command {
           !fs.existsSync(username) && fs.mkdirSync(username);
           let serviceName = [username, name].join('/');
           let servicePath = path.join(process.cwd(), username, name);
-          let fPath = path.join(servicePath, 'f');
+          let fPath = path.join(servicePath, 'functions');
           let functionPath;
 
           if (fs.existsSync(servicePath)) {
@@ -228,12 +228,12 @@ class CreateCommand extends Command {
 
           let json = {
             pkg: require(path.join(__dirname, '../templates/package.json')),
-            func: require(path.join(__dirname, '../templates/f/function.json'))
+            func: require(path.join(__dirname, '../templates/functions/function.json'))
           };
 
           json.pkg.name = name;
           json.pkg.author = user.username + (user.email ? ` <${user.email}>` : '');
-          json.pkg.main = ['f', functionName, 'index.js'].join('/');
+          json.pkg.main = ['functions', functionName, 'index.js'].join('/');
           json.pkg.stdlib.name = [username, name].join('/');
           json.pkg.stdlib.defaultFunction = functionName;
 
@@ -266,7 +266,7 @@ class CreateCommand extends Command {
             },
             func: {
               copy: {
-                'index.js': fs.readFileSync(path.join(__dirname, '../templates/f/index.js')),
+                'index.js': fs.readFileSync(path.join(__dirname, '../templates/functions/index.js')),
               }
             }
           };
