@@ -69,7 +69,7 @@ class UpCommand extends Command {
         'environment'
       ],
       flags: {
-        r: 'Upload a release package',
+        r: 'Upload a release package'
       },
       vflags: {
         release: 'Upload a release package',
@@ -108,6 +108,9 @@ class UpCommand extends Command {
       host = matches[2];
       port = parseInt((matches[3] || '').substr(1) || (hostname.indexOf('https') === 0 ? 443 : 80));
     }
+
+    let buildFlag = params.flags.b || params.vflags.build || [];
+    let buildVersion = buildFlag[0] || 'v1';
 
     let pkg;
 
@@ -195,26 +198,29 @@ class UpCommand extends Command {
             `${pkg.stdlib.name}@${pkg.version}` :
             `${pkg.stdlib.name}@${environment}`;
 
-          return resource.request(endpoint).stream(
-            'POST',
-            result,
-            (data) => {
-              data.length > 1 && process.stdout.write(data.toString());
-            },
-            (err, response) => {
+          return resource
+            .headers({'X-Stdlib-Build': buildVersion})
+            .request(endpoint)
+            .stream(
+              'POST',
+              result,
+              (data) => {
+                data.length > 1 && process.stdout.write(data.toString());
+              },
+              (err, response) => {
 
-              if (err) {
-                return callback(err);
+                if (err) {
+                  return callback(err);
+                }
+
+                if (response[response.length - 1] === 1) {
+                  return callback(new Error('There was an error processing your request'));
+                } else {
+                  scripts.run(pkg, 'postup', environment, {version: pkg.version}, err => callback(err));
+                }
+
               }
-
-              if (response[response.length - 1] === 1) {
-                return callback(new Error('There was an error processing your request'));
-              } else {
-                scripts.run(pkg, 'postup', environment, {version: pkg.version}, err => callback(err));
-              }
-
-            }
-          );
+            );
 
         });
 
