@@ -2,10 +2,9 @@
 
 const Command = require('cmnd').Command;
 const fs = require('fs');
-const lib = require('lib');
 const path = require('path');
 
-const env = require('../env.js');
+const lib = require('lib');
 
 class __nomethod__Command extends Command {
 
@@ -72,6 +71,16 @@ class __nomethod__Command extends Command {
     let cb = (err, result) => {
 
       if (err) {
+        if (result && result.error) {
+          let message = result.error.message || '';
+          if (result.error.type === 'ParameterError') {
+            let params = result.error.details;
+            params && Object.keys(params).forEach(name => {
+              message += `\n[${name}] ${params[name].message}`;
+            });
+          }
+          err.message = message;
+        }
         return callback(err);
       }
 
@@ -88,17 +97,20 @@ class __nomethod__Command extends Command {
     };
 
     try {
-      process.env = env();
-      let cfg = {token: token, host: host, port: port, webhook: webhook};
-      if (params.flags.f && params.flags.f.length === 1) {
-        const filepath = params.flags.f[0];
-        const filename = filepath.split('/').pop();
-        const buffer = fs.readFileSync(filepath);
-        kwargs.filename = kwargs.hasOwnProperty('filename') ? kwargs.filename : filename;
-        lib(cfg)[params.name](buffer, kwargs, cb);
+      let libcfg = {token: token, host: host, port: port, webhook: webhook, convert: true};
+      if (Object.keys(kwargs).length) {
+        lib(libcfg)[params.name](kwargs, ...args, cb);
       } else {
-        lib(cfg)[params.name](...args, kwargs, cb);
+        lib(libcfg)[params.name](...args, cb);
       }
+      // if (params.flags.f && params.flags.f.length === 1) {
+      //   const filepath = params.flags.f[0];
+      //   const filename = filepath.split('/').pop();
+      //   const buffer = fs.readFileSync(filepath);
+      //   kwargs.filename = kwargs.hasOwnProperty('filename') ? kwargs.filename : filename;
+      //   lib(cfg)[params.name](buffer, kwargs, cb);
+      // } else {
+      //}
     } catch(e) {
       console.error(e);
       return callback(e);

@@ -3,6 +3,8 @@
 const Command = require('cmnd').Command;
 const path = require('path');
 
+const LocalGateway = require('../local_gateway.js');
+
 const parser = require('../parser.js');
 const scripts = require('../scripts.js');
 
@@ -18,40 +20,39 @@ class HTTPCommand extends Command {
 
     return {
       description: 'Creates HTTP Server for Current Service',
-      flags: {p: 'Port (Default 8170)'},
-      vflags: {port: 'Port (Default 8170)'}
+      flags: {},
+      vflags: {}
     };
 
   }
 
   run(params, callback) {
 
-    let port = (params.flags.p || params.vflags.port || [])[0] || 8170;
-    let offline = !!(params.flags.o || params.vflags.offline);
-    let pkg = {};
+    let gateway = new LocalGateway({debug: true});
+    gateway.start();
 
-    try {
-      pkg = require(path.join(process.cwd(), 'package.json'));
-    } catch (e) {
-      throw new Error('Invalid package.json in this directory');
-      return true;
-    }
-
-    scripts.run(pkg, 'prehttp', null, null, err => {
-
-      if (err) {
-        return callback(err);
-      }
-
-      scripts.run(pkg, '+http', null, null);
-
-      if (!offline) {
-        parser.check(err => parser.createServer(pkg, port, !!err));
-      } else {
-        parser.createServer(pkg, port, offline);
-      }
-
-    });
+    // try {
+    //   pkg = require(path.join(process.cwd(), 'package.json'));
+    // } catch (e) {
+    //   throw new Error('Invalid package.json in this directory');
+    //   return true;
+    // }
+    //
+    // scripts.run(pkg, 'prehttp', null, null, err => {
+    //
+    //   if (err) {
+    //     return callback(err);
+    //   }
+    //
+    //   scripts.run(pkg, '+http', null, null);
+    //
+    //   if (!offline) {
+    //     parser.check(err => parser.createServer(pkg, port, !!err));
+    //   } else {
+    //     parser.createServer(pkg, port, offline);
+    //   }
+    //
+    // });
 
   }
 

@@ -110,7 +110,7 @@ class UpCommand extends Command {
     }
 
     let buildFlag = params.flags.b || params.vflags.build || [];
-    let buildVersion = buildFlag[0] || 'v1';
+    let buildVersion = buildFlag[0] || 'v3';
 
     let pkg;
 
@@ -191,16 +191,14 @@ class UpCommand extends Command {
           }
 
           let t = new Date().valueOf() - start;
-          // console.log(`Service "${pkg.stdlib.name}" compressed in ${t}ms.`);
-          // console.log(`File size: ${result.length} bytes`);
 
           let endpoint = environment === RELEASE_ENV ?
             `${pkg.stdlib.name}@${pkg.version}` :
             `${pkg.stdlib.name}@${environment}`;
 
           return resource
-            .headers({'X-Stdlib-Build': buildVersion})
             .request(endpoint)
+            .headers({'X-Stdlib-Build': buildVersion})
             .stream(
               'POST',
               result,
