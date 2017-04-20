@@ -97,7 +97,7 @@ class __nomethod__Command extends Command {
     };
 
     try {
-      let cfg = {token: token, host: host, port: port, webhook: webhook,};
+      let cfg = {token: token, host: host, port: port, webhook: webhook, convert: true};
       if (Object.keys(kwargs).length) {
         lib(cfg)[params.name](kwargs, ...args, cb);
       } else {
