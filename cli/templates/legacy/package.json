@@ -8,7 +8,7 @@
   "private": true,
   "stdlib": {
     "name": "username/service",
-    "defaultFunction": "function",
+    "defaultFunction": "main",
     "timeout": 10000,
     "publish": true,
     "personalize": {

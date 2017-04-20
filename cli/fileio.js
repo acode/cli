@@ -46,7 +46,7 @@ function writeFiles(directory, files) {
 function readFiles(basepath, pathname, files) {
   basepath = basepath || '.';
   pathname = pathname || '.';
-  return fs.readdirSync(basepath).reduce((files, filename) => {
+  return fs.readdirSync(path.join(basepath, pathname)).reduce((files, filename) => {
     let filepath = path.join(pathname, filename);
     let fullpath = path.join(basepath, filepath);
     if (fs.statSync(fullpath).isDirectory()) {

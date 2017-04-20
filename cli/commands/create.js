@@ -58,7 +58,7 @@ class CreateCommand extends Command {
         'no-login': 'No login - don\'t require an internet connection',
         'write-over': 'Write over - overwrite the current directory contents',
         'template': 'Template - a stdlib service template to use',
-        'develop': 'Dev Mode - Specify another HTTP address for the Template Service (e.g. localhost:8170)'
+        'develop': 'Dev Mode - Specify another HTTP address for the Template Service (e.g. localhost:8170)',
         'build': `Build - Specify build, ${DEFAULT_BUILD} (default) or ${OTHER_BUILDS.map(v => `"${v}"`).join(', ')}`
       }
     };
@@ -234,7 +234,6 @@ class CreateCommand extends Command {
 
           json.pkg.name = name;
           json.pkg.author = user.username + (user.email ? ` <${user.email}>` : '');
-          json.pkg.main = ['functions', functionName, 'index.js'].join('/');
           json.pkg.stdlib.name = [username, name].join('/');
           json.pkg.stdlib.build = build;
 
@@ -253,7 +252,7 @@ class CreateCommand extends Command {
             deepAssign(json.pkg, extPkg.pkg);
           }
 
-          fileio.writeFiles(serviceName, fileio.readFiles(`../templates/${build}`));
+          fileio.writeFiles(serviceName, fileio.readFiles(path.join(__dirname, '..', 'templates', build)));
 
           fs.writeFileSync(
             path.join(servicePath, 'package.json'),
