@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "description": "Service",
   "author": "Author",
-  "main": "f/function/index.js",
+  "main": "functions/main/index.js",
   "dependencies": {},
   "private": true,
   "stdlib": {

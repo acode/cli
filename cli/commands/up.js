@@ -109,9 +109,6 @@ class UpCommand extends Command {
       port = parseInt((matches[3] || '').substr(1) || (hostname.indexOf('https') === 0 ? 443 : 80));
     }
 
-    let buildFlag = params.flags.b || params.vflags.build || [];
-    let buildVersion = buildFlag[0] || 'v3';
-
     let pkg;
 
     try {
@@ -198,7 +195,7 @@ class UpCommand extends Command {
 
           return resource
             .request(endpoint)
-            .headers({'X-Stdlib-Build': buildVersion})
+            .headers({'X-Stdlib-Build': pkg.stdlib.build || ''})
             .stream(
               'POST',
               result,

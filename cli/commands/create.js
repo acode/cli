@@ -3,7 +3,7 @@
 const Command = require('cmnd').Command;
 const APIResource = require('api-res');
 const Credentials = require('../credentials.js');
-const extract = require('../extract.js');
+const fileio = require('../fileio.js');
 
 const async = require('async');
 const inquirer = require('inquirer');
@@ -15,6 +15,9 @@ const chalk = require('chalk');
 const lib = require('lib');
 
 const spawnSync = require('child_process').spawnSync;
+
+const DEFAULT_BUILD = 'legacy';
+const OTHER_BUILDS = ['faaslang'];
 
 function deepAssign(o1, o2) {
   Object.keys(o2).forEach(k => {
@@ -48,13 +51,15 @@ class CreateCommand extends Command {
         n: 'No login - don\'t require an internet connection',
         w: 'Write over - overwrite the current directory contents',
         t: 'Template - a stdlib service template to use',
-        d: 'Dev Mode - Specify another HTTP address for the service (e.g. localhost:8170)'
+        d: 'Dev Mode - Specify another HTTP address for the Template Service (e.g. localhost:8170)',
+        b: `Build - Specify build, ${DEFAULT_BUILD} (default) or ${OTHER_BUILDS.map(v => `"${v}"`).join(', ')}`
       },
       vflags: {
         'no-login': 'No login - don\'t require an internet connection',
         'write-over': 'Write over - overwrite the current directory contents',
         'template': 'Template - a stdlib service template to use',
-        'develop': 'Dev Mode - Specify another HTTP address for the service (e.g. localhost:8170)'
+        'develop': 'Dev Mode - Specify another HTTP address for the Template Service (e.g. localhost:8170)'
+        'build': `Build - Specify build, ${DEFAULT_BUILD} (default) or ${OTHER_BUILDS.map(v => `"${v}"`).join(', ')}`
       }
     };
 
@@ -74,6 +79,11 @@ class CreateCommand extends Command {
     let tdev = params.flags.hasOwnProperty('tdev');
 
     let develop = (params.flags.d || params.vflags.develop || [])[0];
+    let build = (params.flags.b || params.vflags.build || [])[0] || DEFAULT_BUILD;
+
+    if ([DEFAULT_BUILD].concat(OTHER_BUILDS).indexOf(build) === -1) {
+      return callback(new Error(`Invalid build: "${build}"`));
+    }
 
     let extPkgName = (params.flags.t || params.vflags.template || [])[0];
     let extPkg = null;
@@ -126,7 +136,6 @@ class CreateCommand extends Command {
     inquirer.prompt(questions, (promptResult) => {
 
       name = name || promptResult.name;
-      let functionName = 'main'; // set default function name
       let username;
 
       if (name.indexOf('/') > -1) {
@@ -219,91 +228,46 @@ class CreateCommand extends Command {
 
           }
 
-          let directories = functionName.split('/');
-          for (let i = 0; i < directories.length; i++) {
-            let relpath = path.join.apply(path, [fPath].concat(directories.slice(0, i + 1)));
-            !fs.existsSync(relpath) && fs.mkdirSync(relpath);
-            functionPath = relpath;
-          }
-
           let json = {
-            pkg: require(path.join(__dirname, '../templates/package.json')),
-            func: require(path.join(__dirname, '../templates/functions/function.json'))
+            pkg: require(path.join(__dirname, `../templates/${build}/package.json`))
           };
 
           json.pkg.name = name;
           json.pkg.author = user.username + (user.email ? ` <${user.email}>` : '');
           json.pkg.main = ['functions', functionName, 'index.js'].join('/');
           json.pkg.stdlib.name = [username, name].join('/');
-          json.pkg.stdlib.defaultFunction = functionName;
+          json.pkg.stdlib.build = build;
 
           // EXTERNAL: Assign package details
           if (extPkg && extPkg.pkg) {
+            let extBuild = extPkg.pkg &&
+              extPkg.pkg.stdlib &&
+              extPkg.pkg.stdlib.build ||
+              DEFAULT_BUILD;
+            if (build !== extBuild) {
+              return callback(new Error(
+                `Can not use this template with this build\n` +
+                `Try \`lib create -t ${extPkgName} -b ${extBuild}\` instead`
+              ));
+            }
             deepAssign(json.pkg, extPkg.pkg);
           }
+
+          fileio.writeFiles(serviceName, fileio.readFiles(`../templates/${build}`));
 
           fs.writeFileSync(
             path.join(servicePath, 'package.json'),
             JSON.stringify(json.pkg, null, 2)
           );
 
-          json.func.name = functionName;
-
-          fs.writeFileSync(
-            path.join(functionPath, 'function.json'),
-            JSON.stringify(json.func, null, 2)
-          );
-
-          let files = {
-            base: {
-              copy: {
-                '.gitignore': fs.readFileSync(path.join(__dirname, '../templates/gitignore')),
-                'env.json': fs.readFileSync(path.join(__dirname, '../templates/env.json'))
-              },
-              template: {
-                'README.md': fs.readFileSync(path.join(__dirname, '../templates/README.md')).toString()
-              }
-            },
-            func: {
-              copy: {
-                'index.js': fs.readFileSync(path.join(__dirname, '../templates/functions/index.js')),
-              }
-            }
-          };
-
-          let templateData = {
-            username: username,
-            service: name,
-            func: functionName
-          };
-
-          Object.keys(files.base.copy).forEach(filename => {
-            fs.writeFileSync(path.join(servicePath, filename), files.base.copy[filename])
-          });
-
-          Object.keys(files.base.template).forEach(filename => {
-            let template = files.base.template[filename];
-            Object.keys(templateData).forEach(k => {
-              template = template.replace(new RegExp(`\{\{${k}\}\}`, 'gi'), templateData[k]);
-            });
-            fs.writeFileSync(path.join(servicePath, filename), template);
-          });
-
-          Object.keys(files.func.copy).forEach(filename => {
-            fs.writeFileSync(path.join(functionPath, filename), files.func.copy[filename])
-          });
-
           let fns = [];
           if (extPkg && extPkg.files && extPkg.files.length) {
             fns.push(cb => {
-              extract(serviceName, extPkg.files, (err) => {
-
+              fileio.extract(serviceName, extPkg.files, (err) => {
                 if (err) {
                   return cb(new Error(`Could not install template ${extPkgName}`));
                 }
-
                 cb();
-
               });
             });
           }

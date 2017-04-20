@@ -1,6 +1,6 @@
-# Your stdlib service: {{username}}/{{service}}
+# Your StdLib Service
 
-This is the README for your service.
+Welcome to StdLib!
 
 A few notes;
 
@@ -49,13 +49,13 @@ restricted to one compilation environment (aside from `"release"`).
 saved with your tarball and is privately retrievable from the stdlib registry
 using your account credentials. It has been added to `.gitignore` by default.
 
-# f/{{func}}/function.json
+# functions/main/function.json
 
 This is your function definition file. The following fields can be used for
 execution configuration of specific functions within your service.
 
 `name` - The function name. This maps to an execution route over HTTP. For
-example, `{{username}}/{{service}}/{{func}}` would map to the first
+example, `<username>/<service>/main` would map to the first
 function you've created.
 
 `description` - A brief description of the function. To provide detailed
@@ -73,9 +73,9 @@ passed to `params.kwargs`
 `"Content-Type"` to specify file type if your function returns a `Buffer` or
 `"Access-Control-Allow-Origin"` to restrict browser-based function requests.
 
-# f/{{func}}/index.js
+# functions/main/index.js
 
-The entry point to your function described in `f/{{func}}/function.json`.
+The entry point to your function described in `functions/main/function.json`.
 This is *non-configurable*. You may add as many subdirectories and supportive
 files as you like, but `index.js` will remain the entry point and *must*
 export a function to be active.

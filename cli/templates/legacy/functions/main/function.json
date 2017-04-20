@@ -1,6 +1,6 @@
 {
-  "name": "function",
-  "description": "Function",
+  "name": "main",
+  "description": "Main Function",
   "args": [
     "First argument",
     "Second argument"

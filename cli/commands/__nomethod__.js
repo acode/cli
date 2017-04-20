@@ -97,20 +97,12 @@ class __nomethod__Command extends Command {
     };
 
     try {
-      let libcfg = {token: token, host: host, port: port, webhook: webhook, convert: true};
+      let cfg = {token: token, host: host, port: port, webhook: webhook,};
       if (Object.keys(kwargs).length) {
-        lib(libcfg)[params.name](kwargs, ...args, cb);
+        lib(cfg)[params.name](kwargs, ...args, cb);
       } else {
-        lib(libcfg)[params.name](...args, cb);
+        lib(cfg)[params.name](...args, cb);
       }
-      // if (params.flags.f && params.flags.f.length === 1) {
-      //   const filepath = params.flags.f[0];
-      //   const filename = filepath.split('/').pop();
-      //   const buffer = fs.readFileSync(filepath);
-      //   kwargs.filename = kwargs.hasOwnProperty('filename') ? kwargs.filename : filename;
-      //   lib(cfg)[params.name](buffer, kwargs, cb);
-      // } else {
-      //}
     } catch(e) {
       console.error(e);
       return callback(e);
