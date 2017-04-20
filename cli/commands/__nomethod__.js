@@ -73,7 +73,7 @@ class __nomethod__Command extends Command {
       if (err) {
         if (result && result.error) {
           let message = result.error.message || '';
-          if (result.error.type === 'ParameterError') {
+          if (result.error.type === 'ParameterError' || result.error.type === 'ValueError') {
             let params = result.error.details;
             params && Object.keys(params).forEach(name => {
               message += `\n[${name}] ${params[name].message}`;
