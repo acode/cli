@@ -4,6 +4,9 @@ const Command = require('cmnd').Command;
 const fs = require('fs');
 const path = require('path');
 
+const LocalGateway = require('../local_gateway.js');
+const FunctionParser = require('faaslang').FunctionParser;
+
 const lib = require('lib');
 
 class __nomethod__Command extends Command {
@@ -48,6 +51,22 @@ class __nomethod__Command extends Command {
         return callback(new Error(`Deprecated service path usage, please try \`lib ${names.join('.')}\` instead`));
       }
       return callback(new Error(`Command "${params.name}" does not exist.`));
+    } else if (params.name[0] === '.') {
+      let pkg;
+      try {
+        pkg = require(path.join(process.cwd(), 'package.json'));
+      } catch (e) {
+        console.error(e);
+        return callback(new Error('Invalid package.json in this directory'));
+      }
+      if (pkg.stdlib.build === 'faaslang') {
+        let gateway = new LocalGateway({debug: true});
+        let fp = new FunctionParser();
+        gateway.service(pkg.stdlib.name);
+        gateway.define(fp.load(process.cwd(), 'functions'));
+        gateway.listen();
+        params.name = `${pkg.stdlib.name.replace(/\//gi, '.')}[@local]${params.name.length > 1 ? params.name : ''}`;
+      }
     }
 
     let args = params.args.slice();
