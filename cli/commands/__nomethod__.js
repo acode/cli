@@ -27,7 +27,8 @@ class __nomethod__Command extends Command {
       flags: {
         f: 'Specify a file to send (overrides args and kwargs)',
         t: 'Specify a Library Token',
-        w: 'Specify a Webhook'
+        w: 'Specify a Webhook',
+        d: 'Specify debug mode (prints Gateway logs)'
       },
       vflags: {
         '*': 'all verbose flags converted to params.kwargs'
@@ -37,6 +38,8 @@ class __nomethod__Command extends Command {
   }
 
   run(params, callback) {
+
+    let debug = !!params.flags.d;
 
     if (params.name.indexOf('.') === -1) {
       if (params.name.indexOf('/') > -1) {
@@ -60,7 +63,7 @@ class __nomethod__Command extends Command {
         return callback(new Error('Invalid package.json in this directory'));
       }
       if (pkg.stdlib.build === 'faaslang') {
-        let gateway = new LocalGateway({debug: true});
+        let gateway = new LocalGateway({debug: debug});
         let fp = new FunctionParser();
         gateway.service(pkg.stdlib.name);
         gateway.define(fp.load(process.cwd(), 'functions'));
