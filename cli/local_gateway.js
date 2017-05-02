@@ -21,8 +21,9 @@ class LocalGateway extends Gateway {
     return chalk.grey(`(${chalk.yellow(req ? (req._background ? chalk.bold('background:') : '') + req._uuid.split('-')[0] : 'GLOBAL')}) ${this.routename(req)}`);
   }
 
-  formatMessage(message) {
-    return super.formatMessage(chalk.grey(message));
+  formatMessage(message, logType) {
+    let color = {result: 'cyan', error: 'red'}[logType] || 'grey';
+    return chalk[color](super.formatMessage(message, logType));
   }
 
   service(serviceName) {
@@ -56,7 +57,7 @@ class LocalGateway extends Gateway {
 
   end(req, value) {
     value = value === undefined ? null : value;
-    this.log(req, `>>> ${chalk.red(value)}`);
+    this.log(req, value, 'result');
   }
 
 }
