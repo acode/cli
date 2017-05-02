@@ -1,4 +1,7 @@
 const url = require('url');
+
+const chalk = require('chalk');
+
 const config = require('./config.js');
 const Gateway = require('faaslang').Gateway;
 
@@ -8,6 +11,18 @@ class LocalGateway extends Gateway {
     cfg = cfg || {};
     cfg.name = 'LocalGateway';
     super(cfg);
+  }
+
+  formatName(name) {
+    return chalk.grey(`[${chalk.green(this.name)}]`);
+  }
+
+  formatRequest(req) {
+    return chalk.grey(`(${chalk.yellow(req ? (req._background ? chalk.bold('background:') : '') + req._uuid.split('-')[0] : 'GLOBAL')})`);
+  }
+
+  formatMessage(message) {
+    return chalk.grey(message);
   }
 
   service(serviceName) {
@@ -37,6 +52,11 @@ class LocalGateway extends Gateway {
       return callback(e);
     }
     return callback(null, definition, {}, buffer);
+  }
+
+  end(req, value) {
+    value = value === undefined ? null : value;
+    this.log(req, `Result\n>>> ${value}`);
   }
 
 }

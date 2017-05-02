@@ -25,13 +25,14 @@ class __nomethod__Command extends Command {
         'all arguments converted to params.args'
       ],
       flags: {
+        b: 'Execute as a Background Function',
+        d: 'Specify debug mode (prints Gateway logs)',
         f: 'Specify a file to send (overrides args and kwargs)',
         t: 'Specify a Library Token',
-        w: 'Specify a Webhook',
-        d: 'Specify debug mode (prints Gateway logs)'
+        w: 'Specify a Webhook (Deprecated)'
       },
       vflags: {
-        '*': 'all verbose flags converted to params.kwargs'
+        '*': 'all verbose flags converted to named keyword parameters'
       }
     };
 
@@ -40,6 +41,7 @@ class __nomethod__Command extends Command {
   run(params, callback) {
 
     let debug = !!params.flags.d;
+    let gateway;
 
     if (params.name.indexOf('.') === -1) {
       if (params.name.indexOf('/') > -1) {
@@ -63,10 +65,14 @@ class __nomethod__Command extends Command {
         return callback(new Error('Invalid package.json in this directory'));
       }
       if (pkg.stdlib.build === 'faaslang') {
-        let gateway = new LocalGateway({debug: debug});
+        gateway = new LocalGateway({debug: debug});
         let fp = new FunctionParser();
-        gateway.service(pkg.stdlib.name);
-        gateway.define(fp.load(process.cwd(), 'functions'));
+        try {
+          gateway.service(pkg.stdlib.name);
+          gateway.define(fp.load(process.cwd(), 'functions'));
+        } catch (e) {
+          return callback(e);
+        }
         gateway.listen();
         params.name = `${pkg.stdlib.name.replace(/\//gi, '.')}[@local]${params.name.length > 1 ? params.name : ''}`;
       }
@@ -80,6 +86,7 @@ class __nomethod__Command extends Command {
 
     let token = (params.flags.t && params.flags.t[0]) || null;
     let webhook = (params.flags.w && params.flags.w[0]) || null;
+    let background = (params.flags.b && (params.flags.b[0] || 'true')) || null;
     let hostname = (params.flags.h && params.flags.h[0]) || '';
     let matches = hostname.match(/^(https?:\/\/)?(.*?)(:\d+)?$/);
     let host;
@@ -103,23 +110,24 @@ class __nomethod__Command extends Command {
           }
           err.message = message;
         }
-        return callback(err);
-      }
-
-      if (result instanceof Buffer) {
-        console.log(result.toString('binary'));
-      } else if (typeof result === 'object') {
-        console.log(JSON.stringify(result, null, 2));
       } else {
-        console.log(result);
+        if (result instanceof Buffer) {
+          console.log(result.toString('binary'));
+        } else {
+          console.log(JSON.stringify(result, null, 2));
+        }
       }
 
-      callback();
+      if (gateway && gateway._requestCount) {
+        gateway.once('empty', () => callback(err));
+      } else {
+        callback(err);
+      }
 
     };
 
     try {
-      let cfg = {token: token, host: host, port: port, webhook: webhook, convert: true};
+      let cfg = {token: token, host: host, port: port, webhook: webhook, background: background, convert: true};
       if (Object.keys(kwargs).length) {
         lib(cfg)[params.name](kwargs, ...args, cb);
       } else {
