@@ -18,11 +18,11 @@ class LocalGateway extends Gateway {
   }
 
   formatRequest(req) {
-    return chalk.grey(`(${chalk.yellow(req ? (req._background ? chalk.bold('background:') : '') + req._uuid.split('-')[0] : 'GLOBAL')})`);
+    return chalk.grey(`(${chalk.yellow(req ? (req._background ? chalk.bold('background:') : '') + req._uuid.split('-')[0] : 'GLOBAL')}) ${this.routename(req)}`);
   }
 
   formatMessage(message) {
-    return chalk.grey(message);
+    return super.formatMessage(chalk.grey(message));
   }
 
   service(serviceName) {
@@ -56,7 +56,7 @@ class LocalGateway extends Gateway {
 
   end(req, value) {
     value = value === undefined ? null : value;
-    this.log(req, `Result\n>>> ${value}`);
+    this.log(req, `>>> ${chalk.red(value)}`);
   }
 
 }
