@@ -31,8 +31,20 @@ class LocalGateway extends Gateway {
   }
 
   listen(port) {
+    port = port || this.port;
     process.env.STDLIB_LOCAL_PORT = port;
     super.listen(port);
+  }
+
+  createContext(req, definitions, params, data) {
+    let context = super.createContext(req, definitions, params, data);
+    context.service = {};
+    context.service.name = this.serviceName;
+    context.service.path = this.serviceName.split('/');
+    context.service.version = null;
+    context.service.environment = 'local';
+    context.service.identifier = `${context.service.path.join('.')}[@${context.service.version || context.service.environment}]`;
+    return context;
   }
 
   resolve(req, res, buffer, callback) {

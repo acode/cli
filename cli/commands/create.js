@@ -166,17 +166,17 @@ class CreateCommand extends Command {
           console.log(`Fetching template ${chalk.bold.green(extPkgName)}...`);
           console.log();
           let utils = develop ?
-            lib({host: develop.split(':')[0], port: develop.split(':')[1], debug: true}).utils :
+            lib({host: develop.split(':')[0], port: develop.split(':')[1]}).utils :
             lib.utils;
 
           extPkgCalls = [
             cb => {
-              utils.templates[tdev ? '@dev' : '@release'].package({name: extPkgName}, (err, result) => {
+              utils.templates[develop ? '@local' : '@release'].package({name: extPkgName}, (err, result) => {
                 cb(err, result);
               });
             },
             cb => {
-              utils.templates[tdev ? '@dev' : '@release'].files({name: extPkgName}, (err, result) => {
+              utils.templates[develop ? '@local' : '@release'].files({name: extPkgName}, (err, result) => {
                 cb(err, result);
               });
             }
