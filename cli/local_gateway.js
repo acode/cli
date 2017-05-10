@@ -18,7 +18,7 @@ class LocalGateway extends Gateway {
   }
 
   formatRequest(req) {
-    return chalk.grey(`(${chalk.yellow(req ? (req._background ? chalk.bold('background:') : '') + req._uuid.split('-')[0] : 'GLOBAL')}) ${this.routename(req)}`);
+    return chalk.grey(`(${chalk.yellow(req ? (req._background ? chalk.bold('bg:') : '') + req._uuid.split('-')[0] : 'GLOBAL')}) ${this.routename(req)}`);
   }
 
   formatMessage(message, logType) {
@@ -28,6 +28,11 @@ class LocalGateway extends Gateway {
 
   service(serviceName) {
     this.serviceName = serviceName;
+  }
+
+  environment(env) {
+    Object.keys(env).forEach(key => process.env[key] = env[key]);
+    return true;
   }
 
   listen(port) {

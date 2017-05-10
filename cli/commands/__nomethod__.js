@@ -58,17 +58,25 @@ class __nomethod__Command extends Command {
       return callback(new Error(`Command "${params.name}" does not exist.`));
     } else if (params.name[0] === '.') {
       let pkg;
+      let env;
       try {
         pkg = require(path.join(process.cwd(), 'package.json'));
       } catch (e) {
         console.error(e);
         return callback(new Error('Invalid package.json in this directory'));
       }
+      try {
+        env = require(path.join(process.cwd(), 'env.json'));
+      } catch (e) {
+        console.error(e);
+        return callback(new Error('Invalid env.json in this directory'));
+      }
       if (pkg.stdlib.build === 'faaslang') {
         gateway = new LocalGateway({debug: debug});
         let fp = new FunctionParser();
         try {
           gateway.service(pkg.stdlib.name);
+          gateway.environment(env.local || {});
           gateway.define(fp.load(process.cwd(), 'functions'));
         } catch (e) {
           return callback(e);
@@ -86,7 +94,7 @@ class __nomethod__Command extends Command {
 
     let token = (params.flags.t && params.flags.t[0]) || null;
     let webhook = (params.flags.w && params.flags.w[0]) || null;
-    let background = (params.flags.b && (params.flags.b[0] || 'true')) || null;
+    let bg = params.flags.b ? (params.flags.b[0] || true) : null;
     let hostname = (params.flags.h && params.flags.h[0]) || '';
     let matches = hostname.match(/^(https?:\/\/)?(.*?)(:\d+)?$/);
     let host;
@@ -127,7 +135,7 @@ class __nomethod__Command extends Command {
     };
 
     try {
-      let cfg = {token: token, host: host, port: port, webhook: webhook, background: background, convert: true};
+      let cfg = {token: token, host: host, port: port, webhook: webhook, bg: bg, convert: true};
       if (Object.keys(kwargs).length) {
         lib(cfg)[params.name](kwargs, ...args, cb);
       } else {

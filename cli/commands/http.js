@@ -35,12 +35,20 @@ class HTTPCommand extends Command {
 
     let port = (params.flags.p || params.vflags.port || [])[0] || 8170;
     let pkg;
+    let env;
 
     try {
       pkg = require(path.join(process.cwd(), 'package.json'));
     } catch (e) {
       console.error(e);
       return callback(new Error('Invalid package.json in this directory'));
+    }
+
+    try {
+      env = require(path.join(process.cwd(), 'env.json'));
+    } catch (e) {
+      console.error(e);
+      return callback(new Error('Invalid env.json in this directory'));
     }
 
     scripts.run(pkg, 'prehttp', null, null, err => {
@@ -52,10 +60,15 @@ class HTTPCommand extends Command {
       scripts.run(pkg, '+http', null, null);
 
       if (pkg.stdlib.build === 'faaslang') {
-        let gateway = new LocalGateway({debug: true});
+        gateway = new LocalGateway({debug: debug});
         let fp = new FunctionParser();
-        gateway.service(pkg.stdlib.name);
-        gateway.define(fp.load(process.cwd(), 'functions'));
+        try {
+          gateway.service(pkg.stdlib.name);
+          gateway.environment(env.local || {});
+          gateway.define(fp.load(process.cwd(), 'functions'));
+        } catch (e) {
+          return callback(e);
+        }
         gateway.listen(port);
       } else {
         parser.check(err => parser.createServer(pkg, port, !!err));
