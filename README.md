@@ -10,8 +10,8 @@
 # Introduction
 
 
-StdLib is the *fastest, easiest* way to turn functions into infinitely scalable, self-healing
-web services. It has three components:
+StdLib is the *fastest, easiest* way to turn functions into infinitely scalable,
+self-healing web services. It has three components:
 
 1. A central registry for microservices
 2. A distribution platform for hosting at scale
@@ -24,6 +24,11 @@ gateways, domains, write documentation, or build SDKs. Your development workflow
 has never been easier - focus on writing code you love, let StdLib handle
 everything else.
 
+StdLib uses an **open specification** called
+[FaaSlang](https://github.com/faaslang/faaslang) for function definitions and
+execution - if you run into concerns or questions as you're building from this
+guide, please reference the FaaSlang repository. :)
+
 You can view services published by our large and growing developer community
 [on the StdLib search page](https://stdlib.com/search).
 
@@ -32,14 +37,15 @@ You can view services published by our large and growing developer community
 # Table of Contents
 
 1. [Getting Started](#getting-started)
-2. [Creating Your First Service](#creating-your-first-service)
-3. [Connecting Service Endpoints](#connecting-service-endpoints)
-4. [Accessing Your Microservices From Other Applications](#accessing-your-microservices-from-other-applications)
-5. [Accessing Your Microservices Over HTTP](#accessing-your-microservices-over-http)
-6. [Version Control and Package Management](#version-control-and-package-management)
-7. [Additional Functionality](#additional-functionality)
-8. [Acknowledgements](#acknowledgements)
-9. [Contact](#contact)
+1. [Creating Your First Service](#creating-your-first-service)
+1. [Connecting Service Endpoints](#connecting-service-endpoints)
+1. [Accessing Your Microservices From Other Applications](#accessing-your-microservices-from-other-applications)
+1. [Accessing Your Microservices Over HTTP](#accessing-your-microservices-over-http)
+1. [Running Your Microservices as Background Workers](#running-your-microservices-as-background-workers)
+1. [Version Control and Package Management](#version-control-and-package-management)
+1. [Additional Functionality](#additional-functionality)
+1. [Acknowledgements](#acknowledgements)
+1. [Contact](#contact)
 
 # Getting Started
 
@@ -101,66 +107,80 @@ In this directory, you'll see something like:
 
 ```
 - functions/
-  - defaultFunction/
-    - function.json
-    - index.js
+  - __main__.js
 - package.json
 - env.json
+- WELCOME.md
 - README.md
 ```
 
 At this point, there's a "hello world" function that's been automatically
-created. StdLib comes paired with a simple `f` command for testing your functions
-locally and running them in the cloud. To test your function:
+created (`__main__.js`). StdLib comes paired with a simple `lib` command for
+testing your functions locally and running them in the cloud.
+To test your function:
 
-```
+```shell
 $ lib .
-> "hello world"
+"hello world"
 ```
 
-If we examine the `functions/defaultFunction/index.js` file, we see the following:
+If we examine the `functions/__main__.js` file, we see the following:
 
 ```javascript
-module.exports = (params, callback) => {
+/**
+* A basic Hello World function
+* @param {string} name Who you're saying hello to
+* @returns {string}
+*/
+module.exports = (name = 'world', context, callback) => {
 
-  callback(null, 'hello world');
+  callback(null, `hello ${name}`);
 
 };
-```
-
-If necessary, we can pass some of these parameters to it (`params.args` and `params.kwargs`)
-using:
 
 ```
-lib . arg0 arg1 --kwarg0 "Hello World" --kwarg1 Goodbye
+
+We can pass parameters to it using the CLI, either in order:
+
+```shell
+$ lib . "jon snow"
+"hello jon snow"
 ```
 
-Though it won't change the function output as-is. `params.args` would be equal
-to `["arg0", "arg1"]` and `params.kwargs` would be
-`{"kwarg0":"Hello World","kwarg1":"Goodbye"}`.
+Or named:
+
+```shell
+$ lib . --name "dolores abernathy"
+"hello dolores abernathy"
+```
+
+Note that `context` is a magic parameter (automatically populated with
+  execution details, when provided) as is `callback` (terminates execution),
+  so these **don't need to be documented** and **can not be specified as
+  parameters when executing the function**.
 
 ## Pushing to the Cloud
 
 To push your function to a development environment in the cloud...
 
-```
+```shell
 $ lib up dev
 $ lib your-username.your-service[@dev]
-> "hello world"
+"hello world"
 ```
 
 And to release it (when you're ready!)
 
-```
+```shell
 $ lib release
 $ lib your-username.your-service
-> "hello world"
+"hello world"
 ```
 
 You can check out your service on the web, and use it in applications at:
 
 ```
-https://your-username.stdlib.com/your-service
+https://your-username.stdlib.com/your-service/
 ```
 
 That's it! You haven't written a line of code yet, and you have mastery over
@@ -191,34 +211,44 @@ $ npm install lib --save
 
 In your main service directory to add it, and use it like so:
 
-#### functions/add/index.js
+#### functions/add.js
 ```javascript
-module.exports = (params, callback) => {
-
-	return callback(null, params.args[1] + params.args[2]);
-
+module.exports = (a = 0, b = 0, callback) => {
+	return callback(null, a + b);
 };
 ```
 
-#### functions/add-double/index.js
+#### functions/add_double.js
 ```javascript
 const lib = require('lib');
 
-module.exports = (params, callback) => {
-
-	return lib['.add'](params.args[0], params.args[1], (err, result) => {
-
+module.exports = (a = 0, b = 0, context, callback) => {
+	return lib[`${context.identifier}.add`](a, b, (err, result) => {
 		callback(err, result * 2);
-
 	});
-
 };
 ```
 
-In this case, calling `lib .add 1 2` will return `3` and `lib .add-double 1 2`
-will return `6`. These map directly to individual service endpoints. **Note** that
-when chaining like this, *a single service execution instance* is being used so
-be careful about setting service timeouts appropriately.
+In this case, calling `lib .add 1 2` will return `3` and `lib .add_double 1 2`
+will return `6`. The `context` magic parameter is used for its
+`context.identifier` property, which will return the string `"user.service[@local]"`
+in the case of local execution, `"user.service[@ENV]"` when deployed to an
+environment or release (where `ENV` is your environment name or semver).
+
+Note that `lib .add --a 1 --b 2` and
+`lib .add_double --a 1 --b 2` are also perfectly valid, as is specifying keywords
+via an object in the `add_double` function:
+
+#### functions/add_double.js
+```javascript
+const lib = require('lib');
+
+module.exports = (a = 0, b = 0, context, callback) => {
+	return lib[`${context.identifier}.add`]({a: a, b: b}, (err, result) => {
+		callback(err, result * 2);
+	});
+};
+```
 
 # Accessing Your Microservices From Other Applications
 
@@ -227,12 +257,12 @@ As mentioned in the previous section, you can use the NPM `lib` package that's
 microservices from legacy Node.js applications and even the web browser. We'll
 have more SDKs coming out in the following months.
 
-A legacy app would call a function (username.liveService with version 0.2.1):
+An existing app would call a function (username.bestTrekChar with version 0.2.1):
 
 ```javascript
 const lib = require('lib');
 
-lib.username.liveService['@0.2.1']('hello', 'world', {keyword: 'argument'}, function (err, result) {
+lib.username.bestTrekChar['@0.2.1']({name: 'spock'}, function (err, result) {
 
 	if (err) {
 		// handle it
@@ -246,13 +276,15 @@ lib.username.liveService['@0.2.1']('hello', 'world', {keyword: 'argument'}, func
 Which would speak to your microservice...
 
 ```javascript
-module.exports = (params, callback) => {
+module.exports = (name = 'kirk', callback) => {
 
-	params.args[0] === 'hello'; // true
-	params.args[1] === 'world'; // true
-	params.kwargs.keyword === 'argument'; // true
-
-	callback(null, 'Done!');
+	if (name === 'kirk') {
+    return callback(null, 'why, thank, you, too, kind');
+  } else if (name === 'spock') {
+    return callback(null, 'i think this feeling is called "pleased"');
+  } else {
+    return callback(new Error('Only kirk and spock supported.'));
+  }
 
 };
 ```
@@ -262,26 +294,106 @@ module.exports = (params, callback) => {
 We definitely recommend using the [lib library on NPM](https://github.com/stdlib/lib-node)
 to make microservice calls as specified above, but you can also make HTTPS
 requests directly to the StdLib gateway. HTTP query parameters are mapped
-automatically to keyword arguments:
+automatically to parameters by name.
 
 ```
-https://username.stdlib.com/liveService@1.12.2?name=Keith
+https://username.stdlib.com/liveService@1.12.2/?name=BATMAN
 ```
 
 Maps directly to:
 
 ```javascript
-module.exports = (params, callback) => {
-
-	params.kwargs.name === 'Keith'; // true
-
-	callback(null, 'Done!');
-
+/**
+* Hello World
+* @param {string} name
+* @returns {string}
+*/
+module.exports = (name = 'world', callback) => {
+  // returns "HELLO BATMAN" from above HTTP query
+	callback(null, `Hello ${name}`);
 };
 ```
 
-**Note** that you will not be able to pass in anything to the `params.args`
-parameter.
+# Running Your Microservices as Background Workers
+
+To run any StdLib service as a background worker (immediately returns a
+  response, runs function after), simply append ":bg" to the URL before
+  the HTTP query parameters (search portion of the URL), for example (from
+  above):
+
+```
+https://username.stdlib.com/liveService@1.12.2/:bg?name=BATMAN
+```
+
+To do so from the `lib-node` library, use:
+
+```javascript
+lib({bg: true}).username.liveService['@1.12.2'](...);
+```
+
+## Background Responses
+
+The default background response will be a content type of `text/plain` with a
+string indicating the function name you're executing. There are currently
+three different options for background responses that you define before you
+deploy your function.
+
+### info (DEFAULT)
+
+Set `@bg info` in your comment definition like so:
+
+```javascript
+/**
+* Hello World
+* @bg info
+* @param {string} name
+* @returns {string}
+*/
+module.exports = (name = 'world', callback) => {
+	callback(null, `Hello ${name}`);
+};
+```
+
+This is the default as well (if nothing is specified).
+
+### empty
+
+Set `@bg empty` in your comment definition like so:
+
+```javascript
+/**
+* Hello World
+* @bg empty
+* @param {string} name
+* @returns {string}
+*/
+module.exports = (name = 'world', callback) => {
+	callback(null, `Hello ${name}`);
+};
+```
+
+Will return an empty (0 length) response.
+
+### params
+
+Set `@bg params` in your comment definition like so:
+
+```javascript
+/**
+* Hello World
+* @bg info
+* @param {string} name
+* @returns {string}
+*/
+module.exports = (name = 'world', callback) => {
+	callback(null, `Hello ${name}`);
+};
+```
+
+This will return `{"name":"world"}` in this example (if no other parameters are
+  specified) as this parameter has a default value. This will spit back any
+  and all parameters sent to the function, even if they're not part of the
+  function signature.
 
 # Version Control and Package Management
 
