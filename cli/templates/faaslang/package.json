@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "description": "",
   "author": "Author",
-  "main": "functions/__init__.js",
+  "main": "functions/__main__.js",
   "dependencies": {},
   "private": true,
   "stdlib": {

@@ -11,6 +11,7 @@ class LocalGateway extends Gateway {
     cfg = cfg || {};
     cfg.name = 'LocalGateway';
     super(cfg);
+    this._maxResultLogLength = 128;
   }
 
   formatName(name) {
@@ -74,6 +75,11 @@ class LocalGateway extends Gateway {
 
   end(req, value) {
     value = value === undefined ? null : value;
+    value = value + '';
+    if (value.length > this._maxResultLogLength) {
+      value = value.substr(0, this._maxResultLogLength) +
+        ` ... (truncated ${value.length - this._maxResultLogLength} bytes)`;
+    }
     this.log(req, value, 'result');
   }
 
