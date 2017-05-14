@@ -269,6 +269,7 @@ class CreateCommand extends Command {
             fns.push(cb => {
               fileio.extract(serviceName, extPkg.files, (err) => {
                 if (err) {
+                  console.error(err);
                   return cb(new Error(`Could not install template ${extPkgName}`));
                 }
                 cb();
