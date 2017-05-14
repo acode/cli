@@ -133,11 +133,8 @@ If we examine the `functions/__main__.js` file, we see the following:
 * @returns {string}
 */
 module.exports = (name = 'world', context, callback) => {
-
   callback(null, `hello ${name}`);
-
 };
-
 ```
 
 We can pass parameters to it using the CLI, either in order:
@@ -214,7 +211,7 @@ In your main service directory to add it, and use it like so:
 #### functions/add.js
 ```javascript
 module.exports = (a = 0, b = 0, callback) => {
-	return callback(null, a + b);
+  return callback(null, a + b);
 };
 ```
 
@@ -223,9 +220,9 @@ module.exports = (a = 0, b = 0, callback) => {
 const lib = require('lib');
 
 module.exports = (a = 0, b = 0, context, callback) => {
-	return lib[`${context.identifier}.add`](a, b, (err, result) => {
-		callback(err, result * 2);
-	});
+  return lib[`${context.identifier}.add`](a, b, (err, result) => {
+    callback(err, result * 2);
+  });
 };
 ```
 
@@ -244,9 +241,9 @@ via an object in the `add_double` function:
 const lib = require('lib');
 
 module.exports = (a = 0, b = 0, context, callback) => {
-	return lib[`${context.identifier}.add`]({a: a, b: b}, (err, result) => {
-		callback(err, result * 2);
-	});
+  return lib[`${context.identifier}.add`]({a: a, b: b}, (err, result) => {
+    callback(err, result * 2);
+  });
 };
 ```
 
@@ -264,11 +261,11 @@ const lib = require('lib');
 
 lib.username.bestTrekChar['@0.2.1']({name: 'spock'}, function (err, result) {
 
-	if (err) {
-		// handle it
-	}
+  if (err) {
+    // handle it
+  }
 
-	// do something with result
+  // do something with result
 
 });
 ```
@@ -278,7 +275,7 @@ Which would speak to your microservice...
 ```javascript
 module.exports = (name = 'kirk', callback) => {
 
-	if (name === 'kirk') {
+  if (name === 'kirk') {
     return callback(null, 'why, thank, you, too, kind');
   } else if (name === 'spock') {
     return callback(null, 'i think this feeling is called "pleased"');
@@ -310,7 +307,7 @@ Maps directly to:
 */
 module.exports = (name = 'world', callback) => {
   // returns "HELLO BATMAN" from above HTTP query
-	callback(null, `Hello ${name}`);
+  callback(null, `Hello ${name}`);
 };
 ```
 
@@ -350,7 +347,7 @@ Set `@bg info` in your comment definition like so:
 * @returns {string}
 */
 module.exports = (name = 'world', callback) => {
-	callback(null, `Hello ${name}`);
+  callback(null, `Hello ${name}`);
 };
 ```
 
@@ -368,7 +365,7 @@ Set `@bg empty` in your comment definition like so:
 * @returns {string}
 */
 module.exports = (name = 'world', callback) => {
-	callback(null, `Hello ${name}`);
+  callback(null, `Hello ${name}`);
 };
 ```
 
@@ -386,7 +383,7 @@ Set `@bg params` in your comment definition like so:
 * @returns {string}
 */
 module.exports = (name = 'world', callback) => {
-	callback(null, `Hello ${name}`);
+  callback(null, `Hello ${name}`);
 };
 ```
 
@@ -433,15 +430,23 @@ We've conveniently copy-and-pasted the output here for you to peruse;
 
 ```
 * [all arguments converted to params.args]
+	-b                   Execute as a Background Function
+	-d                   Specify debug mode (prints Gateway logs)
 	-f                   Specify a file to send (overrides args and kwargs)
-	--*                  all verbose flags converted to params.kwargs
+	-t                   Specify a Library Token
+	-w                   Specify a Webhook (Deprecated)
+	--*                  all verbose flags converted to named keyword parameters
 
 	Runs a StdLib Function (requires a period)
 
 create [service]
+	-b                   Build - Specify build, faaslang (default) or "legacy"
+	-d                   Dev Mode - Specify another HTTP address for the Template Service (e.g. localhost:8170)
 	-n                   No login - don't require an internet connection
 	-t                   Template - a stdlib service template to use
 	-w                   Write over - overwrite the current directory contents
+	--build              Build - Specify build, faaslang (default) or "legacy"
+	--develop            Dev Mode - Specify another HTTP address for the Template Service (e.g. localhost:8170)
 	--no-login           No login - don't require an internet connection
 	--template           Template - a stdlib service template to use
 	--write-over         Write over - overwrite the current directory contents
@@ -469,8 +474,8 @@ get [full service name]
 	Retrieves and extracts StdLib package
 
 http
-	-p                   Port (Default 8170)
-	--port               Port (Default 8170)
+	-p                   Port (default 8170)
+	--port               Port (default 8170)
 
 	Creates HTTP Server for Current Service
 
