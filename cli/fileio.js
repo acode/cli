@@ -43,16 +43,21 @@ function writeFiles(directory, files) {
 
 }
 
-function readFiles(basepath, pathname, files) {
+function readFiles(basepath, pathname, files, condenseDots) {
   basepath = basepath || '.';
   pathname = pathname || '.';
+  condenseDots = !!condenseDots;
   return fs.readdirSync(path.join(basepath, pathname)).reduce((files, filename) => {
+    let savename = (condenseDots && filename.substr(0, 2) === '..') ?
+      filename.substr(1) :
+      filename;
+    let savepath = path.join(pathname, savename).split(path.sep).join('/');
     let filepath = path.join(pathname, filename);
     let fullpath = path.join(basepath, filepath);
     if (fs.statSync(fullpath).isDirectory()) {
-      return readFiles(basepath, filepath, files);
+      return readFiles(basepath, filepath, files, condenseDots);
     } else {
-      files[filepath.split(path.sep).join('/')] = fs.readFileSync(fullpath);
+      files[savename] = fs.readFileSync(fullpath);
       return files;
     }
   }, files || {});
@@ -60,6 +65,7 @@ function readFiles(basepath, pathname, files) {
 };
 
 module.exports = {
+  readTemplateFiles: (directory) => readFiles(directory, '.', {}, true),
   readFiles: (directory) => readFiles(directory),
   writeFiles: (directory, files) => writeFiles(directory, files),
   extract: (directory, tarball, callback) => {

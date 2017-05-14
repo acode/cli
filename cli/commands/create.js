@@ -252,7 +252,12 @@ class CreateCommand extends Command {
             deepAssign(json.pkg, extPkg.pkg);
           }
 
-          fileio.writeFiles(serviceName, fileio.readFiles(path.join(__dirname, '..', 'templates', build)));
+          fileio.writeFiles(
+            serviceName,
+            fileio.readTemplateFiles(
+              path.join(__dirname, '..', 'templates', build)
+            )
+          );
 
           fs.writeFileSync(
             path.join(servicePath, 'package.json'),
