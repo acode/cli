@@ -57,7 +57,7 @@ function readFiles(basepath, pathname, files, condenseDots) {
     if (fs.statSync(fullpath).isDirectory()) {
       return readFiles(basepath, filepath, files, condenseDots);
     } else {
-      files[savename] = fs.readFileSync(fullpath);
+      files[savepath] = fs.readFileSync(fullpath);
       return files;
     }
   }, files || {});
