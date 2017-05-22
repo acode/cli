@@ -9,7 +9,32 @@ const fs = require('fs');
 const path = require('path');
 const chalk = require('chalk');
 
-class FCreateCommand extends Command {
+function generateFunction(name, description, params) {
+
+  params = (params || []).map(p => {
+    p = p.split(':');
+    return {
+      name: p[0],
+      type: p[1] || 'any'
+    };
+  });
+
+  return [
+    '/**',
+    description ? `* ${description}` : '',
+    params.map(param => {
+      return `* @param {${param.type}} ${param.name}`
+    }).join('\n'),
+    `* @returns {any}`,
+    `*/`,
+    `module.exports = (${params.map(p => p.name).concat(['context', 'callback']).join(', ')}) => {`,
+    `  callback(null, 'hello world');`,
+    `};`,
+  ].filter(v => !!v).join('\n') + '\n';
+
+}
+
+class FunctionCreateCommand extends Command {
 
   constructor() {
 
@@ -20,15 +45,20 @@ class FCreateCommand extends Command {
   help() {
 
     return {
-      description: 'Creates a new function for a (local) service',
+      description: 'Creates a new function for a service, locally',
       args: [
-        'function name'
+        'name',
+        'description',
+        'param_1',
+        'param_2',
+        '...',
+        'param_n'
       ],
       flags: {
-        'w': 'Overwrite existing function'
+        'n': 'New directory: Create as a __main__.js file, with the name representing the directory'
       },
       vflags: {
-        'write-over': 'Overwrite existing function'
+        'new': 'New directory: Create as a __main__.js file, with the name representing the directory'
       }
     };
 
@@ -36,19 +66,13 @@ class FCreateCommand extends Command {
 
   run(params, callback) {
 
-    let functionName = params.args[0];
+    let functionName = params.args[0] || '';
+    let functionDescription = params.args[1] || '';
+    let functionParams = params.args.slice(2) || [];
+    let newDir = !!(params.flags.n || params.vflags['new'] || false);
 
-    let write = params.flags.hasOwnProperty('w') || params.vflags.hasOwnProperty('write-over');
-
-    if (!fs.existsSync('package.json') || !Credentials.location()) {
-      console.log();
-      console.log(chalk.bold.red('Oops!'));
-      console.log();
-      console.log(`You're trying to create a new function in development,`);
-      console.log(`But you're either not in a stdlib workspace,`);
-      console.log(`  or not in a service directory with a "package.json"`);
-      console.log();
-      return callback(null);
+    if (!fs.existsSync('package.json')) {
+      return callback(new Error('Not in valid StdLib directory'));
     }
 
     let questions = [];
@@ -64,56 +88,53 @@ class FCreateCommand extends Command {
 
       functionName = functionName || promptResult.functionName;
 
+      if (!functionName.split('/').pop().match(/^[A-Z]/i)) {
+        return callback(new Error(`Invalid function name: ${functionName}`));
+      }
+
       let fPath = path.join(process.cwd(), 'functions');
-      let functionPath;
+      let functionPath = fPath;
 
       !fs.existsSync(fPath) && fs.mkdirSync(fPath);
 
       let directories = functionName.split('/');
 
-      for (let i = 0; i < directories.length; i++) {
+      for (let i = 0; i < directories.length - 1; i++) {
         let relpath = path.join.apply(path, [fPath].concat(directories.slice(0, i + 1)));
-        if (i === directories.length - 1 && fs.existsSync(relpath)) {
-          if (!write) {
-            console.log();
-            console.log(chalk.bold.red('Oops!'));
-            console.log();
-            console.log(`The function you're trying to create already seems to exist:`);
-            console.log(`  ${chalk.bold(pathname)}`);
-            console.log();
-            console.log(`Try removing the existing directory first.`);
-            console.log();
-            console.log(`Use ${chalk.bold('lib function:create ' + functionName + ' --write-over')} to override.`);
-            console.log();
-            return callback(null);
-          }
-        }
         !fs.existsSync(relpath) && fs.mkdirSync(relpath);
         functionPath = relpath;
       }
 
-      let json = {
-        func: require(path.join(__dirname, '../../templates/functions/function.json'))
-      };
+      let name = directories[directories.length - 1];
+      let checkPaths = [
+        path.join(functionPath, `${name}.js`),
+        path.join(functionPath, `${name}`, `__main__.js`)
+      ];
 
-      json.func.name = functionName;
-
-      fs.writeFileSync(
-        path.join(functionPath, 'function.json'),
-        JSON.stringify(json.func, null, 2)
-      );
-
-      let files = {
-        func: {
-          copy: {
-            'index.js': fs.readFileSync(path.join(__dirname, '../../templates/functions/index.js')),
-          }
+      for (let i = 0; i < checkPaths.length; i++) {
+        let pathname = checkPaths[i];
+        if (fs.existsSync(pathname)) {
+          console.log();
+          console.log(chalk.bold.red('Oops!'));
+          console.log();
+          console.log(`The function you're trying to create already seems to exist:`);
+          console.log(`  ${chalk.bold(pathname)}`);
+          console.log();
+          console.log(`Try removing the existing file first.`);
+          console.log();
+          return callback(new Error('Could not create function'));
         }
-      };
+      }
 
-      Object.keys(files.func.copy).forEach(filename => {
-        fs.writeFileSync(path.join(functionPath, filename), files.func.copy[filename])
-      });
+      if (!newDir) {
+        functionPath = checkPaths[0];
+      } else {
+        let pathname = path.join(functionPath, name);
+        !fs.existsSync(pathname) && fs.mkdirSync(pathname);
+        functionPath = checkPaths[1];
+      }
+
+      fs.writeFileSync(functionPath, generateFunction(functionName, functionDescription, functionParams));
 
       console.log();
       console.log(chalk.bold.green('Success!'));
@@ -129,4 +150,4 @@ class FCreateCommand extends Command {
 
 }
 
-module.exports = FCreateCommand;
+module.exports = FunctionCreateCommand;
