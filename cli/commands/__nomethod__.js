@@ -7,6 +7,21 @@ const path = require('path');
 const LocalGateway = require('../local_gateway.js');
 const FunctionParser = require('faaslang').FunctionParser;
 
+function parseFileFromArg(arg) {
+  if (arg.indexOf('file:') === 0) {
+    let filename = arg.slice('file:'.length);
+    let file;
+    try {
+      file = fs.readFileSync(filename);
+      file = JSON.stringify({_base64: file.toString('base64')});
+    } catch (e) {
+      return new Error(`Can not read file: "${filename}"`);
+    }
+    return file;
+  }
+  return arg;
+}
+
 const lib = require('lib');
 
 class __nomethod__Command extends Command {
@@ -20,14 +35,13 @@ class __nomethod__Command extends Command {
   help() {
 
     return {
-      description: 'Runs a StdLib Function (requires a period)',
+      description: 'Runs a StdLib function, i.e. "lib user.service[@ver]" (remote) or "lib ." (local)',
       args: [
-        'all arguments converted to params.args'
+        'all arguments converted to parameters'
       ],
       flags: {
         b: 'Execute as a Background Function',
         d: 'Specify debug mode (prints Gateway logs)',
-        f: 'Specify a file to send (overrides args and kwargs)',
         t: 'Specify a Library Token',
         w: 'Specify a Webhook (Deprecated)'
       },
@@ -63,13 +77,13 @@ class __nomethod__Command extends Command {
         pkg = require(path.join(process.cwd(), 'package.json'));
       } catch (e) {
         console.error(e);
-        return callback(new Error('Invalid package.json in this directory'));
+        return callback(new Error('Invalid package.json in this directory, your JSON syntax is likely malformed.'));
       }
       try {
         env = require(path.join(process.cwd(), 'env.json'));
       } catch (e) {
         console.error(e);
-        return callback(new Error('Invalid env.json in this directory'));
+        return callback(new Error('Invalid env.json in this directory, your JSON syntax is likely malformed.'));
       }
       if (pkg.stdlib.build === 'faaslang') {
         gateway = new LocalGateway({debug: debug});
@@ -86,11 +100,19 @@ class __nomethod__Command extends Command {
       }
     }
 
-    let args = params.args.slice();
+    let args = params.args.slice().map(parseFileFromArg);
     let kwargs = Object.keys(params.vflags).reduce((kwargs, key) => {
-      kwargs[key] = params.vflags[key].join(' ');
-      return kwargs
+      kwargs[key] = parseFileFromArg(params.vflags[key].join(' '));
+      return kwargs;
     }, {});
+
+    let errors = args
+      .concat(Object.keys(kwargs).map(key => kwargs[key]))
+      .filter(arg => arg instanceof Error);
+
+    if (errors.length) {
+      return callback(errors[0]);
+    }
 
     let token = (params.flags.t && params.flags.t[0]) || null;
     let webhook = (params.flags.w && params.flags.w[0]) || null;
@@ -113,7 +135,7 @@ class __nomethod__Command extends Command {
           if (result.error.type === 'ParameterError' || result.error.type === 'ValueError') {
             let params = result.error.details;
             params && Object.keys(params).forEach(name => {
-              message += `\n[${name}] ${params[name].message}`;
+              message += `\n - [${name}] ${params[name].message}`;
             });
           }
           err.message = message;
