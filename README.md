@@ -174,10 +174,13 @@ $ lib your-username.your-service
 "hello world"
 ```
 
-You can check out your service on the web, and use it in applications at:
+You can check out your service on the web, and use it in applications using our
+functions gateway, `lib.id`.
 
 ```
-https://your-username.stdlib.com/your-service/
+https://functions.lib.id/your-username/your-service/
+OR
+https://your-username.lib.id/your-service/
 ```
 
 That's it! You haven't written a line of code yet, and you have mastery over
@@ -294,7 +297,7 @@ requests directly to the StdLib gateway. HTTP query parameters are mapped
 automatically to parameters by name.
 
 ```
-https://username.stdlib.com/liveService@1.12.2/?name=BATMAN
+https://username.lib.id/liveService@1.12.2/?name=BATMAN
 ```
 
 Maps directly to:
@@ -319,7 +322,7 @@ To run any StdLib service as a background worker (immediately returns a
   above):
 
 ```
-https://username.stdlib.com/liveService@1.12.2/:bg?name=BATMAN
+https://username.lib.id/liveService@1.12.2/:bg?name=BATMAN
 ```
 
 To do so from the `lib-node` library, use:
