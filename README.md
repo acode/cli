@@ -432,7 +432,7 @@ $ lib help
 We've conveniently copy-and-pasted the output here for you to peruse;
 
 ```
-* [all arguments converted to params.args]
+* [all arguments converted to parameters]
 	-b                   Execute as a Background Function
 	-d                   Specify debug mode (prints Gateway logs)
 	-f                   Specify a file to send (overrides args and kwargs)
