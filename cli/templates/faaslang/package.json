@@ -4,7 +4,9 @@
   "description": "",
   "author": "Author",
   "main": "functions/__main__.js",
-  "dependencies": {},
+  "dependencies": {
+    "lib": "latest"
+  },
   "private": true,
   "stdlib": {
     "build": "faaslang",
