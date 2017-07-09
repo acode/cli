@@ -19,7 +19,11 @@ class PolyLoginCommand extends Command {
   help() {
 
     return {
-      description: 'Logs in to StdLib in this directory'
+      description: 'Logs in to StdLib in this directory',
+      vflags: {
+        email: 'E-Mail',
+        password: 'Password'
+      }
     };
 
   }
