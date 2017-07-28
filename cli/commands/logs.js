@@ -76,7 +76,7 @@ class LogsCommand extends Command {
     let resource = new APIResource(host, port);
     resource.authorize(Credentials.read('ACCESS_TOKEN'));
 
-    resource.request('v1/logs/data').index(queryParams, (err, results) => {
+    resource.request('v1/logs/read').index(queryParams, (err, results) => {
 
       if (err) {
         return callback(err);
