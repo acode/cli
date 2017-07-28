@@ -76,13 +76,13 @@ class LogsCommand extends Command {
     let resource = new APIResource(host, port);
     resource.authorize(Credentials.read('ACCESS_TOKEN'));
 
-    resource.request('v1/logs/data').index(queryParams, (err, result) => {
+    resource.request('v1/logs/data').index(queryParams, (err, results) => {
 
       if (err) {
         return callback(err);
       }
 
-      let logs = result.data[0].logs.split('\n');
+      let logs = results.data[0].logs.split('\n');
       logs.map((log) => {
 
         if (!log) {
