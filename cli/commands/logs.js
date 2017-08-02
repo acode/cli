@@ -88,17 +88,7 @@ class LogsCommand extends Command {
         return callback(err);
       }
 
-      console.log(
-        results.data[0].logs.trim()
-          .split('\n')
-          .map(line => {
-            let sline = line.split('\t');
-            return chalk[STREAM_COLORS[stream]](sline[0]) + ' ' + sline.slice(1).join('\t');
-          })
-          .join('\n')
-      );
-
-      return callback(null);
+      return callback(null, results);
 
     });
   }
