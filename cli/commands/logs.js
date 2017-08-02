@@ -6,8 +6,8 @@ const Credentials = require('../credentials.js');
 
 const chalk = require('chalk');
 
-const VALID_STREAMS = ['stdout', 'stderr'];
-const STREAM_COLORS = {
+const VALID_LOG_TYPES = ['stdout', 'stderr'];
+const LOG_TYPE_COLORS = {
   'stdout': 'green',
   'stderr': 'red'
 };
@@ -26,14 +26,12 @@ class LogsCommand extends Command {
       description: 'Retrieves logs for a given service',
       args: ['service'],
       flags: {
-        s: 'The log stream you want to retrieve. Allowed values are "stdout" and "stderr"',
-        n: 'The number of log lines you want to retrieve',
-        u: 'The specific function within the service that you want to retrieve logs from'
+        t: 'The log type you want to retrieve. Allowed values are "stdout" and "stderr".',
+        l: 'The number of log lines you want to retrieve'
       },
       vflags: {
-        stream: 'The log stream you want to retrieve. Allowed values are "stdout" and "stderr"',
-        num: 'The number of log lines you want to retrieve',
-        function: 'The specific function within the service that you want to retrieve logs from'
+        type: 'The log type you want to retrieve. Allowed values are "stdout" and "stderr".',
+        lines: 'The number of log lines you want to retrieve'
       }
     };
 
@@ -61,23 +59,18 @@ class LogsCommand extends Command {
       return callback(new Error('Please specify a service as <username>.<service>'));
     }
 
-    let stream = (params.flags.s || params.vflags.stream || [])[0] || 'stdout';
-    let requestedLineCount = Math.max(parseInt((params.flags.n || params.vflags.num || [])[0]) || 100, 1);
-    let functionName = (params.flags.u || params.vflags.function || [])[0];
+    let logType = (params.flags.t || params.vflags.type || [])[0] || 'stdout';
+    let lines = Math.max(parseInt((params.flags.l || params.vflags.lines || [])[0]) || 100, 1);
 
-    if (VALID_STREAMS.indexOf(stream) === -1) {
-      return callback(new Error(`Stream must be one of: ${VALID_STREAMS.join(', ')}`));
+    if (VALID_LOG_TYPES.indexOf(logType) === -1) {
+      return callback(new Error(`Log type must be one of: ${VALID_LOG_TYPES.join(', ')}`));
     }
 
     let queryParams = {
       service_name: serviceName,
-      stream: stream,
-      count: requestedLineCount
+      // log_type: logType,
+      count: lines
     };
-
-    if (functionName) {
-      queryParams.function_name = functionName;
-    }
 
     let resource = new APIResource(host, port);
     resource.authorize(Credentials.read('ACCESS_TOKEN'));
