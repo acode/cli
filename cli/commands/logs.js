@@ -6,6 +6,12 @@ const Credentials = require('../credentials.js');
 
 const chalk = require('chalk');
 
+const VALID_STREAMS = ['stdout', 'stderr'];
+const STREAM_COLORS = {
+  'stdout': 'green',
+  'stderr': 'red'
+};
+
 class LogsCommand extends Command {
 
   constructor() {
@@ -20,14 +26,14 @@ class LogsCommand extends Command {
       description: 'Retrieves logs for a given service',
       args: ['service'],
       flags: {
-        s: '<stream> The log stream you want to retrieve. Allowed values are "stdout" and "stderr"',
-        n: '<number of lines> The number of log lines you want to retrieve',
-        u: '<function> The specific function within the service that you want to retrieve logs from'
+        s: 'The log stream you want to retrieve. Allowed values are "stdout" and "stderr"',
+        n: 'The number of log lines you want to retrieve',
+        u: 'The specific function within the service that you want to retrieve logs from'
       },
       vflags: {
-        stream: '<stream> The log stream you want to retrieve. Allowed values are "stdout" and "stderr"',
-        num: '<number of lines> The number of log lines you want to retrieve',
-        function: '<function> The specific function within the service that you want to retrieve logs from'
+        stream: 'The log stream you want to retrieve. Allowed values are "stdout" and "stderr"',
+        num: 'The number of log lines you want to retrieve',
+        function: 'The specific function within the service that you want to retrieve logs from'
       }
     };
 
@@ -46,22 +52,22 @@ class LogsCommand extends Command {
       port = parseInt((matches[3] || '').substr(1) || (hostname.indexOf('https') === 0 ? 443 : 80));
     }
 
-    let serviceName = params.args[0];
-
-    if (!serviceName) {
-      return callback(new Error('Please specify a service'));
-    }
+    let serviceName = params.args[0] || '';
 
     // Allow dot syntax to be in line with other parts of CLI
     serviceName = serviceName.replace(/\./, '/');
 
     if (serviceName.split('/').length !== 2) {
-      return callback(new Error('Please specify services as <username>/<service name>'));
+      return callback(new Error('Please specify a service as <username>.<service>'));
     }
 
-    let stream = params.flags.s || params.vflags.stream || 'stdout';
-    let requestedLineCount = params.flags.n || params.vflags.num || 100;
-    let functionName = params.flags.u || params.vflags.function;
+    let stream = (params.flags.s || params.vflags.stream || [])[0] || 'stdout';
+    let requestedLineCount = Math.max(parseInt((params.flags.n || params.vflags.num || [])[0]) || 100, 1);
+    let functionName = (params.flags.u || params.vflags.function || [])[0];
+
+    if (VALID_STREAMS.indexOf(stream) === -1) {
+      return callback(new Error(`Stream must be one of: ${VALID_STREAMS.join(', ')}`));
+    }
 
     let queryParams = {
       service_name: serviceName,
@@ -82,22 +88,15 @@ class LogsCommand extends Command {
         return callback(err);
       }
 
-      let logs = results.data[0].logs.split('\n');
-      logs.map((log) => {
-
-        if (!log) {
-          return;
-        }
-
-        let logComponents = log.split('\t');
-
-        if (stream === 'stderr') {
-          console.log(chalk.red(logComponents[0]) + '\t' + logComponents[1]);
-        } else {
-          console.log(chalk.green(logComponents[0]) + '\t' + logComponents[1]);
-        }
-
-      });
+      console.log(
+        results.data[0].logs.trim()
+          .split('\n')
+          .map(line => {
+            let sline = line.split('\t');
+            return chalk[STREAM_COLORS[stream]](sline[0]) + ' ' + sline.slice(1).join('\t');
+          })
+          .join('\n')
+      );
 
       return callback(null);
 
