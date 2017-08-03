@@ -44,6 +44,7 @@ You can view services published by our large and growing developer community
 1. [Running Your Microservices as Background Workers](#running-your-microservices-as-background-workers)
 1. [Version Control and Package Management](#version-control-and-package-management)
 1. [Additional Functionality](#additional-functionality)
+1. [Logging](#logging)
 1. [Acknowledgements](#acknowledgements)
 1. [Contact](#contact)
 
@@ -414,6 +415,34 @@ As mentioned above: releases are *immutable* and can not be overwritten (but can
 	be removed, just not replaced afterwards) and development / staging environments
 	are *mutable*, you can overwrite them as much as you'd like.
 
+# Logging
+
+Logging for services is enabled by default. When running a service locally with
+`lib .` or `lib .functionname`, all logs will be output in your console. The very
+last output (normally a JSON-compatible string) is the return value of the function.
+
+To view remote logs (in dev or release environments), use the following syntax:
+
+```shell
+:: Lists all logs for the service
+$ lib logs username.servicename
+
+:: Lists main service endpoint logs for "dev" environment
+$ lib logs username.servicename[@dev]
+
+:: Lists service endpoint named "test" logs for "dev" environment
+$ lib logs username.servicename[@dev].test
+
+:: Lists all logs for "dev" environment
+$ lib logs username.servicename[@dev]*
+$ lib logs username.servicename[@dev].*
+```
+
+The default log type is `stdout`, though you can specify `stderr` with
+`lib logs username.servicename -t stderr`.
+
+Limit the number of lines to show with the `-l` argument (or `--lines`).
+
 # Additional Functionality
 
 StdLib comes packed with a bunch of other goodies - if your service goes down
@@ -435,12 +464,11 @@ We've conveniently copy-and-pasted the output here for you to peruse;
 * [all arguments converted to parameters]
 	-b                   Execute as a Background Function
 	-d                   Specify debug mode (prints Gateway logs)
-	-f                   Specify a file to send (overrides args and kwargs)
 	-t                   Specify a Library Token
 	-w                   Specify a Webhook (Deprecated)
 	--*                  all verbose flags converted to named keyword parameters
 
-	Runs a StdLib Function (requires a period)
+	Runs a StdLib function, i.e. "lib user.service[@ver]" (remote) or "lib ." (local)
 
 create [service]
 	-b                   Build - Specify build, faaslang (default) or "legacy"
@@ -462,11 +490,11 @@ down [environment]
 
 	Removes StdLib package from registry and cloud environment
 
-function:create [function name]
-	-w                   Overwrite existing function
-	--write-over         Overwrite existing function
+function:create [name] [description] [param_1] [param_2] [...] [param_n]
+	-n                   New directory: Create as a __main__.js file, with the name representing the directory
+	--new                New directory: Create as a __main__.js file, with the name representing the directory
 
-	Creates a new function for a (local) service
+	Creates a new function for a service, locally
 
 get [full service name]
 	-f                   Force command if not in root directory
@@ -494,10 +522,21 @@ init [environment]
 	Initializes StdLib workspace
 
 login
+	--email              E-Mail
+	--password           Password
+
 	Logs in to StdLib in this directory
 
 logout
 	Logs out of StdLib in this workspace
+
+logs [service]
+	-l                   The number of log lines you want to retrieve
+	-t                   The log type you want to retrieve. Allowed values are "stdout" and "stderr".
+	--lines              The number of log lines you want to retrieve
+	--type               The log type you want to retrieve. Allowed values are "stdout" and "stderr".
+
+	Retrieves logs for a given service
 
 pkg [full service name]
 	-f                   Force command if not in root directory
