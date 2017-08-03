@@ -8,7 +8,7 @@ const chalk = require('chalk');
 
 const VALID_LOG_TYPES = ['stdout', 'stderr'];
 const LOG_TYPE_COLORS = {
-  'stdout': 'green',
+  'stdout': 'grey',
   'stderr': 'red'
 };
 
@@ -50,15 +50,6 @@ class LogsCommand extends Command {
       port = parseInt((matches[3] || '').substr(1) || (hostname.indexOf('https') === 0 ? 443 : 80));
     }
 
-    let serviceName = params.args[0] || '';
-
-    // Allow dot syntax to be in line with other parts of CLI
-    serviceName = serviceName.replace(/\./, '/');
-
-    if (serviceName.split('/').length !== 2) {
-      return callback(new Error('Please specify a service as <username>.<service>'));
-    }
-
     let logType = (params.flags.t || params.vflags.type || [])[0] || 'stdout';
     let lines = Math.max(parseInt((params.flags.l || params.vflags.lines || [])[0]) || 100, 1);
 
@@ -67,10 +58,40 @@ class LogsCommand extends Command {
     }
 
     let queryParams = {
-      service_name: serviceName,
-      // log_type: logType,
+      log_type: logType,
       count: lines
     };
+
+    let serviceFilter = params.args[0];
+    let wildcard = serviceFilter[serviceFilter.length - 1] === '*';
+    if (wildcard) {
+      serviceFilter = serviceFilter.substr(0, serviceFilter.length -1);
+      if (['.', ']'].indexOf(serviceFilter[serviceFilter.length - 1]) === -1) {
+        return callback(new Error('Sorry, can not wildcard incomplete service or function names'));
+      }
+    }
+
+    let serviceParts = (serviceFilter || '').split('.');
+    let username = serviceParts[0];
+    let service = serviceParts[1];
+    let pathname = serviceParts.slice(1).join('.');
+    if (pathname) {
+      let env = /^(.+?)\[@(.+?)\](?:\.(.*?))?$/.exec(pathname);
+      if (env) {
+        service = env[1];
+        let environment = env[2];
+        let functionName = env[3] || '';
+        if (/\w+/i.exec(environment)) {
+          queryParams.environment = environment;
+        } else {
+          queryParams.version = environment;
+        }
+        if (!wildcard || functionName) {
+          queryParams.function_name = functionName.split('.').join('/');
+        }
+      }
+    }
+    queryParams.service_name = [username, service].join('/');
 
     let resource = new APIResource(host, port);
     resource.authorize(Credentials.read('ACCESS_TOKEN'));
@@ -81,7 +102,23 @@ class LogsCommand extends Command {
         return callback(err);
       }
 
-      return callback(null, results);
+      console.log(
+        results.data.map(log => {
+          let date = log.created_at.split('T');
+          date[1] = date[1].slice(0, date[1].length - 1);
+          date = date.join(' ');
+          let color = LOG_TYPE_COLORS[log.log_type];
+          let service = chalk.cyan(log.service_name.replace('/', '.')) +
+            chalk.green('[@' + (log.version || log.environment) + ']') +
+            chalk.yellow(log.function_name ? ('.' + log.function_name.replace('/', '.')) : '');
+          return chalk[color](`${date} `) +
+            service +
+            chalk[color]('> ') +
+            log.value;
+        }).join('\n')
+      );
+
+      return callback(null);
 
     });
   }
