@@ -43,8 +43,8 @@ You can view services published by our large and growing developer community
 1. [Accessing Your Microservices Over HTTP](#accessing-your-microservices-over-http)
 1. [Running Your Microservices as Background Workers](#running-your-microservices-as-background-workers)
 1. [Version Control and Package Management](#version-control-and-package-management)
-1. [Additional Functionality](#additional-functionality)
 1. [Logging](#logging)
+1. [Additional Functionality](#additional-functionality)
 1. [Acknowledgements](#acknowledgements)
 1. [Contact](#contact)
 
