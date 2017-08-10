@@ -37,7 +37,8 @@ module.exports = {
     let envVars = {
       PATH: pathVar,
       FORCE_COLOR: 1,
-      SUBTYPE: subtype,
+      NAME: pkg.stdlib.name,
+      SUBTYPE: subtype
     };
     envVars = Object.keys(data).reduce((envVars, key) => {
       envVars['DATA_' + key] = data[key];
