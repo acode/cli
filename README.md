@@ -224,7 +224,7 @@ module.exports = (a = 0, b = 0, callback) => {
 const lib = require('lib');
 
 module.exports = (a = 0, b = 0, context, callback) => {
-  return lib[`${context.identifier}.add`](a, b, (err, result) => {
+  return lib[`${context.service.identifier}.add`](a, b, (err, result) => {
     callback(err, result * 2);
   });
 };
@@ -232,8 +232,8 @@ module.exports = (a = 0, b = 0, context, callback) => {
 
 In this case, calling `lib .add 1 2` will return `3` and `lib .add_double 1 2`
 will return `6`. The `context` magic parameter is used for its
-`context.identifier` property, which will return the string `"user.service[@local]"`
-in the case of local execution, `"user.service[@ENV]"` when deployed to an
+`context.service.identifier` property, which will return the string `"your-username.your-service[@local]"`
+in the case of local execution, `"your-username.your-service[@ENV]"` when deployed to an
 environment or release (where `ENV` is your environment name or semver).
 
 Note that `lib .add --a 1 --b 2` and
@@ -245,7 +245,7 @@ via an object in the `add_double` function:
 const lib = require('lib');
 
 module.exports = (a = 0, b = 0, context, callback) => {
-  return lib[`${context.identifier}.add`]({a: a, b: b}, (err, result) => {
+  return lib[`${context.service.identifier}.add`]({a: a, b: b}, (err, result) => {
     callback(err, result * 2);
   });
 };

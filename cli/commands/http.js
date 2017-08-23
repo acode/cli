@@ -60,6 +60,10 @@ class HTTPCommand extends Command {
       scripts.run(pkg, '+http', null, null);
 
       if (pkg.stdlib.build === 'faaslang') {
+        console.log();
+        console.log(`Service starting on:`);
+        console.log(`\tlocalhost:${port}/${pkg.stdlib.name}/`);
+        console.log();
         let gateway = new LocalGateway({debug: true});
         let fp = new FunctionParser();
         try {
