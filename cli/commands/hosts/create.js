@@ -4,18 +4,18 @@ const Command = require('cmnd').Command;
 const Credentials = require('../../credentials.js');
 const APIResource = require('api-res');
 
-class RouteCreateCommand extends Command {
+class HostsCreateCommand extends Command {
 
   constructor() {
 
-    super('route', 'create');
+    super('hosts', 'create');
 
   }
 
   help() {
 
     return {
-      description: 'Creates a new route from a source custom hostname to a target service you own',
+      description: 'Creates a new hostname route from a source custom hostname to a target service you own',
       args: [
         'source',
         'target'
@@ -62,7 +62,7 @@ class RouteCreateCommand extends Command {
         return callback(err);
       }
 
-      return callback(null, `Successfully created route from "${source}" to "${target}"!`);
+      return callback(null, `Successfully created hostname route from "${source}" to "${target}"!`);
 
     });
 
@@ -70,4 +70,4 @@ class RouteCreateCommand extends Command {
 
 }
 
-module.exports = RouteCreateCommand;
+module.exports = HostsCreateCommand;

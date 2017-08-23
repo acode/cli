@@ -5,18 +5,18 @@ const APIResource = require('api-res');
 const Credentials = require('../credentials.js');
 const tabler = require('../tabler.js');
 
-class RoutesCommand extends Command {
+class HostsCommand extends Command {
 
   constructor() {
 
-    super('routes');
+    super('hosts');
 
   }
 
   help() {
 
     return {
-      description: 'Displays created routes from source custom hostnames to target services you own'
+      description: 'Displays created hostname routes from source custom hostnames to target services you own'
     };
 
   }
@@ -56,4 +56,4 @@ class RoutesCommand extends Command {
 
 }
 
-module.exports = RoutesCommand;
+module.exports = HostsCommand;
