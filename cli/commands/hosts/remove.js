@@ -4,18 +4,18 @@ const Command = require('cmnd').Command;
 const Credentials = require('../../credentials.js');
 const APIResource = require('api-res');
 
-class HostsDeleteCommand extends Command {
+class HostsRemoveCommand extends Command {
 
   constructor() {
 
-    super('hosts', 'delete');
+    super('hosts', 'remove');
 
   }
 
   help() {
 
     return {
-      description: 'Deletes a hostname route from a source custom hostname to a target service you own',
+      description: 'Removes a hostname route from a source custom hostname to a target service you own',
       args: [
         'source'
       ]
@@ -61,7 +61,7 @@ class HostsDeleteCommand extends Command {
           return callback(err);
         }
 
-        return callback(null, `Successfully deleted hostname route from "${source}"!`);
+        return callback(null, `Successfully removed hostname route from "${source}"!`);
 
       });
 
@@ -71,4 +71,4 @@ class HostsDeleteCommand extends Command {
 
 }
 
-module.exports = HostsDeleteCommand;
+module.exports = HostsRemoveCommand;
