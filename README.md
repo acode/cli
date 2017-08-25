@@ -382,7 +382,7 @@ Set `@bg params` in your comment definition like so:
 ```javascript
 /**
 * Hello World
-* @bg info
+* @bg params
 * @param {string} name
 * @returns {string}
 */
