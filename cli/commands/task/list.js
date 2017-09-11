@@ -68,19 +68,21 @@ function printTasks(tasks) {
   let longestFunctionName = lengthOfLongest(tasks.map(task => task.function_name));
   longestFunctionName = longestFunctionName > 9 ? longestFunctionName : 9;
   
+  let taskStrings = [];
+
   let nameHeaderSpace = longestName - 4 > 0 ? longestName - 4 : 0;
   let functionHeaderSpace = longestFunctionName - 8 > 0 ? longestFunctionName - 8 : 0;
   let frequencyHeaderSpace = longestFrequency - 9 > 0 ? longestFrequency - 9 : 0;
 
-  let taskStrings = [];
-
-  taskStrings.push(`${chalk.blue('Name')}${' '.repeat(nameHeaderSpace)}  ${chalk.blue('Function')}${' '.repeat(functionHeaderSpace)}\
-  ${chalk.blue('Frequency')}${' '.repeat(frequencyHeaderSpace)}  ${chalk.blue('Last Invoked')}`)
+  taskStrings.push(`${chalk.bold.blue('Name')}${' '.repeat(nameHeaderSpace)}  ${chalk.bold.blue('Function')}${' '.repeat(functionHeaderSpace)}\
+  ${chalk.bold.blue('Frequency')}${' '.repeat(frequencyHeaderSpace)}  ${chalk.bold.blue('Last Invoked')}`)
   
   tasks.map(function (task, index) {
+
     taskStrings.push(`${task.name}${' '.repeat(longestName - task.name.length)}  ${task.function_name}${' '.repeat(longestFunctionName - task.function_name.length)}\
   ${frequencies[index]}${' '.repeat(longestFrequency - frequencies[index].length)}  ${task.last_invoked_at}`);
-  });
+  
+});
 
   return taskStrings;
 }

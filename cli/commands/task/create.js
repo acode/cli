@@ -72,7 +72,6 @@ class TaskCreate extends Command {
       promptQuestions,
     ], (err, results) => {
 
-      let resource = new APIResource(host, port);
       let args = {
         name: results.name,
         library_token_id: results.library_token_id,
@@ -86,6 +85,8 @@ class TaskCreate extends Command {
 
       console.log(args);
 
+      let resource = new APIResource(host, port);
+      
       resource.authorize(Credentials.read('ACCESS_TOKEN'));      
       resource.request('/v1/scheduled_tasks').create(args, (err, response) => {
       
@@ -169,9 +170,9 @@ function getTokens(prev, callback) {
       return callback(new Error('You have no library tokens'));
     }
 
-    prev.tokens = response.data.reduce((toks, current) =>{
-      toks.push(current.token);
-      return toks;
+    prev.tokens = response.data.reduce((tokens, current) =>{
+      tokens.push(current.token);
+      return tokens;
     }, []);
 
     return callback(null, prev);
@@ -251,8 +252,17 @@ function promptQuestions(prev, callback) {
     name: 'period_offset',
     type: 'list',
     message: 'Starting at',
+    choices: (answers) => {
+      let maxOffset = hours.length / convertFrequency(answers.frequency);
+      return hours.splice(0, maxOffset);
+    },
+    when: (answers) => answers.period === 'day'
+  }, {
+    name: 'period_offset',
+    type: 'list',
+    message: 'Starting at',
     choices: hours,
-    when: (answers) => answers.period === 'day' || answers.period === 'week'
+    when: (answers) => answers.period === 'week'
   }, {
     name: 'name',
     type: 'input',
