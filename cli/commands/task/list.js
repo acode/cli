@@ -31,12 +31,17 @@ class TaskList extends Command {
         return callback(err);
       }
       
-      console.log(response.data)
-      console.log();
-      printTasks(response.data);
-      console.log();
+      let taskStrings = printTasks(response.data);
 
-      return callback(null);
+      if (!params.destroy) {
+        taskStrings.unshift('');
+        taskStrings.push('');
+        return callback(null, taskStrings.join('\n')); 
+      } else {
+        let taskStringsWithId = [taskStrings, response.data.map(task => task.id)]
+        return callback(null, taskStringsWithId);
+      }
+
     });
 
   }
@@ -67,16 +72,17 @@ function printTasks(tasks) {
   let functionHeaderSpace = longestFunctionName - 8 > 0 ? longestFunctionName - 8 : 0;
   let frequencyHeaderSpace = longestFrequency - 9 > 0 ? longestFrequency - 9 : 0;
 
-  console.log(`${chalk.blue('Name')}${' '.repeat(nameHeaderSpace)}  ${chalk.blue('Function')}${' '.repeat(functionHeaderSpace)}\
-  ${chalk.blue('Frequency')}${' '.repeat(frequencyHeaderSpace)}  ${chalk.blue('Last Invoked')}`);
+  let taskStrings = [];
 
-  tasks.map((task, index) => {
-
-    console.log(`${task.name}${' '.repeat(longestName - task.name.length)}  ${task.function_name}${' '.repeat(longestFunctionName - task.function_name.length)}\
+  taskStrings.push(`${chalk.blue('Name')}${' '.repeat(nameHeaderSpace)}  ${chalk.blue('Function')}${' '.repeat(functionHeaderSpace)}\
+  ${chalk.blue('Frequency')}${' '.repeat(frequencyHeaderSpace)}  ${chalk.blue('Last Invoked')}`)
+  
+  tasks.map(function (task, index) {
+    taskStrings.push(`${task.name}${' '.repeat(longestName - task.name.length)}  ${task.function_name}${' '.repeat(longestFunctionName - task.function_name.length)}\
   ${frequencies[index]}${' '.repeat(longestFrequency - frequencies[index].length)}  ${task.last_invoked_at}`);
-
   });
 
+  return taskStrings;
 }
 
 function period(p) {
