@@ -88,16 +88,16 @@ function printTasks(tasks) {
 function period(p) {
 
   if (p === 60) {
-    return 'minute'
+    return 'minute';
   }
   if (p === 3600) {
-    return 'hour'
+    return 'hour';
   }
   if (p === 86400) {
-    return 'day'
+    return 'day';
   }
   if (p === 604800) {
-    return 'week'
+    return 'week';
   }
 
 }
