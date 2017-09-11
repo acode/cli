@@ -80,7 +80,7 @@ class TaskCreate extends Command {
         function_name: results.function_name,
         frequency: convertFrequency(results.frequency),
         period: convertPeriod(results.period),
-        period_offset: convertPeriodOffset(results.period_offset, results.weekly_period_offset),//this.periodOffset + this.weekdayPeriodOffset,
+        period_offset: convertPeriodOffset(results.period_offset, results.weekly_period_offset),
         kwargs: results.kwargs,
       }
 
@@ -231,13 +231,14 @@ function promptQuestions(prev, callback) {
   }, {
     name: 'period_offset',
     type: 'input',
-    message: 'Starting at (0 - 59)',
-    validate: (value) => {
+    message: 'Starting at minute',
+    validate: (value, answers) => {
       let offset = Number(value);
-      if (Number.isInteger(offset) && (offset >= 0 && offset <= 59)) {
+      let maxOffset = convertPeriod(answers.period) / convertFrequency(answers.frequency) / 60;
+      if (Number.isInteger(offset) && (offset >= 0 && offset < maxOffset)) {
         return true;
       }
-      return 'Please enter an integer between 0 - 59 inclusive';
+      return `Please enter an integer between 0 - ${maxOffset - 1} inclusive`;
     },
     when: (answers) => answers.period === 'hour'
   }, {
@@ -330,7 +331,7 @@ function convertFrequency(frequency) {
   if (frequency === 'twelve times') return 12;
   if (frequency === 'fifteen times') return 15;
   if (frequency === 'twenty times') return 20;
-  if (frequency === 'thiry times') return 30;
+  if (frequency === 'thirty times') return 30;
   
 }
 
