@@ -26,20 +26,39 @@ class TaskList extends Command {
 
     resource.authorize(Credentials.read('ACCESS_TOKEN'));
     resource.request('/v1/scheduled_tasks').index({}, (err, response) => {
-      
+
       if (err) {
         return callback(err);
       }
-      
+
       let taskStrings = printTasks(response.data);
 
       if (!params.destroy) {
         taskStrings.unshift('');
         taskStrings.push('');
-        return callback(null, taskStrings.join('\n')); 
+        return callback(null, taskStrings.join('\n'));
       } else {
-        let taskStringsWithId = [taskStrings, response.data.map(task => task.id)]
-        return callback(null, taskStringsWithId);
+
+        let header = taskStrings[0];
+        let ids = response.data.map(task => task.id);
+        let tasks = taskStrings.slice(1);
+
+        let choices = tasks.map((task, index) => {
+          return {
+            name: task,
+            value: ids[index],
+            short: task.substr(0, task.indexOf(' ')),
+          };
+        });
+
+        let questions = [{
+          name: 'task',
+          message: taskStrings[0],
+          type: 'list',
+          choices: choices,
+        }];
+
+        return callback(null, questions);
       }
 
     });
@@ -48,7 +67,7 @@ class TaskList extends Command {
 }
 
 function printTasks(tasks) {
-  
+
   function lengthOfLongest(arr) {
     return arr.reduce((a, b) => {
       return a.length > b.length ? a : b;
@@ -61,13 +80,13 @@ function printTasks(tasks) {
 
   let frequencies = tasks.map(task => formatFrequency(task));
   let longestFrequency = lengthOfLongest(frequencies) > 4 ? lengthOfLongest(frequencies) : 4;
-  
+
   let longestName = lengthOfLongest(tasks.map(task => task.name));
   longestName = longestName > 8 ? longestName : 8;
-  
+
   let longestFunctionName = lengthOfLongest(tasks.map(task => task.function_name));
   longestFunctionName = longestFunctionName > 9 ? longestFunctionName : 9;
-  
+
   let taskStrings = [];
 
   let nameHeaderSpace = longestName - 4 > 0 ? longestName - 4 : 0;
@@ -76,12 +95,12 @@ function printTasks(tasks) {
 
   taskStrings.push(`${chalk.bold.blue('Name')}${' '.repeat(nameHeaderSpace)}  ${chalk.bold.blue('Function')}${' '.repeat(functionHeaderSpace)}\
   ${chalk.bold.blue('Frequency')}${' '.repeat(frequencyHeaderSpace)}  ${chalk.bold.blue('Last Invoked')}`)
-  
+
   tasks.map(function (task, index) {
 
     taskStrings.push(`${task.name}${' '.repeat(longestName - task.name.length)}  ${task.function_name}${' '.repeat(longestFunctionName - task.function_name.length)}\
   ${frequencies[index]}${' '.repeat(longestFrequency - frequencies[index].length)}  ${task.last_invoked_at}`);
-  
+
 });
 
   return taskStrings;

@@ -2,7 +2,6 @@
 
 const Command = require('cmnd').Command;
 const APIResource = require('api-res');
-
 const Credentials = require('../../credentials.js');
 const ListCommand = require('./list.js');
 
@@ -20,44 +19,32 @@ class TaskDestroy extends Command {
   }
 
   run(params, callback) {
-    
+
     const host = 'api.polybit.com';
     const port = 443;
 
     params.destroy = true;
 
     ListCommand.prototype.run.call(this, params, (err, results) => {
-      
+
       if (err) {
         return callback(err);
-      }  
-
-      let header = results[0][0];
-      let ids = results[1];
-      let tasks = results[0].slice(1);
-
-      let questions = [{
-        name: 'task',
-        message: header,
-        type: 'list',
-        choices: tasks
-      }];
-
-      inquirer.prompt(questions, (answers) => {
-        
-        let id = ids[tasks.indexOf(answers.task)];
+      }
+      console.log(results[0].choices);
+      inquirer.prompt(results[0], (answers) => {
 
         let resource = new APIResource(host, port);
 
         resource.authorize(Credentials.read('ACCESS_TOKEN'));
-        resource.request('/v1/scheduled_tasks').destroy(id, {}, (err, response) => {
-          
+        resource.request('/v1/scheduled_tasks').destroy(answers.task, {}, (err, response) => {
+
           if (err) {
             return callback(err);
           }
-        
+
           console.log();
           console.log('Task successfully deleted')
+          console.log();
           return callback(null);
 
         });
