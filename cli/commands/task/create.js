@@ -14,6 +14,8 @@ const path = require('path');
 const fs = require('fs');
 
 const host = 'api.polybit.com';
+//const host = 'api.jacobb.us'
+
 const port = 443;
 
 class TaskCreate extends Command {
@@ -58,12 +60,7 @@ class TaskCreate extends Command {
     }
 
     if (!f) {
-      console.log();
-      console.log(chalk.bold.red('Oops!'));
-      console.log();
-      console.log(`Please specify a function name`);
-      console.log();
-      return callback(null);
+      f = '';
     }
 
     async.waterfall([
@@ -72,7 +69,7 @@ class TaskCreate extends Command {
       promptQuestions,
     ], (err, results) => {
 
-      let args = {
+      let params = {
         name: results.name,
         library_token_id: results.library_token_id,
         service_id: results.service_id,
@@ -83,20 +80,20 @@ class TaskCreate extends Command {
         kwargs: results.kwargs,
       }
 
-      console.log(args);
-
+      console.log(params);
       let resource = new APIResource(host, port);
-      
-      resource.authorize(Credentials.read('ACCESS_TOKEN'));      
-      resource.request('/v1/scheduled_tasks').create(args, (err, response) => {
-      
+
+      resource.authorize(Credentials.read('ACCESS_TOKEN'));
+      resource.request('/v1/scheduled_tasks').create({}, params, (err, response) => {
+
         if (err) {
+          console.log(err);
           return callback(err);
         }
-      
+
         console.log(response)
         return callback(null);
-      
+
       });
     });
 
@@ -107,8 +104,7 @@ class TaskCreate extends Command {
 function getServiceDetails(service, f, version, callback) {
 
   let params = {
-    username: service.split('/')[0],
-    name: service,
+    name:  service,
     include_private: true,
   }
 
@@ -131,24 +127,17 @@ function getServiceDetails(service, f, version, callback) {
       return callback(new Error('Could not find service'));
     }
 
-    let selectedService;
-    if (version === 'latest') {
-      selectedService = response.data[response.data.length - 1];
-    } else {
-      selectedService = response.data[0];
-    }
+    let selectedService = response.data[0];
 
     let details = {
       service_id: selectedService.id,
       function_name: f,
     };
 
-    try {
+    if (selectedService.definitions_json[f]) {
       details['fArgs'] = selectedService.definitions_json[f].params;
-    } catch (error) {
-      throw new Error('Could not find function');
     }
-
+    console.log(selectedService);
     return callback(null, details);
 
   });
@@ -170,8 +159,8 @@ function getTokens(prev, callback) {
       return callback(new Error('You have no library tokens'));
     }
 
-    prev.tokens = response.data.reduce((tokens, current) =>{
-      tokens.push(current.token);
+    prev.tokens = response.data.reduce((tokens, current) => {
+      tokens.push(current.id.toString());
       return tokens;
     }, []);
 
@@ -183,15 +172,21 @@ function getTokens(prev, callback) {
 
 function promptQuestions(prev, callback) {
 
-  let questions = prev.fArgs.reduce((prompts, arg, index) => {
-    prompts.push({
-      name: arg.name,
-      type: 'input',
-      message: `Enter param for argument ${arg.name} (type ${arg.type})`,
-      argument: true,
-    });
-    return prompts;
-  }, []);
+  let questions;
+
+  if (prev.fArgs) {
+    questions = prev.fArgs.reduce((prompts, arg, index) => {
+      prompts.push({
+        name: arg.name,
+        type: 'input',
+        message: `Enter param for argument ${arg.name} (type ${arg.type})`,
+        argument: true,
+      });
+      return prompts;
+    }, []);
+  } else {
+    questions = [];
+  }
 
   questions = questions.concat([{
     name: 'library_token_id',
@@ -269,12 +264,12 @@ function promptQuestions(prev, callback) {
     message: 'Task name',
   }]);
 
-  inquirer.prompt(questions, function(answers){
+  inquirer.prompt(questions, function(answers) {
 
     answers['service_id'] = prev['service_id'];
     answers['function_name'] = prev['function_name'];
     answers['kwargs'] = {};
-    
+
     for (let answer in answers) {
       if (['name','library_token_id', 'period', 'frequency', 'period_offset', 'weekly_period_offset', 'service_id', 'function_name', 'kwargs'].indexOf(answer) === -1) {
         answers['kwargs'][answer] = answers[answer];
@@ -283,7 +278,7 @@ function promptQuestions(prev, callback) {
     }
 
     return callback(null, answers);
-    
+
   });
 
 }
@@ -295,7 +290,7 @@ const hours = ['0:00 UTC', '1:00 UTC', '3:00 UTC', '4:00 UTC', '5:00 UTC', '6:00
 '19:00 UTC', '20:00 UTC', '21:00 UTC', '22:00 UTC', '23:00 UTC'];
 
 function convertPeriod(period) {
-  
+
   if (period === 'minute') {
     return 60;
   }
@@ -312,8 +307,12 @@ function convertPeriod(period) {
 }
 
 function convertPeriodOffset(periodOffset, weeklyPeriodOffset) {
-  
+
   let offset = 0;
+
+  if (!periodOffset && ! weeklyPeriodOffset) {
+    return offset;
+  }
 
   if (weeklyPeriodOffset) {
     offset += 86400 * days.indexOf(weeklyPeriodOffset);
@@ -326,7 +325,7 @@ function convertPeriodOffset(periodOffset, weeklyPeriodOffset) {
   }
 
   return offset;
-  
+
 }
 
 function convertFrequency(frequency) {
@@ -342,7 +341,7 @@ function convertFrequency(frequency) {
   if (frequency === 'fifteen times') return 15;
   if (frequency === 'twenty times') return 20;
   if (frequency === 'thirty times') return 30;
-  
+
 }
 
 
