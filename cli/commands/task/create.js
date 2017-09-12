@@ -1,7 +1,6 @@
 'use strict';
 
 const lib = require('lib');
-
 const Command = require('cmnd').Command;
 const APIResource = require('api-res');
 const Credentials = require('../../credentials.js');
@@ -14,8 +13,6 @@ const path = require('path');
 const fs = require('fs');
 
 const host = 'api.polybit.com';
-//const host = 'api.jacobb.us'
-
 const port = 443;
 
 class TaskCreate extends Command {
@@ -69,6 +66,10 @@ class TaskCreate extends Command {
       promptQuestions,
     ], (err, results) => {
 
+      if (err) {
+        return callback(err);
+      }
+
       let params = {
         name: results.name,
         library_token_id: results.library_token_id,
@@ -80,18 +81,21 @@ class TaskCreate extends Command {
         kwargs: results.kwargs,
       }
 
-      console.log(params);
       let resource = new APIResource(host, port);
 
       resource.authorize(Credentials.read('ACCESS_TOKEN'));
       resource.request('/v1/scheduled_tasks').create({}, params, (err, response) => {
 
         if (err) {
-          console.log(err);
           return callback(err);
         }
 
-        console.log(response)
+        console.log();
+        console.log(chalk.bold.green('Success!'));
+        console.log();
+        console.log(`Task ${chalk.bold(params.name)} created`);
+        console.log();
+
         return callback(null);
 
       });
@@ -104,7 +108,7 @@ class TaskCreate extends Command {
 function getServiceDetails(service, f, version, callback) {
 
   let params = {
-    name:  service,
+    name: service,
     include_private: true,
   }
 
@@ -123,10 +127,6 @@ function getServiceDetails(service, f, version, callback) {
       return callback(err);
     }
 
-    if (!response.data.length) {
-      return callback(new Error('Could not find service'));
-    }
-
     let selectedService = response.data[0];
 
     let details = {
@@ -134,10 +134,12 @@ function getServiceDetails(service, f, version, callback) {
       function_name: f,
     };
 
-    if (selectedService.definitions_json[f]) {
-      details['fArgs'] = selectedService.definitions_json[f].params;
+    if (selectedService.definitions_json[f] === undefined) {
+      return callback(new Error(`Could not find function ${f} in service ${service}`));
     }
-    console.log(selectedService);
+
+    details['fArgs'] = selectedService.definitions_json[f].params;
+
     return callback(null, details);
 
   });
