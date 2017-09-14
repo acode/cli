@@ -26,7 +26,7 @@ class TaskCreate extends Command {
   help() {
 
     return {
-      description: 'Create a Scheduled Task from a StdLib service',
+      description: 'Creates a Scheduled Task from a StdLib service',
       args: [
         'service',
         'function',
@@ -44,7 +44,7 @@ class TaskCreate extends Command {
   run(params, callback) {
 
     let service = params.args[0];
-    let f = params.args[1];
+    let f = params.args[1] || '';
     let version = (params.flags.v || params.vflags.version || [])[0] || 'latest';
 
     if (!service) {
@@ -54,10 +54,6 @@ class TaskCreate extends Command {
       console.log(`Please specify a service name`);
       console.log();
       return callback(null);
-    }
-
-    if (!f) {
-      f = '';
     }
 
     async.waterfall([
@@ -99,6 +95,7 @@ class TaskCreate extends Command {
         return callback(null);
 
       });
+
     });
 
   }
@@ -174,7 +171,7 @@ function getTokens(prev, callback) {
 
 function promptQuestions(prev, callback) {
 
-  let questions;
+  let questions = [];
 
   if (prev.fArgs) {
     questions = prev.fArgs.reduce((prompts, arg, index) => {
@@ -186,8 +183,6 @@ function promptQuestions(prev, callback) {
       });
       return prompts;
     }, []);
-  } else {
-    questions = [];
   }
 
   questions = questions.concat([{
@@ -312,7 +307,7 @@ function convertPeriodOffset(periodOffset, weeklyPeriodOffset) {
 
   let offset = 0;
 
-  if (!periodOffset && ! weeklyPeriodOffset) {
+  if (!periodOffset && !weeklyPeriodOffset) {
     return offset;
   }
 

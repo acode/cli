@@ -7,13 +7,14 @@ const chalk = require('chalk');
 const Credentials = require('../../credentials.js');
 
 class TaskList extends Command {
+
   constructor() {
     super('task', 'list');
   }
 
   help() {
     return {
-      description: 'List your scheduled tasks'
+      description: 'Lists your scheduled tasks'
     };
   }
 
@@ -31,14 +32,16 @@ class TaskList extends Command {
         return callback(err);
       }
 
-      let taskStrings = printTasks(response.data);
+      let taskStrings = formatTasks(response.data);
 
       if (!params.destroy) {
+        // just print out the tasks
         taskStrings.unshift('');
         taskStrings.push('');
         return callback(null, taskStrings.join('\n'));
-      } else {
 
+      } else {
+        // turn them into questions for task:destroy
         let header = taskStrings[0];
         let ids = response.data.map(task => task.id);
         let tasks = taskStrings.slice(1);
@@ -59,14 +62,16 @@ class TaskList extends Command {
         }];
 
         return callback(null, questions);
+
       }
 
     });
 
   }
+
 }
 
-function printTasks(tasks) {
+function formatTasks(tasks) {
 
   function lengthOfLongest(arr) {
     return arr.reduce((a, b) => {
@@ -101,25 +106,18 @@ function printTasks(tasks) {
     taskStrings.push(`${task.name}${' '.repeat(longestName - task.name.length)}  ${task.function_name}${' '.repeat(longestFunctionName - task.function_name.length)}\
   ${frequencies[index]}${' '.repeat(longestFrequency - frequencies[index].length)}  ${task.last_invoked_at}`);
 
-});
+  });
 
   return taskStrings;
+
 }
 
 function period(p) {
 
-  if (p === 60) {
-    return 'minute';
-  }
-  if (p === 3600) {
-    return 'hour';
-  }
-  if (p === 86400) {
-    return 'day';
-  }
-  if (p === 604800) {
-    return 'week';
-  }
+  if (p === 60) return 'minute';
+  if (p === 3600) return 'hour';
+  if (p === 86400) return 'day';
+  if (p === 604800) return 'week';
 
 }
 

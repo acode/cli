@@ -14,7 +14,7 @@ class TaskDestroy extends Command {
 
   help() {
     return {
-      description: 'Stop a StdLib scheduled task'
+      description: 'Stops a StdLib scheduled task'
     };
   }
 
@@ -30,7 +30,7 @@ class TaskDestroy extends Command {
       if (err) {
         return callback(err);
       }
-      console.log(results[0].choices);
+
       inquirer.prompt(results[0], (answers) => {
 
         let resource = new APIResource(host, port);
