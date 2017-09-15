@@ -15,6 +15,58 @@ const fs = require('fs');
 const host = 'api.polybit.com';
 const port = 443;
 
+
+const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const hours = ['0:00 UTC', '1:00 UTC', '3:00 UTC', '4:00 UTC', '5:00 UTC', '6:00 UTC',
+'7:00 UTC', '8:00 UTC', '9:00 UTC', '10:00 UTC', '11:00 UTC', '12:00 UTC',
+'13:00 UTC', '14:00 UTC', '15:00 UTC', '16:00 UTC', '17:00 UTC', '18:00 UTC',
+'19:00 UTC', '20:00 UTC', '21:00 UTC', '22:00 UTC', '23:00 UTC'];
+
+const convertPeriod = {
+  'minute': 60,
+  'hour': 3600,
+  'day': 86400,
+  'week': 604800
+};
+
+const convertFrequency = {
+  'once': 1,
+  'twice': 2,
+  'three times': 3,
+  'four times': 4,
+  'five times': 5,
+  'six times': 6,
+  'ten times': 10,
+  'twelve times': 12,
+  'fifteen times': 15,
+  'twenty times': 20,
+  'thirty times': 30
+};
+
+function convertPeriodOffset(periodOffset, weeklyPeriodOffset) {
+
+  let offset = 0;
+
+  if (!periodOffset && !weeklyPeriodOffset) {
+    return offset;
+  }
+
+  if (weeklyPeriodOffset) {
+    offset += 86400 * days.indexOf(weeklyPeriodOffset);
+  }
+
+  if (hours.indexOf(periodOffset) !== -1) {
+    offset += 3600 * hours.indexOf(periodOffset);
+  } else {
+    offset += 3600 * periodOffset;
+  }
+
+  return offset;
+
+}
+
+
+
 class TaskCreate extends Command {
 
   constructor() {
@@ -71,8 +123,8 @@ class TaskCreate extends Command {
         library_token_id: results.library_token_id,
         service_id: results.service_id,
         function_name: results.function_name,
-        frequency: convertFrequency(results.frequency),
-        period: convertPeriod(results.period),
+        frequency: convertFrequency[results.frequency],
+        period: convertPeriod[results.period],
         period_offset: convertPeriodOffset(results.period_offset, results.weekly_period_offset),
         kwargs: results.kwargs,
       }
@@ -279,67 +331,5 @@ function promptQuestions(prev, callback) {
   });
 
 }
-
-const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-const hours = ['0:00 UTC', '1:00 UTC', '3:00 UTC', '4:00 UTC', '5:00 UTC', '6:00 UTC',
-'7:00 UTC', '8:00 UTC', '9:00 UTC', '10:00 UTC', '11:00 UTC', '12:00 UTC',
-'13:00 UTC', '14:00 UTC', '15:00 UTC', '16:00 UTC', '17:00 UTC', '18:00 UTC',
-'19:00 UTC', '20:00 UTC', '21:00 UTC', '22:00 UTC', '23:00 UTC'];
-
-function convertPeriod(period) {
-
-  if (period === 'minute') {
-    return 60;
-  }
-  if (period === 'hour') {
-    return 3600;
-  }
-  if (period === 'day') {
-    return 86400;
-  }
-  if (period === 'week') {
-    return 604800;
-  }
-
-}
-
-function convertPeriodOffset(periodOffset, weeklyPeriodOffset) {
-
-  let offset = 0;
-
-  if (!periodOffset && !weeklyPeriodOffset) {
-    return offset;
-  }
-
-  if (weeklyPeriodOffset) {
-    offset += 86400 * days.indexOf(weeklyPeriodOffset);
-  }
-
-  if (hours.indexOf(periodOffset) !== -1) {
-    offset += 3600 * hours.indexOf(periodOffset);
-  } else {
-    offset += 3600 * periodOffset;
-  }
-
-  return offset;
-
-}
-
-function convertFrequency(frequency) {
-
-  if (frequency === 'once') return 1;
-  if (frequency === 'twice') return 2;
-  if (frequency === 'three times') return 3;
-  if (frequency === 'four times') return 4;
-  if (frequency === 'five times') return 5;
-  if (frequency === 'six times') return 6;
-  if (frequency === 'ten times') return 10;
-  if (frequency === 'twelve times') return 12;
-  if (frequency === 'fifteen times') return 15;
-  if (frequency === 'twenty times') return 20;
-  if (frequency === 'thirty times') return 30;
-
-}
-
 
 module.exports = TaskCreate;

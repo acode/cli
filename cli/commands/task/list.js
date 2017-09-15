@@ -5,6 +5,7 @@ const APIResource = require('api-res');
 const chalk = require('chalk');
 
 const Credentials = require('../../credentials.js');
+const tabler = require('../../tabler.js');
 
 class TaskList extends Command {
 
@@ -31,6 +32,17 @@ class TaskList extends Command {
       if (err) {
         return callback(err);
       }
+
+      let fields = [
+        'Name',
+        'Function',
+        'Frequency',
+        'Last Invoked'
+      ];
+
+      // let objects = response.data.map((object) => {
+      //
+      // });
 
       let taskStrings = formatTasks(response.data);
 
