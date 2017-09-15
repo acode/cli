@@ -3,6 +3,7 @@
 const Command = require('cmnd').Command;
 const APIResource = require('api-res');
 const chalk = require('chalk');
+const inquirer = require('inquirer');
 
 const Credentials = require('../../credentials.js');
 const tabler = require('../../tabler.js');
@@ -40,35 +41,42 @@ class TaskList extends Command {
         'Last Invoked'
       ];
 
-      // let objects = response.data.map((object) => {
-      //
-      // });
+      let objects = response.data.map((object) => {
+        return {
+          'Name': object.name,
+          'Function': object.function_name || '__main__.js',
+          'Frequency': object.frequency,
+          'Last Invoked': object.last_invoked_at || 'never'
+        };
+      });
 
-      let taskStrings = formatTasks(response.data);
+
+      let table = tabler(fields, objects);
 
       if (!params.destroy) {
         // just print out the tasks
-        taskStrings.unshift('');
-        taskStrings.push('');
-        return callback(null, taskStrings.join('\n'));
+        return callback(null, table);
 
       } else {
         // turn them into questions for task:destroy
-        let header = taskStrings[0];
+        let tableLines = table.split('\n');
+        let header = tableLines[0];
+        let separator = tableLines[1];
         let ids = response.data.map(task => task.id);
-        let tasks = taskStrings.slice(1);
+        let tasks = tableLines.slice(2);
 
         let choices = tasks.map((task, index) => {
           return {
             name: task,
             value: ids[index],
-            short: task.substr(0, task.indexOf(' ')),
+            short: task.substr(1, task.indexOf('|') - 1),
           };
         });
+        choices.unshift(new inquirer.Separator(separator));
 
         let questions = [{
           name: 'task',
-          message: taskStrings[0],
+          message: header,
           type: 'list',
           choices: choices,
         }];

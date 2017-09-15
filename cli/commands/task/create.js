@@ -222,6 +222,7 @@ function generateQuestions(tokens, serviceDetails) {
     name: 'taskName',
     type: 'input',
     message: 'Task name',
+    //default: 'My Task',
   }]);
 
   return questions;
@@ -301,8 +302,6 @@ class TaskCreate extends Command {
           kwargs: kwargs,
         }
 
-        console.log(params);
-
         let resource = new APIResource(host, port);
 
         resource.authorize(Credentials.read('ACCESS_TOKEN'));
@@ -319,7 +318,7 @@ class TaskCreate extends Command {
           console.log();
 
           return callback(null);
-        
+
         });
 
       });
