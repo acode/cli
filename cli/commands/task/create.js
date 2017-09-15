@@ -65,96 +65,7 @@ function convertPeriodOffset(periodOffset, weeklyPeriodOffset) {
 
 }
 
-
-
-class TaskCreate extends Command {
-
-  constructor() {
-
-    super('task', 'create');
-
-  }
-
-  help() {
-
-    return {
-      description: 'Creates a Scheduled Task from a StdLib service',
-      args: [
-        'service',
-        'function',
-      ],
-      flags: {
-        v: 'Service version (default lastest release)'
-      },
-      vflags: {
-        version: 'Service version (default lastest release)'
-      }
-    };
-
-  }
-
-  run(params, callback) {
-
-    let service = params.args[0];
-    let f = params.args[1] || '';
-    let version = (params.flags.v || params.vflags.version || [])[0] || 'latest';
-
-    if (!service) {
-      console.log();
-      console.log(chalk.bold.red('Oops!'));
-      console.log();
-      console.log(`Please specify a service name`);
-      console.log();
-      return callback(null);
-    }
-
-    async.waterfall([
-      async.apply(getServiceDetails, service, f, version),
-      getTokens,
-      promptQuestions,
-    ], (err, results) => {
-
-      if (err) {
-        return callback(err);
-      }
-
-      let params = {
-        name: results.name,
-        library_token_id: results.library_token_id,
-        service_id: results.service_id,
-        function_name: results.function_name,
-        frequency: convertFrequency[results.frequency],
-        period: convertPeriod[results.period],
-        period_offset: convertPeriodOffset(results.period_offset, results.weekly_period_offset),
-        kwargs: results.kwargs,
-      }
-
-      let resource = new APIResource(host, port);
-
-      resource.authorize(Credentials.read('ACCESS_TOKEN'));
-      resource.request('/v1/scheduled_tasks').create({}, params, (err, response) => {
-
-        if (err) {
-          return callback(err);
-        }
-
-        console.log();
-        console.log(chalk.bold.green('Success!'));
-        console.log();
-        console.log(`Task ${chalk.bold(params.name)} created`);
-        console.log();
-
-        return callback(null);
-
-      });
-
-    });
-
-  }
-
-}
-
-function getServiceDetails(service, f, version, callback) {
+function getServiceDetails(service, function_name, version, callback) {
 
   let params = {
     name: service,
@@ -180,14 +91,14 @@ function getServiceDetails(service, f, version, callback) {
 
     let details = {
       service_id: selectedService.id,
-      function_name: f,
+      function_name: function_name,
     };
 
-    if (selectedService.definitions_json[f] === undefined) {
-      return callback(new Error(`Could not find function ${f} in service ${service}`));
+    if (selectedService.definitions_json[function_name] === undefined) {
+      return callback(new Error(`Could not find function ${function_name} in service ${service}`));
     }
 
-    details['fArgs'] = selectedService.definitions_json[f].params;
+    details['fArgs'] = selectedService.definitions_json[function_name].params;
 
     return callback(null, details);
 
@@ -195,7 +106,7 @@ function getServiceDetails(service, f, version, callback) {
 
 }
 
-function getTokens(prev, callback) {
+function getTokens(callback) {
 
   let resource = new APIResource(host, port);
 
@@ -210,23 +121,23 @@ function getTokens(prev, callback) {
       return callback(new Error('You have no library tokens'));
     }
 
-    prev.tokens = response.data.reduce((tokens, current) => {
+    let tokens = response.data.reduce((tokens, current) => {
       tokens.push(current.id.toString());
       return tokens;
     }, []);
 
-    return callback(null, prev);
+    return callback(null, tokens);
 
   });
 
 }
 
-function promptQuestions(prev, callback) {
+function generateQuestions(tokens, serviceDetails) {
 
   let questions = [];
 
-  if (prev.fArgs) {
-    questions = prev.fArgs.reduce((prompts, arg, index) => {
+  if (serviceDetails.fArgs) {
+    questions = serviceDetails.fArgs.reduce((prompts, arg, index) => {
       prompts.push({
         name: arg.name,
         type: 'input',
@@ -241,7 +152,7 @@ function promptQuestions(prev, callback) {
     name: 'library_token_id',
     type: 'list',
     message: 'Pick a library token to use',
-    choices: prev.tokens
+    choices: tokens
   }, {
     name: 'period',
     type: 'list',
@@ -279,7 +190,7 @@ function promptQuestions(prev, callback) {
     message: 'Starting at minute',
     validate: (value, answers) => {
       let offset = Number(value);
-      let maxOffset = convertPeriod(answers.period) / convertFrequency(answers.frequency) / 60;
+      let maxOffset = convertPeriod[answers.period] / convertFrequency[answers.frequency] / 60;
       if (Number.isInteger(offset) && (offset >= 0 && offset < maxOffset)) {
         return true;
       }
@@ -297,8 +208,8 @@ function promptQuestions(prev, callback) {
     type: 'list',
     message: 'Starting at',
     choices: (answers) => {
-      let maxOffset = hours.length / convertFrequency(answers.frequency);
-      return hours.splice(0, maxOffset);
+      let maxOffset = hours.length / convertFrequency[answers.frequency];
+      return hours.slice(0, maxOffset);
     },
     when: (answers) => answers.period === 'day'
   }, {
@@ -308,27 +219,114 @@ function promptQuestions(prev, callback) {
     choices: hours,
     when: (answers) => answers.period === 'week'
   }, {
-    name: 'name',
+    name: 'taskName',
     type: 'input',
     message: 'Task name',
   }]);
 
-  inquirer.prompt(questions, function(answers) {
+  return questions;
 
-    answers['service_id'] = prev['service_id'];
-    answers['function_name'] = prev['function_name'];
-    answers['kwargs'] = {};
+}
 
-    for (let answer in answers) {
-      if (['name','library_token_id', 'period', 'frequency', 'period_offset', 'weekly_period_offset', 'service_id', 'function_name', 'kwargs'].indexOf(answer) === -1) {
-        answers['kwargs'][answer] = answers[answer];
-        delete answers[answer];
+class TaskCreate extends Command {
+
+  constructor() {
+
+    super('task', 'create');
+
+  }
+
+  help() {
+
+    return {
+      description: 'Creates a Scheduled Task from a StdLib service',
+      args: [
+        'service',
+        'function',
+      ],
+      flags: {
+        v: 'Service version (default lastest release)'
+      },
+      vflags: {
+        version: 'Service version (default lastest release)'
       }
+    };
+
+  }
+
+  run(params, callback) {
+
+    let service = params.args[0];
+    let function_name = params.args[1] || '';
+    let version = (params.flags.v || params.vflags.version || [])[0] || 'latest';
+
+    if (!service) {
+      console.log();
+      console.log(chalk.bold.red('Oops!'));
+      console.log();
+      console.log(`Please specify a service name`);
+      console.log();
+      return callback(null);
     }
 
-    return callback(null, answers);
+    async.parallel([
+      getTokens,
+      getServiceDetails.bind(null, service, function_name, version)
+    ], (err, results) => {
 
-  });
+      if (err) {
+        return callback(err);
+      }
+
+      let tokens = results[0];
+      let service = results[1];
+
+      inquirer.prompt(generateQuestions(tokens, service), (answers) => {
+
+        let kwargs = {};
+        for (let answer in answers) {
+          if (['taskName','library_token_id', 'period', 'frequency', 'period_offset', 'weekly_period_offset', 'service_id', 'function_name', 'kwargs'].indexOf(answer) === -1) {
+            kwargs[answer] = answers[answer];
+          }
+        }
+
+        let params = {
+          name: answers.taskName,
+          library_token_id: answers.library_token_id,
+          service_id: service.service_id,
+          function_name: service.function_name,
+          frequency: convertFrequency[answers.frequency],
+          period: convertPeriod[answers.period],
+          period_offset: convertPeriodOffset(answers.period_offset, answers.weekly_period_offset),
+          kwargs: kwargs,
+        }
+
+        console.log(params);
+
+        let resource = new APIResource(host, port);
+
+        resource.authorize(Credentials.read('ACCESS_TOKEN'));
+        resource.request('/v1/scheduled_tasks').create({}, params, (err, response) => {
+
+          if (err) {
+            return callback(err);
+          }
+
+          console.log();
+          console.log(chalk.bold.green('Success!'));
+          console.log();
+          console.log(`Task ${chalk.bold(params.name)} created`);
+          console.log();
+
+          return callback(null);
+        
+        });
+
+      });
+
+    });
+
+  }
 
 }
 
