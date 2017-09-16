@@ -8,6 +8,13 @@ const inquirer = require('inquirer');
 const Credentials = require('../../credentials.js');
 const tabler = require('../../tabler.js');
 
+const convertPeriodToString = {
+  60: 'minute',
+  3600: 'hour',
+  86400: 'day',
+  604800: 'week'
+};
+
 class TaskList extends Command {
 
   constructor() {
@@ -36,16 +43,20 @@ class TaskList extends Command {
 
       let fields = [
         'Name',
+        'Service',
         'Function',
         'Frequency',
+        'Period',
         'Last Invoked'
       ];
 
       let objects = response.data.map((object) => {
         return {
           'Name': object.name,
-          'Function': object.function_name || '__main__.js',
-          'Frequency': object.frequency,
+          'Service': object.service.name,
+          'Function': object.function_name || '__main__',
+          'Frequency': `${object.frequency} time(s)`,
+          'Period': `per ${convertPeriodToString[object.period]}`,
           'Last Invoked': object.last_invoked_at || 'never'
         };
       });
@@ -55,17 +66,19 @@ class TaskList extends Command {
 
       if (!params.destroy) {
         // just print out the tasks
-        return callback(null, table);
+        console.log();
+        console.log(table);
+        console.log();
+        return callback(null);
 
       } else {
         // turn them into questions for task:destroy
         let tableLines = table.split('\n');
-        let header = tableLines[0];
-        let separator = tableLines[1];
-        let ids = response.data.map(task => task.id);
-        let tasks = tableLines.slice(2);
+        let header = tableLines.shift();
+        let separator = tableLines.shift();
 
-        let choices = tasks.map((task, index) => {
+        let ids = response.data.map(task => task.id);
+        let choices = tableLines.map((task, index) => {
           return {
             name: task,
             value: ids[index],
@@ -88,56 +101,6 @@ class TaskList extends Command {
     });
 
   }
-
-}
-
-function formatTasks(tasks) {
-
-  function lengthOfLongest(arr) {
-    return arr.reduce((a, b) => {
-      return a.length > b.length ? a : b;
-    }).length;
-  }
-
-  function formatFrequency(task) {
-    return `${task.frequency} time(s) per ${period(task.period)}`
-  }
-
-  let frequencies = tasks.map(task => formatFrequency(task));
-  let longestFrequency = lengthOfLongest(frequencies) > 4 ? lengthOfLongest(frequencies) : 4;
-
-  let longestName = lengthOfLongest(tasks.map(task => task.name));
-  longestName = longestName > 8 ? longestName : 8;
-
-  let longestFunctionName = lengthOfLongest(tasks.map(task => task.function_name));
-  longestFunctionName = longestFunctionName > 9 ? longestFunctionName : 9;
-
-  let taskStrings = [];
-
-  let nameHeaderSpace = longestName - 4 > 0 ? longestName - 4 : 0;
-  let functionHeaderSpace = longestFunctionName - 8 > 0 ? longestFunctionName - 8 : 0;
-  let frequencyHeaderSpace = longestFrequency - 9 > 0 ? longestFrequency - 9 : 0;
-
-  taskStrings.push(`${chalk.bold.blue('Name')}${' '.repeat(nameHeaderSpace)}  ${chalk.bold.blue('Function')}${' '.repeat(functionHeaderSpace)}\
-  ${chalk.bold.blue('Frequency')}${' '.repeat(frequencyHeaderSpace)}  ${chalk.bold.blue('Last Invoked')}`)
-
-  tasks.map(function (task, index) {
-
-    taskStrings.push(`${task.name}${' '.repeat(longestName - task.name.length)}  ${task.function_name}${' '.repeat(longestFunctionName - task.function_name.length)}\
-  ${frequencies[index]}${' '.repeat(longestFrequency - frequencies[index].length)}  ${task.last_invoked_at}`);
-
-  });
-
-  return taskStrings;
-
-}
-
-function period(p) {
-
-  if (p === 60) return 'minute';
-  if (p === 3600) return 'hour';
-  if (p === 86400) return 'day';
-  if (p === 604800) return 'week';
 
 }
 

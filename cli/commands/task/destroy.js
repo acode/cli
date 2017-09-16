@@ -8,6 +8,7 @@ const ListCommand = require('./list.js');
 const inquirer = require('inquirer');
 
 class TaskDestroy extends Command {
+
   constructor() {
     super('task', 'destroy');
   }
@@ -30,6 +31,8 @@ class TaskDestroy extends Command {
       if (err) {
         return callback(err);
       }
+
+      console.log();
 
       inquirer.prompt(results[0], (answers) => {
 

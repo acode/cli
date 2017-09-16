@@ -58,7 +58,7 @@ function convertPeriodOffset(periodOffset, weeklyPeriodOffset) {
   if (hours.indexOf(periodOffset) !== -1) {
     offset += 3600 * hours.indexOf(periodOffset);
   } else {
-    offset += 3600 * periodOffset;
+    offset += 60 * periodOffset;
   }
 
   return offset;
@@ -98,7 +98,7 @@ function getServiceDetails(service, function_name, version, callback) {
       return callback(new Error(`Could not find function ${function_name} in service ${service}`));
     }
 
-    details['fArgs'] = selectedService.definitions_json[function_name].params;
+    details.fArgs = selectedService.definitions_json[function_name].params;
 
     return callback(null, details);
 
@@ -222,7 +222,7 @@ function generateQuestions(tokens, serviceDetails) {
     name: 'taskName',
     type: 'input',
     message: 'Task name',
-    //default: 'My Task',
+    //default: 'Task',
   }]);
 
   return questions;
