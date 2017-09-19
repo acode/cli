@@ -25,10 +25,10 @@ class TaskList extends Command {
     return {
       description: 'Lists your scheduled tasks',
       flags: {
-        j: 'Return tasks as JSON object'
+        j: 'Returns tasks as a JSON object'
       },
       vflags: {
-        json: 'Return tasks as JSON object'
+        json: 'Returns tasks as a JSON object'
       }
     };
   }
