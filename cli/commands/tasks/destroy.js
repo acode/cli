@@ -7,6 +7,7 @@ const ListCommand = require('./list.js');
 const tabler = require('../../tabler.js');
 
 const inquirer = require('inquirer');
+const chalk = require('chalk');
 
 const convertPeriodToString = {
   60: 'minute',
@@ -32,9 +33,7 @@ class TasksDestroy extends Command {
     const host = 'api.polybit.com';
     const port = 443;
 
-    params.flags.j = true;
-
-    ListCommand.prototype.run.call(this, params, (err, results) => {
+    ListCommand.prototype.run.call(this, {flags: {}, vflags: {json: true}}, (err, results) => {
 
       if (err) {
         return callback(err);
@@ -75,10 +74,17 @@ class TasksDestroy extends Command {
             value: ids[index],
             short: task.substr(1, task.indexOf('|') - 1)
           };
-        }))
+        })).concat({name: ' nevermind', short: ' '})
       }];
 
       inquirer.prompt(questions, (answers) => {
+
+        if (answers.task === ' nevermind') {
+          console.log();
+          console.log(chalk.bold.red('Abort!'))
+          console.log();
+          return callback(null);
+        }
 
         let resource = new APIResource(host, port);
 

@@ -38,6 +38,8 @@ class TasksList extends Command {
     const host = 'api.polybit.com';
     const port = 443;
 
+    let JSONoutput = params.flags.hasOwnProperty('j') || params.vflags.hasOwnProperty('json');
+
     let resource = new APIResource(host, port);
 
     resource.authorize(Credentials.read('ACCESS_TOKEN'));
@@ -47,7 +49,7 @@ class TasksList extends Command {
         return callback(err);
       }
 
-      if (params.flags.j || params.vflags.json) {
+      if (JSONoutput) {
 
         return callback(null, response.data);
 
