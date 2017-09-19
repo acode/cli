@@ -15,9 +15,6 @@ const fs = require('fs');
 const host = 'api.polybit.com';
 const port = 443;
 
-const resource = new APIResource(host, port);
-resource.authorize(Credentials.read('ACCESS_TOKEN'));
-
 const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const hours = ['0:00 UTC', '1:00 UTC', '3:00 UTC', '4:00 UTC', '5:00 UTC', '6:00 UTC',
 '7:00 UTC', '8:00 UTC', '9:00 UTC', '10:00 UTC', '11:00 UTC', '12:00 UTC',
@@ -82,6 +79,9 @@ function getFunctionDetails(service, functionName, version, callback) {
     params.version = version;
   }
 
+  const resource = new APIResource(host, port);
+  resource.authorize(Credentials.read('ACCESS_TOKEN'));
+
   resource.request('/v1/services').index(params, (err, response) => {
 
     if (err) {
@@ -105,6 +105,9 @@ function getFunctionDetails(service, functionName, version, callback) {
 }
 
 function getTokens(callback) {
+
+  const resource = new APIResource(host, port);
+  resource.authorize(Credentials.read('ACCESS_TOKEN'));
 
   resource.request('v1/dashboard/library_tokens').index({}, (err, response) => {
 
@@ -297,6 +300,9 @@ class TasksCreate extends Command {
             return params;
           }, {})
         };
+
+        const resource = new APIResource(host, port);
+        resource.authorize(Credentials.read('ACCESS_TOKEN'));
 
         resource.request('/v1/scheduled_tasks').create({}, taskParams, (err, response) => {
 
