@@ -226,7 +226,7 @@ function generateQuestions(tokens, functionDetails) {
 
 }
 
-class TaskCreate extends Command {
+class TasksCreate extends Command {
 
   constructor() {
 
@@ -322,4 +322,4 @@ class TaskCreate extends Command {
 
 }
 
-module.exports = TaskCreate;
+module.exports = TasksCreate;

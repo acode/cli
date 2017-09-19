@@ -15,7 +15,7 @@ const convertPeriodToString = {
   604800: 'week'
 };
 
-class TaskDestroy extends Command {
+class TasksDestroy extends Command {
 
   constructor() {
     super('tasks', 'destroy');
@@ -104,4 +104,4 @@ class TaskDestroy extends Command {
 
 }
 
-module.exports = TaskDestroy;
+module.exports = TasksDestroy;
