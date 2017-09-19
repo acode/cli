@@ -15,6 +15,8 @@ const fs = require('fs');
 const host = 'api.polybit.com';
 const port = 443;
 
+const resource = new APIResource(host, port);
+resource.authorize(Credentials.read('ACCESS_TOKEN'));
 
 const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const hours = ['0:00 UTC', '1:00 UTC', '3:00 UTC', '4:00 UTC', '5:00 UTC', '6:00 UTC',
@@ -43,6 +45,8 @@ const convertFrequency = {
   'thirty times': 30
 };
 
+const paramPromptPrefix = '$param__';
+
 function convertPeriodOffset(periodOffset, weeklyPeriodOffset) {
 
   let offset = 0;
@@ -65,7 +69,7 @@ function convertPeriodOffset(periodOffset, weeklyPeriodOffset) {
 
 }
 
-function getServiceDetails(service, function_name, version, callback) {
+function getFunctionDetails(service, functionName, version, callback) {
 
   let params = {
     name: service,
@@ -78,9 +82,6 @@ function getServiceDetails(service, function_name, version, callback) {
     params.version = version;
   }
 
-  let resource = new APIResource(host, port);
-
-  resource.authorize(Credentials.read('ACCESS_TOKEN'));
   resource.request('/v1/services').index(params, (err, response) => {
 
     if (err) {
@@ -89,18 +90,15 @@ function getServiceDetails(service, function_name, version, callback) {
 
     let selectedService = response.data[0];
 
-    let details = {
-      service_id: selectedService.id,
-      function_name: function_name,
-    };
-
-    if (selectedService.definitions_json[function_name] === undefined) {
-      return callback(new Error(`Could not find function ${function_name} in service ${service}`));
+    if (!selectedService.definitions_json[functionName]) {
+     return callback(new Error(`Could not find function ${functionName} in service ${service}`));
     }
 
-    details.fArgs = selectedService.definitions_json[function_name].params;
-
-    return callback(null, details);
+    return callback(null, {
+      service_id: selectedService.id,
+      functionName: functionName,
+      params: selectedService.definitions_json[functionName].params
+    });
 
   });
 
@@ -108,9 +106,6 @@ function getServiceDetails(service, function_name, version, callback) {
 
 function getTokens(callback) {
 
-  let resource = new APIResource(host, port);
-
-  resource.authorize(Credentials.read('ACCESS_TOKEN'));
   resource.request('v1/dashboard/library_tokens').index({}, (err, response) => {
 
     if (err) {
@@ -121,10 +116,13 @@ function getTokens(callback) {
       return callback(new Error('You have no library tokens'));
     }
 
-    let tokens = response.data.reduce((tokens, current) => {
-      tokens.push(current.id.toString());
-      return tokens;
-    }, []);
+    let tokens = response.data.map((token) => {
+      return {
+        name: `${token.label}: ${token.token.slice(0, 5)}...`,
+        value: token.id.toString(),
+        short: token.label
+      }
+    });
 
     return callback(null, tokens);
 
@@ -132,20 +130,19 @@ function getTokens(callback) {
 
 }
 
-function generateQuestions(tokens, serviceDetails) {
+function generateQuestions(tokens, functionDetails) {
 
   let questions = [];
 
-  if (serviceDetails.fArgs) {
-    questions = serviceDetails.fArgs.reduce((prompts, arg, index) => {
-      prompts.push({
-        name: arg.name,
+  if (functionDetails.params) {
+    questions = functionDetails.params.map((param) => {
+      return {
+        name: `${paramPromptPrefix}${param.name}`,
         type: 'input',
-        message: `Enter param for argument ${arg.name} (type ${arg.type})`,
+        message: `Enter param for parameter "${param.name}" (type ${param.type})`,
         argument: true,
-      });
-      return prompts;
-    }, []);
+      };
+    });
   }
 
   questions = questions.concat([{
@@ -233,7 +230,7 @@ class TaskCreate extends Command {
 
   constructor() {
 
-    super('task', 'create');
+    super('tasks', 'create');
 
   }
 
@@ -258,7 +255,7 @@ class TaskCreate extends Command {
   run(params, callback) {
 
     let service = params.args[0];
-    let function_name = params.args[1] || '';
+    let functionName = params.args[1] || '';
     let version = (params.flags.v || params.vflags.version || [])[0] || 'latest';
 
     if (!service) {
@@ -272,7 +269,7 @@ class TaskCreate extends Command {
 
     async.parallel([
       getTokens,
-      getServiceDetails.bind(null, service, function_name, version)
+      getFunctionDetails.bind(null, service, functionName, version)
     ], (err, results) => {
 
       if (err) {
@@ -280,32 +277,28 @@ class TaskCreate extends Command {
       }
 
       let tokens = results[0];
-      let service = results[1];
+      let functionDetails = results[1];
 
-      inquirer.prompt(generateQuestions(tokens, service), (answers) => {
+      inquirer.prompt(generateQuestions(tokens, functionDetails), (answers) => {
 
-        let kwargs = {};
-        for (let answer in answers) {
-          if (['taskName','library_token_id', 'period', 'frequency', 'period_offset', 'weekly_period_offset', 'service_id', 'function_name', 'kwargs'].indexOf(answer) === -1) {
-            kwargs[answer] = answers[answer];
-          }
-        }
-
-        let params = {
+        let taskParams = {
           name: answers.taskName,
           library_token_id: answers.library_token_id,
-          service_id: service.service_id,
-          function_name: service.function_name,
+          service_id: functionDetails.service_id,
+          function_name: functionDetails.functionName,
           frequency: convertFrequency[answers.frequency],
           period: convertPeriod[answers.period],
           period_offset: convertPeriodOffset(answers.period_offset, answers.weekly_period_offset),
-          kwargs: kwargs,
-        }
+          kwargs: Object.keys(answers)
+            .filter(key => key.indexOf(paramPromptPrefix) === 0)
+            .reduce((params, key) => {
+            let paramName = key.substr(paramPromptPrefix.length);
+            params[paramName] = answers[key];
+            return params;
+          }, {})
+        };
 
-        let resource = new APIResource(host, port);
-
-        resource.authorize(Credentials.read('ACCESS_TOKEN'));
-        resource.request('/v1/scheduled_tasks').create({}, params, (err, response) => {
+        resource.request('/v1/scheduled_tasks').create({}, taskParams, (err, response) => {
 
           if (err) {
             return callback(err);
