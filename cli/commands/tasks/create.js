@@ -296,7 +296,13 @@ class TasksCreate extends Command {
             .filter(key => key.indexOf(paramPromptPrefix) === 0)
             .reduce((params, key) => {
             let paramName = key.substr(paramPromptPrefix.length);
-            params[paramName] = answers[key];
+            let value = answers[key];
+
+            try {
+              value = JSON.parse(value);
+            } catch (e) {}
+
+            params[paramName] = value;
             return params;
           }, {})
         };
