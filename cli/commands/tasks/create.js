@@ -291,21 +291,30 @@ class TasksCreate extends Command {
           function_name: functionDetails.functionName,
           frequency: convertFrequency[answers.frequency],
           period: convertPeriod[answers.period],
-          period_offset: convertPeriodOffset(answers.period_offset, answers.weekly_period_offset),
-          kwargs: Object.keys(answers)
+          period_offset: convertPeriodOffset(answers.period_offset, answers.weekly_period_offset)
+        };
+
+        try {
+
+          taskParams.kwargs = Object.keys(answers)
             .filter(key => key.indexOf(paramPromptPrefix) === 0)
             .reduce((params, key) => {
-            let paramName = key.substr(paramPromptPrefix.length);
-            let value = answers[key];
+              let paramName = key.substr(paramPromptPrefix.length);
+              let value = answers[key];
+              try {
+                value = JSON.parse(value);
+              } catch (e) {
+                throw new Error(`Invalid value for parameter "${paramName}"`);
+              }
+              params[paramName] = value;
+              return params;
+            }, {});
 
-            try {
-              value = JSON.parse(value);
-            } catch (e) {}
+        } catch (e) {
 
-            params[paramName] = value;
-            return params;
-          }, {})
-        };
+          return callback(e);
+          
+        }
 
         const resource = new APIResource(host, port);
         resource.authorize(Credentials.read('ACCESS_TOKEN'));

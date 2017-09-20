@@ -1,6 +1,6 @@
 {
   "name": "lib.cli",
-  "version": "3.3.1",
+  "version": "3.3.2",
   "description": "StdLib: Standard Library for Microservices Command Line Tools",
   "main": "index.js",
   "scripts": {
