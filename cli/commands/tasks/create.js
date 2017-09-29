@@ -313,7 +313,7 @@ class TasksCreate extends Command {
         } catch (e) {
 
           return callback(e);
-          
+
         }
 
         const resource = new APIResource(host, port);
@@ -328,7 +328,7 @@ class TasksCreate extends Command {
           console.log();
           console.log(chalk.bold.green('Success!'));
           console.log();
-          console.log(`Task ${chalk.bold(params.name)} created`);
+          console.log(`Task ${chalk.bold(taskParams.name)} created`);
           console.log();
 
           return callback(null);
