@@ -36,12 +36,12 @@ module.exports = {
 
       let response = (err, params) => {
 
-        console.log(`[function: ${libname}] ${JSON.stringify({args: params.args, kwargs: params.kwargs})}`);
-
         if (err) {
           res.writeHead(400, {'Content-Type': 'text/plain'});
           return res.end(`Error: ${err.message}`);
         }
+        
+        console.log(`[function: ${libname}] ${JSON.stringify({args: params.args, kwargs: params.kwargs})}`);
 
         lib[`${libname}`](...params.args, params.kwargs, (err, result, headers) => {
 
