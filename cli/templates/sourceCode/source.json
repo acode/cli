@@ -1,0 +1,8 @@
+{
+  "environmentVariables": {
+    "envVar": {
+      "default": "",
+      "description": ""
+    }
+  }
+}

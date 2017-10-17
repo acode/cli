@@ -1,0 +1,19 @@
+{
+  "name": "My New Service",
+  "version": "0.0.0",
+  "description": "",
+  "author": "Author",
+  "main": "functions/__main__.js",
+  "dependencies": {},
+  "private": true,
+  "stdlib": {
+    "build": "faaslang",
+    "name": "username/service",
+    "timeout": 10000,
+    "publish": true,
+    "personalize": {
+      "keys": [],
+      "user": []
+    }
+  }
+}
