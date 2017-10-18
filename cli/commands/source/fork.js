@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const Command = require('cmnd').Command;
+const spawnSync = require('child_process').spawnSync;
 
 const APIResource = require('api-res');
 const Credentials = require('../../credentials.js');
@@ -45,6 +46,8 @@ class SourceForkCommand extends Command {
 
   run(params, callback) {
 
+    console.log(params);
+
     let sourceName = (params.flags.s || params.vflags.source || [])[0];
     let aliasName = (params.flags.a || params.vflags.alias || [])[0];
     let version = 'release';
@@ -82,7 +85,7 @@ class SourceForkCommand extends Command {
     let hostname = (params.flags.h && params.flags.h[0]) || '';
     let matches = hostname.match(/^(https?:\/\/)?(.*?)(:\d+)?$/);
 
-    let host = 'registry.stdlib.com';
+    let host = 'registry.jacobb.us';
     let port = 443;
 
     if (hostname && matches) {
@@ -135,6 +138,7 @@ class SourceForkCommand extends Command {
     console.log(`  ${chalk.bold(host + '/' + endpoint)} ...`);
     console.log();
 
+    console.log(endpoint);
     return resource.request(endpoint).index({}, (err, response) => {
 
       if (err) {
@@ -178,7 +182,7 @@ class SourceForkCommand extends Command {
         let serviceName = aliasName.startsWith('@') ?
           aliasName.substr(1) :
           aliasName;
-        pkg.name = serviceName;
+        pkg.name = serviceName.split('/')[1];
         pkg.version = '0.0.0';
         install && (pkg.author = user ? (user.username + (user.email ? ` <${user.email}>` : '')) : 'none');
         pkg.stdlib.name = serviceName;
