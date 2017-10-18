@@ -1,0 +1,11 @@
+{
+  "name": "@user/source",
+  "version": "0.0.0",
+  "env": [
+    {
+      "name": "key",
+      "defaultValue": "value",
+      "description": "A basic environment key-value pair"
+    }
+  ]
+}

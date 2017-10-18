@@ -7,26 +7,26 @@ const Credentials = require('../../credentials.js');
 const fs = require('fs');
 const path = require('path');
 
-class SourceDownCommand extends Command {
+class SourceRemoveCommand extends Command {
 
   constructor() {
 
-    super('source', 'down');
+    super('source', 'remove');
 
   }
 
   help() {
 
     return {
-      description: 'Removes StdLib source code from the registry and cloud environments',
+      description: 'Removes StdLib sourcecode from the registry',
       args: [
         'environment'
       ],
       flags: {
-        r: 'Removes a release version (provide number)',
+        p: 'Removes a published release version (provide number)',
       },
       vflags: {
-        release: 'Removes a release version (provide number)',
+        publish: 'Removes a published release version (provide number)',
       }
     };
 
@@ -35,19 +35,19 @@ class SourceDownCommand extends Command {
   run(params, callback) {
 
     let environment = params.args[0];
-    let release = params.flags.r || params.vflags.release;
+    let publish = params.flags.p || params.vflags.publish;
     let version;
 
-    if (release) {
-      version = release[0];
+    if (publish) {
+      version = publish[0];
       environment = null;
     }
 
-    if (release && environment) {
-      return callback(new Error('Can not remove a release with an environment'));
+    if (publish && environment) {
+      return callback(new Error('Can not remove a published release with an environment'));
     }
 
-    if (!release && !environment) {
+    if (!publish && !environment) {
       return callback(new Error('Please specify an environment'));
     }
 
@@ -78,12 +78,20 @@ class SourceDownCommand extends Command {
       return callback(new Error('No stdlib name set in "package.json"'));
     }
 
+    let source;
+
+    try {
+      source = require(path.join(process.cwd(), 'source.json'));
+    } catch(e) {
+      return callback(new Error('Invalid source.json'));
+    }
+
     let resource = new APIResource(host, port);
     resource.authorize(Credentials.read('ACCESS_TOKEN'));
 
     let endpoint = environment ?
-      `sources/${pkg.stdlib.name}@${environment}` :
-      `sources/${pkg.stdlib.name}@${version || pkg.version}`;
+      `~src/${source.name}/${environment}` :
+      `~src/${source.name}/${version || source.version}`;
 
     return resource.request(endpoint).stream(
       'DELETE',
@@ -111,4 +119,4 @@ class SourceDownCommand extends Command {
 
 }
 
-module.exports = SourceDownCommand;
+module.exports = SourceRemoveCommand;
