@@ -50,6 +50,7 @@ class CreateCommand extends Command {
       ],
       flags: {
         n: 'No login - don\'t require an internet connection',
+        f: 'Force command if not in root directory',
         w: 'Write over - overwrite the current directory contents',
         s: 'Source - creates service from a StdLib sourcecode',
         t: '(DEPRECATED) Template - a StdLib service template to use',
@@ -57,6 +58,7 @@ class CreateCommand extends Command {
       },
       vflags: {
         'no-login': 'No login - don\'t require an internet connection',
+        'force': 'Force command if not in root directory',
         'write-over': 'Write over - overwrite the current directory contents',
         'source': 'Source - creates service from a StdLib sourcecode',
         'template': '(DEPRECATED) Template - a stdlib service template to use',

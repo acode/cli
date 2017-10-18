@@ -73,6 +73,8 @@ class SourceForkCommand extends Command {
     } else if (!install && !aliasName.startsWith('@')) {
       // Require aliasName to start with '@' if not installing
       return callback(new Error(`Please prefix alias name with "@", i.e. "@${aliasName}"`))
+    } else if (install && aliasName.startsWith('@')) {
+      return callback(new Error(`When installing service, alias name cannot start with "@", use "${aliasName.substr(1)}"`))
     }
 
     let sourcePath = `${sourceName}/${version}`;
@@ -159,6 +161,7 @@ class SourceForkCommand extends Command {
         }
 
         let pkg;
+        let src;
         let servicePath = path.join(process.cwd(), aliasName);
 
         try {
@@ -184,9 +187,29 @@ class SourceForkCommand extends Command {
 
         fs.writeFileSync(path.join(servicePath, 'package.json'), JSON.stringify(pkg, null, 2));
 
+        try {
+          src = require(path.join(servicePath, 'source.json'));
+        } catch (e) {
+          return callback(new Error('Malformed Sourcecode - Invalid source.json'));
+        }
+
+        let env = {local: {}, dev: {}, release: {}};
+        Object.keys(env).forEach(envName => {
+          if (!src.env) {
+            return;
+          }
+          env[envName] = src.env.reduce((data, entry) => {
+            data[entry.name] = entry.defaultValue || '';
+            return data;
+          }, {});
+        });
+
+        fs.writeFileSync(path.join(servicePath, 'env.json'), JSON.stringify(env, null, 2));
+
         if (install) {
 
           fs.unlinkSync(path.join(servicePath, 'source.json'));
+
           if (
             (pkg.dependencies && Object.keys(pkg.dependencies).length) ||
             (pkg.devDependencies && Object.keys(pkg.devDependencies).length)
