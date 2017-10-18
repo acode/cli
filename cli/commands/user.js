@@ -158,7 +158,12 @@ class UserCommand extends Command {
 
     let fnComplete = (user, callback) => {
 
+      delete user.wallet;
+      delete user.sourceBookmarks;
+      delete user.serviceBookmarks;
+
       var len = 20;
+
       Object.keys(user).forEach(function(k) {
         var alen = Math.max(1, len - k.length + 1);
         console.log(k + ': ' + Array(alen).join(' ') + user[k]);

@@ -3,6 +3,9 @@
 const Command = require('cmnd').Command;
 const UpCommand = require('./up.js');
 
+const fs = require('fs');
+const inquirer = require('inquirer');
+
 class ReleaseCommand extends Command {
 
   constructor() {
@@ -24,7 +27,30 @@ class ReleaseCommand extends Command {
     params.flags.r = true;
     params.args = [];
 
-    UpCommand.prototype.run.call(this, params, callback);
+    if (fs.existsSync('source.json')) {
+
+      console.log();
+      console.log('You\'re calling lib release in a directory with a source.json file');
+      console.log();
+
+      inquirer.prompt([{
+        name: 'continue',
+        message: 'Do you want to continue?',
+        type: 'confirm'}], (answer) => {
+
+        if (!answer.continue) {
+          process.exit();
+        }
+
+        UpCommand.prototype.run.call(this, params, callback);
+
+      });
+
+    } else {
+
+      UpCommand.prototype.run.call(this, params, callback);
+
+    }
 
   }
 
