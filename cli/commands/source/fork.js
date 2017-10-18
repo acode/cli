@@ -241,6 +241,9 @@ class SourceForkCommand extends Command {
 
         } else {
 
+          src.name = aliasName;
+          fs.writeFileSync(path.join(servicePath, 'source.json'), JSON.stringify(src, null, 2));
+
           console.log(chalk.bold.green('Success!'));
           console.log();
           console.log(`Source ${chalk.bold(sourceName)} downloaded and forked to:`);
