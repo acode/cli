@@ -46,8 +46,6 @@ class SourceForkCommand extends Command {
 
   run(params, callback) {
 
-    console.log(params);
-
     let sourceName = (params.flags.s || params.vflags.source || [])[0];
     let aliasName = (params.flags.a || params.vflags.alias || [])[0];
     let version = 'release';
@@ -60,7 +58,6 @@ class SourceForkCommand extends Command {
     if (!sourceName) {
       return callback(new Error('Please specify a source name with -s or --source'));
     } else if (sourceName.split('/').length < 2 || sourceName.split('/').length > 3) {
-      console.log(sourceName);
       return callback(new Error(`Source name must be of format "@user/source" or "@user/source/version"`))
     }
 
@@ -138,7 +135,6 @@ class SourceForkCommand extends Command {
     console.log(`  ${chalk.bold(host + '/' + endpoint)} ...`);
     console.log();
 
-    console.log(endpoint);
     return resource.request(endpoint).index({}, (err, response) => {
 
       if (err) {
