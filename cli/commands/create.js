@@ -1,6 +1,7 @@
 'use strict';
 
 const Command = require('cmnd').Command;
+const SourceForkCommand = require('./source/fork.js');
 
 const APIResource = require('api-res');
 const Credentials = require('../credentials.js');
@@ -71,11 +72,7 @@ class CreateCommand extends Command {
 
     let host = params.flags.h ? params.flags.h[0] : 'https://api.polybit.com';
     let port = params.flags.p && params.flags.p[0];
-
-    if (params.flags.hasOwnProperty('s') || params.flags.hasOwnProperty('source')) {
-      // Create service from Sourcecode
-      return callback(new Error(`Not implemented`));
-    }
+    let source = (params.flags.s || params.flags.source || [])[0];
 
     let nologin = params.flags.hasOwnProperty('n') || params.vflags.hasOwnProperty('no-login');
 
@@ -105,6 +102,7 @@ class CreateCommand extends Command {
     console.log();
     console.log(`Awesome! Let's create a ${chalk.bold.green('stdlib')} service!`);
     extPkgName && console.log(`We'll use the template ${chalk.bold.green(extPkgName)} to proceed.`);
+    source && console.log(`We'll use the sourcecode ${chalk.bold.green(source)} to proceed.`);
     console.log();
 
     let questions = [];
@@ -162,6 +160,22 @@ class CreateCommand extends Command {
         user = user || defaultUser;
 
         username = username || user.username;
+
+        // Send off to sourcecode fork
+        if (source) {
+          let srcFlags = {s: [source], i: [], a: [[username, name].join('/')]};
+          write && (srcFlags.w = []);
+          return SourceForkCommand.prototype.run.call(
+            this,
+            {
+              args: [],
+              flags: srcFlags,
+              vflags: {},
+              user: user || null
+            },
+            callback
+          );
+        }
 
         // Do template fetching...
         let extPkgCalls = [];

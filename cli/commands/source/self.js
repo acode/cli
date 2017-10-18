@@ -15,8 +15,6 @@ class SourceSelfCommand extends Command {
 
   }
 
-lib source:self
-
   help() {
 
     return {
