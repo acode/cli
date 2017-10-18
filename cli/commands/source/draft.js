@@ -53,26 +53,26 @@ function readFiles(base, properties, dir, data) {
 
 };
 
-class SourceUpCommand extends Command {
+class SourceDraftCommand extends Command {
 
   constructor() {
 
-    super('source', 'up');
+    super('source', 'draft');
 
   }
 
   help() {
 
     return {
-      description: 'Pushes StdLib source code to the registry and cloud environment',
+      description: 'Pushes a draft of StdLib source code to the registry ',
       args: [
-        'environment'
+        'draftName'
       ],
       flags: {
-        r: 'Upload release source code'
+        p: 'Publishes as a release'
       },
       vflags: {
-        release: 'Upload release source code',
+        publish: 'Publishes as a release',
       }
     };
 
@@ -81,21 +81,21 @@ class SourceUpCommand extends Command {
   run(params, callback) {
 
     let environment = params.args[0];
-    let release = params.flags.r || params.vflags.release;
+    let publish = params.flags.p || params.vflags.publish;
 
     if (environment) {
       if (environment === RELEASE_ENV) {
-        release = [];
-      } else if (release) {
-        return callback(new Error('Can not release to an environment'));
+        publish = [];
+      } else if (publish) {
+        return callback(new Error('Can not publish a release with a draft name'));
       }
-    } else if (release) {
+    } else if (publish) {
       environment = RELEASE_ENV;
-      if (release[0]) {
-        return callback(new Error('Can only release to the version specified in "package.json"'));
+      if (publish[0]) {
+        return callback(new Error('Can only publish a release with the version specified in "source.json"'));
       }
     } else {
-      return callback(new Error('Please specify an environment'));
+      return callback(new Error('Please specify a draft name'));
     }
 
     let host = 'registry.stdlib.com';
@@ -192,8 +192,8 @@ class SourceUpCommand extends Command {
         let t = new Date().valueOf() - start;
 
         let endpoint = environment === RELEASE_ENV ?
-          `sources/${pkg.stdlib.name}@${pkg.version}` :
-          `sources/${pkg.stdlib.name}@${environment}`;
+          `~src/${source.name}/${source.version}` :
+          `~src/${source.name}/${environment}`;
 
         return resource
           .request(endpoint)
@@ -205,7 +205,6 @@ class SourceUpCommand extends Command {
               data.length > 1 && process.stdout.write(data.toString());
             },
             (err, response) => {
-
               if (err) {
                 return callback(err);
               }
@@ -227,4 +226,4 @@ class SourceUpCommand extends Command {
 
 }
 
-module.exports = SourceUpCommand;
+module.exports = SourceDraftCommand;
