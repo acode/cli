@@ -465,7 +465,7 @@ environment. This will create a new service based off the source code.
 
 ## Creating Source Codes
 
-To turn a service into a source code, navigate to the service and run
+To turn a existing service into a source code, navigate to the service and run
 
 ```
 $ lib source
@@ -478,19 +478,19 @@ based off of the `env.json` file. To deploy a draft of the source code to the cl
 $ lib source:draft <draft name>
 ```
 
-To publish a source code to the registry you can run
+To publish a versioned, immutable source code to the registry you can run
 
 ```
 $ lib source:publish
 ```
 
-You can also fork an existing source code with
+You can also fork an existing source code, that belongs to you, a teammate, or is publicly available with
 
 ```
 $ lib source:fork <source name>
 ```
 
-Which you can then modify and publish again.
+Which you can then modify and publish again under your own account. For more information about source codes, check out the [docs](http://docs.stdlib.com/main/#/introduction)
 
 
 # Additional Functionality
