@@ -82,7 +82,7 @@ class SourceForkCommand extends Command {
     let hostname = (params.flags.h && params.flags.h[0]) || '';
     let matches = hostname.match(/^(https?:\/\/)?(.*?)(:\d+)?$/);
 
-    let host = 'registry.jacobb.us';
+    let host = 'registry.stdlib.com';
     let port = 443;
 
     if (hostname && matches) {
@@ -185,7 +185,7 @@ class SourceForkCommand extends Command {
         pkg.stdlib.build = 'faaslang';
         pkg.stdlib.publish = true;
         pkg.source = sourceName;
-        
+
         fs.writeFileSync(path.join(servicePath, 'package.json'), JSON.stringify(pkg, null, 2));
 
         try {
