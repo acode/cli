@@ -184,7 +184,7 @@ class SourceForkCommand extends Command {
         pkg.stdlib.name = serviceName;
         pkg.stdlib.build = 'faaslang';
         pkg.stdlib.publish = true;
-        pkg.source = sourceName;
+        pkg.stdlib.source = sourceName;
 
         fs.writeFileSync(path.join(servicePath, 'package.json'), JSON.stringify(pkg, null, 2));
 
