@@ -174,6 +174,12 @@ class SourceForkCommand extends Command {
           return callback(new Error('Malformed Sourcecode - No stdlib information set in "package.json"'));
         }
 
+        try {
+          src = require(path.join(servicePath, 'source.json'));
+        } catch (e) {
+          return callback(new Error('Malformed Sourcecode - Invalid source.json'));
+        }
+
         // Set defaults for service
         let serviceName = aliasName.startsWith('@') ?
           aliasName.substr(1) :
@@ -184,15 +190,9 @@ class SourceForkCommand extends Command {
         pkg.stdlib.name = serviceName;
         pkg.stdlib.build = 'faaslang';
         pkg.stdlib.publish = true;
-        pkg.stdlib.source = sourceName;
+        pkg.stdlib.source = sourceName + '/' + src.version;
 
         fs.writeFileSync(path.join(servicePath, 'package.json'), JSON.stringify(pkg, null, 2));
-
-        try {
-          src = require(path.join(servicePath, 'source.json'));
-        } catch (e) {
-          return callback(new Error('Malformed Sourcecode - Invalid source.json'));
-        }
 
         let env = {local: {}, dev: {}, release: {}};
         Object.keys(env).forEach(envName => {
