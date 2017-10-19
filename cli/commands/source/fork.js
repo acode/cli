@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const Command = require('cmnd').Command;
+const spawnSync = require('child_process').spawnSync;
 
 const APIResource = require('api-res');
 const Credentials = require('../../credentials.js');
@@ -57,7 +58,6 @@ class SourceForkCommand extends Command {
     if (!sourceName) {
       return callback(new Error('Please specify a source name with -s or --source'));
     } else if (sourceName.split('/').length < 2 || sourceName.split('/').length > 3) {
-      console.log(sourceName);
       return callback(new Error(`Source name must be of format "@user/source" or "@user/source/version"`))
     }
 
@@ -178,12 +178,13 @@ class SourceForkCommand extends Command {
         let serviceName = aliasName.startsWith('@') ?
           aliasName.substr(1) :
           aliasName;
-        pkg.name = serviceName;
+        pkg.name = serviceName.split('/')[1];
         pkg.version = '0.0.0';
         install && (pkg.author = user ? (user.username + (user.email ? ` <${user.email}>` : '')) : 'none');
         pkg.stdlib.name = serviceName;
         pkg.stdlib.build = 'faaslang';
         pkg.stdlib.publish = true;
+        pkg.source = sourceName;
 
         fs.writeFileSync(path.join(servicePath, 'package.json'), JSON.stringify(pkg, null, 2));
 
@@ -240,6 +241,9 @@ class SourceForkCommand extends Command {
           callback();
 
         } else {
+
+          src.name = aliasName;
+          fs.writeFileSync(path.join(servicePath, 'source.json'), JSON.stringify(src, null, 2));
 
           console.log(chalk.bold.green('Success!'));
           console.log();

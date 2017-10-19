@@ -44,6 +44,7 @@ You can view services published by our large and growing developer community
 1. [Running Your Microservices as Background Workers](#running-your-microservices-as-background-workers)
 1. [Version Control and Package Management](#version-control-and-package-management)
 1. [Logging](#logging)
+1. [Source Code](#source-code)
 1. [Additional Functionality](#additional-functionality)
 1. [Acknowledgements](#acknowledgements)
 1. [Contact](#contact)
@@ -443,6 +444,55 @@ The default log type is `stdout`, though you can specify `stderr` with
 
 Limit the number of lines to show with the `-l` argument (or `--lines`).
 
+# Source Code
+
+StdLib Source Codes are designed to streamline the creation of different types of projects.
+Source Codes provide defaults for things like boilerplate code, workflows, and directory
+setup so you can get right to development and implementation of more complex functionality.
+You can create services from existing source codes, or create and share your own Source Codes.
+
+## Installing A Service from Source Codes
+
+You can create a service from a source code directly from the command line. To create a service using a source code,
+navigate to a StdLib root directory and run
+
+```
+$ lib create -s <source name>
+```
+
+Where `<source name>` is something like `@slack/bot` with an optionally specified version or
+environment. This will create a new service based off the source code.
+
+## Creating Source Codes
+
+To turn a existing service into a source code, navigate to the service and run
+
+```
+$ lib source
+```
+
+This will copy the current directory contents into a new folder and add a `source.json` file
+based off of the `env.json` file. To deploy a draft of the source code to the cloud, you can run
+
+```
+$ lib source:draft <draft name>
+```
+
+To publish a versioned, immutable source code to the registry you can run
+
+```
+$ lib source:publish
+```
+
+You can also fork an existing source code, that belongs to you, a teammate, or is publicly available with
+
+```
+$ lib source:fork <source name>
+```
+
+Which you can then modify and publish again under your own account. For more information about source codes, check out the [docs](http://docs.stdlib.com/main/#/introduction)
+
+
 # Additional Functionality
 
 StdLib comes packed with a bunch of other goodies - if your service goes down
@@ -471,15 +521,17 @@ We've conveniently copy-and-pasted the output here for you to peruse;
 	Runs a StdLib function, i.e. "lib user.service[@ver]" (remote) or "lib ." (local)
 
 create [service]
-	-b                   Build - Specify build, faaslang (default) or "legacy"
-	-d                   Dev Mode - Specify another HTTP address for the Template Service (e.g. localhost:8170)
+	-d                   (DEPRECATED) Dev Mode - Specify another HTTP address for the Template Service (e.g. localhost:8170)
+	-f                   Force command if not in root directory
 	-n                   No login - don't require an internet connection
-	-t                   Template - a stdlib service template to use
+	-s                   Source - creates service from a StdLib sourcecode
+	-t                   (DEPRECATED) Template - a StdLib service template to use
 	-w                   Write over - overwrite the current directory contents
-	--build              Build - Specify build, faaslang (default) or "legacy"
-	--develop            Dev Mode - Specify another HTTP address for the Template Service (e.g. localhost:8170)
+	--develop            (DEPRECATED) Dev Mode - Specify another HTTP address for the Template Service (e.g. localhost:8170)
+	--force              Force command if not in root directory
 	--no-login           No login - don't require an internet connection
-	--template           Template - a stdlib service template to use
+	--source             Source - creates service from a StdLib sourcecode
+	--template           (DEPRECATED) Template - a stdlib service template to use
 	--write-over         Write over - overwrite the current directory contents
 
 	Creates a new (local) service
@@ -503,6 +555,15 @@ get [full service name]
 	--write-over         Write over - overwrite the target directory contents
 
 	Retrieves and extracts StdLib package
+
+hosts
+	Displays created hostname routes from source custom hostnames to target services you own
+
+hosts:add [source] [target]
+	Adds a new hostname route from a source custom hostname to a target service you own
+
+hosts:remove [source]
+	Removes a hostname route from a source custom hostname to a target service you own
 
 http
 	-p                   Port (default 8170)
@@ -568,6 +629,54 @@ restart [environment]
 
 rollback
 	Rolls back (removes) release of StdLib package (alias of `lib down -r`)
+
+source
+
+	Converts a local service to StdLib sourcecode by creating "source.json"
+
+source:draft [draftName]
+	-p                   Publishes as a release
+	--publish            Publishes as a release
+
+	Pushes a draft of StdLib source code to the registry
+
+source:fork
+	-a                   Alias (Optional) - The new alias of the source
+	-f                   Force command if not in root directory
+	-i                   Install - install this sourcecode as a new library service
+	-s                   Source (Required) - The name of the sourcecode to fork
+	-w                   Write over - overwrite the target directory contents
+	--alias              Alias (Optional) - The new alias of the source
+	--force              Force command if not in root directory
+	--install            Install - install this sourcecode as a new library service
+	--source             Source (Required) - The name of the sourcecode to fork
+	--write-over         Write over - overwrite the target directory contents
+
+	Downloads and Forks Sourcecode from StdLib
+
+source:publish
+	Publishes a versioned release of StdLib sourcecode to registry (alias of `lib source:draft -p`)
+
+source:remove [environment]
+	-p                   Removes a published release version (provide number)
+	--publish            Removes a published release version (provide number)
+
+	Removes StdLib sourcecode from the registry
+
+tasks:create [service] [function]
+	-v                   Service version (default lastest release)
+	--version            Service version (default lastest release)
+
+	Creates a Scheduled Task from a StdLib service
+
+tasks:destroy
+	Stops a StdLib scheduled task
+
+tasks:list
+	-j                   Returns tasks as a JSON object
+	--json               Returns tasks as a JSON object
+
+	Lists your scheduled tasks
 
 up [environment]
 	-r                   Upload a release package

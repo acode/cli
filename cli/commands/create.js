@@ -74,6 +74,7 @@ class CreateCommand extends Command {
 
     let host = params.flags.h ? params.flags.h[0] : 'https://api.polybit.com';
     let port = params.flags.p && params.flags.p[0];
+
     let source = (params.flags.s || params.flags.source || [])[0];
 
     let nologin = params.flags.hasOwnProperty('n') || params.vflags.hasOwnProperty('no-login');
@@ -127,7 +128,6 @@ class CreateCommand extends Command {
         if (err) {
           return cb(err);
         }
-
         return cb(null, response.data[0]);
 
       });

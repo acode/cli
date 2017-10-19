@@ -81,17 +81,17 @@ class SourceDraftCommand extends Command {
   run(params, callback) {
 
     let environment = params.args[0];
-    let release = params.flags.r || params.vflags.release;
+    let publish = params.flags.p || params.vflags.publish;
 
     if (environment) {
       if (environment === RELEASE_ENV) {
-        release = [];
-      } else if (release) {
+        publish = [];
+      } else if (publish) {
         return callback(new Error('Can not publish a release with a draft name'));
       }
-    } else if (release) {
+    } else if (publish) {
       environment = RELEASE_ENV;
-      if (release[0]) {
+      if (publish[0]) {
         return callback(new Error('Can only publish a release with the version specified in "source.json"'));
       }
     } else {
@@ -197,6 +197,7 @@ class SourceDraftCommand extends Command {
 
         return resource
           .request(endpoint)
+          .headers({'X-Stdlib-Build': pkg.stdlib.build || ''})
           .stream(
             'POST',
             result,
@@ -204,7 +205,6 @@ class SourceDraftCommand extends Command {
               data.length > 1 && process.stdout.write(data.toString());
             },
             (err, response) => {
-
               if (err) {
                 return callback(err);
               }
