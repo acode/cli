@@ -44,7 +44,7 @@ You can view services published by our large and growing developer community
 1. [Running Your Microservices as Background Workers](#running-your-microservices-as-background-workers)
 1. [Version Control and Package Management](#version-control-and-package-management)
 1. [Logging](#logging)
-1. [Source Code](#source-code)
+1. [Sourcecode](#sourcecode)
 1. [Additional Functionality](#additional-functionality)
 1. [Acknowledgements](#acknowledgements)
 1. [Contact](#contact)
@@ -444,14 +444,14 @@ The default log type is `stdout`, though you can specify `stderr` with
 
 Limit the number of lines to show with the `-l` argument (or `--lines`).
 
-# Source Code
+# Sourcecode
 
-StdLib Source Codes are designed to streamline the creation of different types of projects.
-Source Codes provide defaults for things like boilerplate code, workflows, and directory
+StdLib Sourcecode is designed to streamline the creation of different types of projects.
+Sources provide defaults for things like boilerplate code, workflows, and directory
 setup so you can get right to development and implementation of more complex functionality.
-You can create services from existing source codes, or create and share your own Source Codes.
+You can create services from existing source codes, or create and share your own sources.
 
-## Installing A Service from Source Codes
+## Installing A Service from Sourcecode
 
 You can create a service from a source code directly from the command line. To create a service using a source code,
 navigate to a StdLib root directory and run
@@ -460,10 +460,10 @@ navigate to a StdLib root directory and run
 $ lib create -s <source name>
 ```
 
-Where `<source name>` is something like `@slack/bot` with an optionally specified version or
+Where `<source name>` is something like `@slack/app` with an optionally specified version or
 environment. This will create a new service based off the source code.
 
-## Creating Source Codes
+## Creating Sources
 
 To turn a existing service into a source code, navigate to the service and run
 
