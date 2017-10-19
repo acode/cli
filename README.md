@@ -475,7 +475,7 @@ This will copy the current directory contents into a new folder and add a `sourc
 based off of the `env.json` file. To deploy a draft of the source code to the cloud, you can run
 
 ```
-$ lib source:draft <draft name>
+$ lib source:draft <draft environment name>
 ```
 
 To publish a versioned, immutable source code to the registry you can run
@@ -487,7 +487,7 @@ $ lib source:publish
 You can also fork an existing source code, that belongs to you, a teammate, or is publicly available with
 
 ```
-$ lib source:fork <source name>
+$ lib source:fork -s <source name> -a <alias>
 ```
 
 Which you can then modify and publish again under your own account. For more information about source codes, check out the [docs](http://docs.stdlib.com/main/#/introduction)
