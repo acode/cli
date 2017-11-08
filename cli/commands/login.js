@@ -67,6 +67,7 @@ class PolyLoginCommand extends Command {
         resource.request('v1/access_tokens').create({}, {grant_type: 'password', username: email, password: password}, (err, response) => {
 
           if (err) {
+            password = null;
             return loopCb(err);
           }
 
