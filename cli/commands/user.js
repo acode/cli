@@ -2,10 +2,11 @@
 
 const Command = require('cmnd').Command;
 const APIResource = require('api-res');
-const Credentials = require('../credentials.js');
 
 const chalk = require('chalk');
 const inquirer = require('inquirer');
+
+const config = require('../config.js');
 
 let formatDigits = (num, figs) => {
 
@@ -72,7 +73,7 @@ class UserCommand extends Command {
     }
 
     let resource = new APIResource(host, port);
-    resource.authorize(Credentials.read('ACCESS_TOKEN'));
+    resource.authorize(config.get('ACCESS_TOKEN'));
 
     // If resetting password
     if (params.vflags['reset-password']) {

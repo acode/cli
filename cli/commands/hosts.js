@@ -2,7 +2,7 @@
 
 const Command = require('cmnd').Command;
 const APIResource = require('api-res');
-const Credentials = require('../credentials.js');
+const config = require('../config.js');
 const tabler = require('../tabler.js');
 
 class HostsCommand extends Command {
@@ -35,7 +35,7 @@ class HostsCommand extends Command {
     }
 
     let resource = new APIResource(host, port);
-    resource.authorize(Credentials.read('ACCESS_TOKEN'));
+    resource.authorize(config.get('ACCESS_TOKEN'));
 
     resource.request('v1/hostname_routes').index({}, (err, response) => {
 

@@ -2,7 +2,7 @@
 
 const Command = require('cmnd').Command;
 const APIResource = require('api-res');
-const Credentials = require('../credentials.js');
+const config = require('../config.js');
 
 const fs = require('fs');
 const path = require('path');
@@ -79,7 +79,7 @@ class DownCommand extends Command {
     }
 
     let resource = new APIResource(host, port);
-    resource.authorize(Credentials.read('ACCESS_TOKEN'));
+    resource.authorize(config.get('ACCESS_TOKEN'));
 
     let endpoint = environment ?
       `${pkg.stdlib.name}@${environment}` :
@@ -98,7 +98,7 @@ class DownCommand extends Command {
         }
 
         if (response[response.length - 1] === 1) {
-          return callback(new Error('There was an error processing your request'));
+          return callback(new Error('There was an error processing your request, try logging in again.'));
         } else {
           return callback(null);
         }

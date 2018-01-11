@@ -2,9 +2,10 @@
 
 const Command = require('cmnd').Command;
 const APIResource = require('api-res');
-const Credentials = require('../credentials.js');
 
 const async = require('async');
+
+const config = require('../config.js');
 
 class LogoutCommand extends Command {
 
@@ -17,7 +18,13 @@ class LogoutCommand extends Command {
   help() {
 
     return {
-      description: 'Logs out of StdLib in this workspace'
+      description: 'Logs out of StdLib in this workspace',
+      flags: {
+        'f': 'Force - clears information even if current Access Token invalid'
+      },
+      vflags: {
+        'force': 'Force - clears information even if current Access Token invalid'
+      }
     };
 
   }
@@ -27,16 +34,21 @@ class LogoutCommand extends Command {
     let host = params.flags.h ? params.flags.h[0] : 'https://api.polybit.com';
     let port = params.flags.p && params.flags.p[0];
 
+    let force = !!(params.flags.f || params.vflags.force);
+
     let resource = new APIResource(host, port);
-    resource.authorize(Credentials.read('ACCESS_TOKEN'));
+    resource.authorize(config.get('ACCESS_TOKEN'));
 
     resource.request('v1/access_tokens').destroy(null, {}, (err, response) => {
 
-      if (err) {
+      if (!force && err) {
         return callback(err);
       }
 
-      Credentials.write('ACCESS_TOKEN', '');
+      config.set('ACCESS_TOKEN', '');
+      config.set('ACTIVE_LIBRARY_TOKEN', '');
+      config.unset('LIBRARY_TOKENS');
+      config.write();
       return callback(null, 'Logged out successfully');
 
     });

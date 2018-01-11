@@ -2,7 +2,6 @@
 
 const Command = require('cmnd').Command;
 const APIResource = require('api-res');
-const Credentials = require('../../credentials.js');
 const scripts = require('../../scripts.js');
 
 const fs = require('fs');
@@ -11,6 +10,8 @@ const path = require('path');
 
 const async = require('async');
 const tar = require('tar-stream');
+
+const config = require('../../config.js');
 
 const RELEASE_ENV = 'release';
 
@@ -134,7 +135,7 @@ class SourceDraftCommand extends Command {
     }
 
     let resource = new APIResource(host, port);
-    resource.authorize(Credentials.read('ACCESS_TOKEN'));
+    resource.authorize(config.get('ACCESS_TOKEN'));
 
     !fs.existsSync('/tmp') && fs.mkdirSync('/tmp');
     !fs.existsSync('/tmp/stdlib') && fs.mkdirSync('/tmp/stdlib', 0o777);
@@ -210,7 +211,7 @@ class SourceDraftCommand extends Command {
               }
 
               if (response[response.length - 1] === 1) {
-                return callback(new Error('There was an error processing your request'));
+                return callback(new Error('There was an error processing your request, try logging in again.'));
               } else {
                 callback();
               }

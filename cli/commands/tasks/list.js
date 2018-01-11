@@ -5,7 +5,7 @@ const APIResource = require('api-res');
 const chalk = require('chalk');
 const inquirer = require('inquirer');
 
-const Credentials = require('../../credentials.js');
+const config = require('../../config.js');
 const tabler = require('../../tabler.js');
 
 const convertPeriodToString = {
@@ -15,7 +15,7 @@ const convertPeriodToString = {
   604800: 'week'
 };
 
-class TasksList extends Command {
+class TasksListCommand extends Command {
 
   constructor() {
     super('tasks', 'list');
@@ -35,14 +35,14 @@ class TasksList extends Command {
 
   run(params, callback) {
 
-    const host = 'api.polybit.com';
-    const port = 443;
+    let host = params.flags.h ? params.flags.h[0] : 'https://api.polybit.com';
+    let port = params.flags.p && params.flags.p[0];
 
     let JSONoutput = params.flags.hasOwnProperty('j') || params.vflags.hasOwnProperty('json');
 
     let resource = new APIResource(host, port);
 
-    resource.authorize(Credentials.read('ACCESS_TOKEN'));
+    resource.authorize(config.get('ACCESS_TOKEN'));
     resource.request('/v1/scheduled_tasks').index({}, (err, response) => {
 
       if (err) {
@@ -81,4 +81,4 @@ class TasksList extends Command {
   }
 }
 
-module.exports = TasksList;
+module.exports = TasksListCommand;

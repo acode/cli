@@ -1,7 +1,6 @@
 'use strict';
 
 const Command = require('cmnd').Command;
-const Credentials = require('../../credentials.js');
 
 const inquirer = require('inquirer');
 

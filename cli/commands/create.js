@@ -4,7 +4,7 @@ const Command = require('cmnd').Command;
 const SourceForkCommand = require('./source/fork.js');
 
 const APIResource = require('api-res');
-const Credentials = require('../credentials.js');
+const config = require('../config.js');
 const fileio = require('../fileio.js');
 
 const async = require('async');
@@ -50,7 +50,6 @@ class CreateCommand extends Command {
       ],
       flags: {
         n: 'No login - don\'t require an internet connection',
-        f: 'Force command if not in root directory',
         w: 'Write over - overwrite the current directory contents',
         s: 'Source - creates service from a StdLib sourcecode',
         t: '(DEPRECATED) Template - a StdLib service template to use',
@@ -58,7 +57,6 @@ class CreateCommand extends Command {
       },
       vflags: {
         'no-login': 'No login - don\'t require an internet connection',
-        'force': 'Force command if not in root directory',
         'write-over': 'Write over - overwrite the current directory contents',
         'source': 'Source - creates service from a StdLib sourcecode',
         'template': '(DEPRECATED) Template - a stdlib service template to use',
@@ -79,7 +77,6 @@ class CreateCommand extends Command {
 
     let nologin = params.flags.hasOwnProperty('n') || params.vflags.hasOwnProperty('no-login');
 
-    let force = params.flags.hasOwnProperty('f') || params.vflags.hasOwnProperty('force');
     let write = params.flags.hasOwnProperty('w') || params.vflags.hasOwnProperty('write-over');
     let tdev = params.flags.hasOwnProperty('tdev');
 
@@ -89,15 +86,20 @@ class CreateCommand extends Command {
     let extPkgName = (params.flags.t || params.vflags.template || [])[0];
     let extPkg = null;
 
-    if (!force && !Credentials.location(1)) {
+    if (!config.location(0)) {
       console.log();
       console.log(chalk.bold.red('Oops!'));
       console.log();
       console.log(`You're trying to create a new service in development,`);
-      console.log(`But you're not in a root stdlib project directory.`);
-      console.log(`We recommend against this.`);
+      console.log(`But you're not your a root StdLib project directory.`);
       console.log();
-      console.log(`Use ${chalk.bold('lib create --force')} to override.`);
+      if (!config.workspace()) {
+        console.log(`Initialize a workspace first with:`);
+        console.log(`\t${chalk.bold('lib init')}`);
+      } else {
+        console.log('Visit your workspace directory with:');
+        console.log(`\t${chalk.bold('cd ' + config.workspace())}`);
+      }
       console.log();
       return callback(null);
     }
@@ -121,7 +123,7 @@ class CreateCommand extends Command {
     !nologin && login.push((cb) => {
 
       let resource = new APIResource(host, port);
-      resource.authorize(Credentials.read('ACCESS_TOKEN'));
+      resource.authorize(config.get('ACCESS_TOKEN'));
 
       resource.request('v1/users').index({me: true}, (err, response) => {
 
@@ -134,32 +136,40 @@ class CreateCommand extends Command {
 
     });
 
-    inquirer.prompt(questions, (promptResult) => {
+    // NOTE: Not offline friendly. Always log in user...
+    // login = username ? [] : login;
 
-      name = name || promptResult.name;
-      let username;
+    async.series(login, (err, results) => {
 
-      if (name.indexOf('/') > -1) {
-        username = name.split('/')[0];
-        name = name.split('/').slice(1).join('/').replace(/\//g, '-');
+      if (err) {
+        console.log(chalk.bold.red('Oops!'));
+        console.log();
+        console.log(`It seems like there's an issue trying to create a service.`);
+        console.log(`Are you sure you're logged in? Your access token may have expired.`);
+        console.log();
+        console.log('Try logging in with:');
+        console.log(`\t${chalk.bold('lib login')}`);
+        console.log();
+        return callback(err);
       }
 
-      // NOTE: Not offline friendly. Always log in user...
-      // login = username ? [] : login;
+      let defaultUser = {
+        username: 'dev',
+        email: ''
+      };
 
-      async.series(login, (err, results) => {
+      let user = nologin ? defaultUser : results[0];
+      user = user || defaultUser;
 
-        if (err) {
-          return callback(err);
+      inquirer.prompt(questions, (promptResult) => {
+
+        name = name || promptResult.name;
+        let username;
+
+        if (name.indexOf('/') > -1) {
+          username = name.split('/')[0];
+          name = name.split('/').slice(1).join('/').replace(/\//g, '-');
         }
-
-        let defaultUser = {
-          username: 'dev',
-          email: ''
-        };
-
-        let user = nologin ? defaultUser : results[0];
-        user = user || defaultUser;
 
         username = username || user.username;
 

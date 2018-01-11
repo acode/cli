@@ -2,7 +2,7 @@
 
 const Command = require('cmnd').Command;
 const APIResource = require('api-res');
-const Credentials = require('../../credentials.js');
+const config = require('../../config.js');
 const ListCommand = require('./list.js');
 const tabler = require('../../tabler.js');
 
@@ -16,7 +16,7 @@ const convertPeriodToString = {
   604800: 'week'
 };
 
-class TasksDestroy extends Command {
+class TasksDestroyCommand extends Command {
 
   constructor() {
     super('tasks', 'destroy');
@@ -30,8 +30,8 @@ class TasksDestroy extends Command {
 
   run(params, callback) {
 
-    const host = 'api.polybit.com';
-    const port = 443;
+    let host = params.flags.h ? params.flags.h[0] : 'https://api.polybit.com';
+    let port = params.flags.p && params.flags.p[0];
 
     ListCommand.prototype.run.call(this, {flags: {}, vflags: {json: true}}, (err, results) => {
 
@@ -88,7 +88,7 @@ class TasksDestroy extends Command {
 
         let resource = new APIResource(host, port);
 
-        resource.authorize(Credentials.read('ACCESS_TOKEN'));
+        resource.authorize(config.get('ACCESS_TOKEN'));
         resource.request('/v1/scheduled_tasks').destroy(answers.task, {}, (err, response) => {
 
           if (err) {
@@ -110,4 +110,4 @@ class TasksDestroy extends Command {
 
 }
 
-module.exports = TasksDestroy;
+module.exports = TasksDestroyCommand;

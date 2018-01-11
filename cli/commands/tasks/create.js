@@ -3,7 +3,7 @@
 const lib = require('lib');
 const Command = require('cmnd').Command;
 const APIResource = require('api-res');
-const Credentials = require('../../credentials.js');
+const config = require('../../config.js');
 
 const chalk = require('chalk');
 const inquirer = require('inquirer');
@@ -11,9 +11,6 @@ const async = require('async');
 
 const path = require('path');
 const fs = require('fs');
-
-const host = 'api.polybit.com';
-const port = 443;
 
 const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const hours = ['0:00 UTC', '1:00 UTC', '3:00 UTC', '4:00 UTC', '5:00 UTC', '6:00 UTC',
@@ -66,7 +63,7 @@ function convertPeriodOffset(periodOffset, weeklyPeriodOffset) {
 
 }
 
-function getFunctionDetails(service, functionName, version, callback) {
+function getFunctionDetails(resource, service, functionName, version, callback) {
 
   let params = {
     name: service,
@@ -78,9 +75,6 @@ function getFunctionDetails(service, functionName, version, callback) {
   } else {
     params.version = version;
   }
-
-  const resource = new APIResource(host, port);
-  resource.authorize(Credentials.read('ACCESS_TOKEN'));
 
   resource.request('/v1/services').index(params, (err, response) => {
 
@@ -104,12 +98,9 @@ function getFunctionDetails(service, functionName, version, callback) {
 
 }
 
-function getTokens(callback) {
+function getTokens(resource, callback) {
 
-  const resource = new APIResource(host, port);
-  resource.authorize(Credentials.read('ACCESS_TOKEN'));
-
-  resource.request('v1/dashboard/library_tokens').index({}, (err, response) => {
+  resource.request('v1/library_tokens').index({}, (err, response) => {
 
     if (err) {
       return callback(err);
@@ -229,7 +220,7 @@ function generateQuestions(tokens, functionDetails) {
 
 }
 
-class TasksCreate extends Command {
+class TasksCreateCommand extends Command {
 
   constructor() {
 
@@ -257,6 +248,12 @@ class TasksCreate extends Command {
 
   run(params, callback) {
 
+    let host = params.flags.h ? params.flags.h[0] : 'https://api.polybit.com';
+    let port = params.flags.p && params.flags.p[0];
+
+    const resource = new APIResource(host, port);
+    resource.authorize(config.get('ACCESS_TOKEN'));
+
     let service = params.args[0];
     let functionName = params.args[1] || '';
     let version = (params.flags.v || params.vflags.version || [])[0] || 'latest';
@@ -271,8 +268,8 @@ class TasksCreate extends Command {
     }
 
     async.parallel([
-      getTokens,
-      getFunctionDetails.bind(null, service, functionName, version)
+      getTokens.bind(null, resource),
+      getFunctionDetails.bind(null, resource, service, functionName, version)
     ], (err, results) => {
 
       if (err) {
@@ -316,9 +313,6 @@ class TasksCreate extends Command {
 
         }
 
-        const resource = new APIResource(host, port);
-        resource.authorize(Credentials.read('ACCESS_TOKEN'));
-
         resource.request('/v1/scheduled_tasks').create({}, taskParams, (err, response) => {
 
           if (err) {
@@ -343,4 +337,4 @@ class TasksCreate extends Command {
 
 }
 
-module.exports = TasksCreate;
+module.exports = TasksCreateCommand;

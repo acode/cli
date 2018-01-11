@@ -6,7 +6,7 @@ const child_process = require('child_process');
 
 const Command = require('cmnd').Command;
 const APIResource = require('api-res');
-const Credentials = require('../credentials.js');
+const config = require('../config.js');
 
 const chalk = require('chalk');
 
@@ -26,11 +26,9 @@ class GetCommand extends Command {
         'full service name'
       ],
       flags: {
-        f: 'Force command if not in root directory',
         w: 'Write over - overwrite the target directory contents'
       },
       vflags: {
-        'force': 'Force command if not in root directory',
         'write-over': 'Write over - overwrite the target directory contents'
       }
     };
@@ -43,7 +41,6 @@ class GetCommand extends Command {
     let outputPath = params.flags.o || params.vflags.output || [];
     outputPath = outputPath[0] || '.';
 
-    let force = params.flags.hasOwnProperty('f') || params.vflags.hasOwnProperty('force');
     let write = params.flags.hasOwnProperty('w') || params.vflags.hasOwnProperty('write-over');
 
     let pathname = path.join(outputPath, service);
@@ -58,15 +55,20 @@ class GetCommand extends Command {
       return callback(null);
     }
 
-    if (!force && !Credentials.location(1)) {
+    if (!config.location(0)) {
       console.log();
       console.log(chalk.bold.red('Oops!'));
       console.log();
       console.log(`You're trying to retrieve a package,`);
-      console.log(`But you're not in a root stdlib project directory.`);
-      console.log(`We recommend against this.`);
+      console.log(`But you're not in your root StdLib project directory.`);
       console.log();
-      console.log(`Use ${chalk.bold('lib get ' + service + ' --force')} to override.`);
+      if (!config.workspace()) {
+        console.log(`Initialize a workspace first with:`);
+        console.log(`\t${chalk.bold('lib init')}`);
+      } else {
+        console.log('Visit your workspace directory with:');
+        console.log(`\t${chalk.bold('cd ' + config.workspace())}`);
+      }
       console.log();
       return callback(null);
     }
@@ -99,7 +101,7 @@ class GetCommand extends Command {
     let info = params.args[0];
 
     let resource = new APIResource(host, port);
-    resource.authorize(Credentials.read('ACCESS_TOKEN'));
+    resource.authorize(config.get('ACCESS_TOKEN'));
 
     let endpoint = `${service}/package.tgz`;
 
