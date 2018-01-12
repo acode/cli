@@ -18,7 +18,7 @@ const convertPeriodToString = {
 class TasksListCommand extends Command {
 
   constructor() {
-    super('tasks', 'list');
+    super('tasks');
   }
 
   help() {
@@ -41,7 +41,6 @@ class TasksListCommand extends Command {
     let JSONoutput = params.flags.hasOwnProperty('j') || params.vflags.hasOwnProperty('json');
 
     let resource = new APIResource(host, port);
-
     resource.authorize(config.get('ACCESS_TOKEN'));
     resource.request('/v1/scheduled_tasks').index({}, (err, response) => {
 
@@ -50,9 +49,7 @@ class TasksListCommand extends Command {
       }
 
       if (JSONoutput) {
-
         return callback(null, response.data);
-
       }
 
       return callback(null,
@@ -74,8 +71,8 @@ class TasksListCommand extends Command {
               'Period': `per ${convertPeriodToString[scheduledTask.period]}`,
               'Last Invoked': scheduledTask.last_invoked_at || 'never'
             };
-          })
-        )
+          }), true
+        ) + '\n'
       );
     });
   }
