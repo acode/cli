@@ -267,6 +267,8 @@ class TasksCreateCommand extends Command {
       return callback(null);
     }
 
+    service = service.replace('.', '/');
+
     async.parallel([
       getTokens.bind(null, resource),
       getFunctionDetails.bind(null, resource, service, functionName, version)
