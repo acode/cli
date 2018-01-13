@@ -3,7 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const Credentials = require('../../credentials.js');
+const config = require('../../config.js');
 
 const Command = require('cmnd').Command;
 
@@ -59,10 +59,6 @@ class SourceCommand extends Command {
 
     if (fs.existsSync('source.json')) {
       return callback(new Error('This directory already has a source.json'))
-    }
-
-    if (!Credentials.location(3)) {
-      return callback(new Error('Please make sure your root StdLib workspace is two directories up.'));
     }
 
     let pathnames = process.cwd().split(path.sep);

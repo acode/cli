@@ -2,7 +2,6 @@
 
 const Command = require('cmnd').Command;
 const APIResource = require('api-res');
-const Credentials = require('../credentials.js');
 const errorLog = require('../error_log.js');
 
 const inquirer = require('inquirer');
@@ -69,6 +68,19 @@ class RegisterCommand extends Command {
 
         if (err.details) {
 
+          if (
+            err.details.hasOwnProperty('_query') &&
+            !questions.filter(q => q.name === 'email').length
+          ) {
+            questions.unshift({
+              name: 'email',
+              type: 'input',
+              default: email,
+              message: 'E-mail'
+            });
+            email = null;
+          }
+
           if (err.details.hasOwnProperty('password')) {
             delete previous.password;
             delete previous.repeat_password;
@@ -117,6 +129,8 @@ class RegisterCommand extends Command {
           (err, response) => {
 
             if (err) {
+              questions.filter(q => q.name === 'email').forEach(q => q.default = email);
+              email = null;
               return loopCb(err);
             }
 

@@ -8,21 +8,29 @@ const CONFIG_VAR_TIMESTAMP = 'CREATED_AT';
 
 class Config {
 
-  constructor(pathname, filename) {
+  constructor (pathname, filename) {
     this.pathname = pathname || DEFAULT_PATHNAME;
     this.filename = filename || DEFAULT_FILENAME;
     this.data = this.load();
   }
 
-  fullpath() {
+  fullpath () {
     return path.join(this.pathname, this.filename);
   }
 
-  workspace() {
+  location (depth) {
+    let loc = process.cwd();
+    let pathnames = loc.split(path.sep);
+    return this.workspace() &&
+      depth <= pathnames.length &&
+      path.join.apply(path, ['/'].concat(pathnames.slice(0, pathnames.length - depth))) === this.workspace();
+  }
+
+  workspace () {
     return this.get(CONFIG_VAR_WORKSPACE);
   }
 
-  legacypath() {
+  legacypath () {
     let cwd = process.cwd();
     let directories = cwd.split(path.sep);
     let pathname;
@@ -36,7 +44,7 @@ class Config {
     return pathname;
   }
 
-  load() {
+  load () {
     if (!fs.existsSync(this.fullpath())) {
       let legacypath = this.legacypath();
       if (legacypath) {
@@ -54,41 +62,43 @@ class Config {
     return this.read();
   }
 
-  initialize(workpath, data) {
+  initialize (workpath, data) {
     data = data || {};
     data[CONFIG_VAR_WORKSPACE] = workpath;
     data[CONFIG_VAR_TIMESTAMP] = Math.floor(new Date().valueOf() / 1000);
     this.write(data);
   }
 
-  read(pathname) {
+  read (pathname) {
     pathname = pathname || this.fullpath();
     return fs.readFileSync(pathname).toString()
       .split('\n')
       .filter(v => v)
       .map(line => line.split('='))
       .reduce((data, values) => {
-        data[values[0]] = values[1];
+        if (values.length > 1) {
+          data[values[0]] = values.slice(1).join('=');
+        }
         return data;
       }, {})
   }
 
-  write(data) {
+  write (data) {
     data = data || this.data;
     fs.writeFileSync(
       this.fullpath(),
       Object.keys(data)
         .map(key => `${key}=${data[key]}`)
-        .join('\n')
+        .join('\n') + '\n'
     );
     return data;
   }
 
-  get(key, defaultValue) {
+  get (key, defaultValue) {
     return key in this.data ? this.data[key] : defaultValue;
   }
 
-  set(key, value, log) {
+  set (key, value, log) {
     let oldValue = this.get(key);
     log && console.log(
       `[${this.fullpath()}] Setting "${key}=${value}"` +
@@ -97,8 +107,12 @@ class Config {
     return this.data[key] = value;
   }
 
-  save(key, value) {
-    this.set(key, value, true);
+  unset (key) {
+    return delete this.data[key];
+  }
+
+  save (key, value, log) {
+    this.set(key, value, log);
     return this.write()[key];
   }
 

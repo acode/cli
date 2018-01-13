@@ -2,11 +2,12 @@
 
 const Command = require('cmnd').Command;
 const APIResource = require('api-res');
-const Credentials = require('../credentials.js');
 
 const inquirer = require('inquirer');
 const async = require('async');
 const chalk = require('chalk');
+
+const config = require('../config.js');
 
 class InitCommand extends Command {
 
@@ -43,23 +44,20 @@ class InitCommand extends Command {
     let force = params.flags.hasOwnProperty('f') || params.vflags.hasOwnProperty('force');
     let nologin = params.flags.hasOwnProperty('n') || params.vflags.hasOwnProperty('no-login');
 
-    let cloc = Credentials.location();
-
-    if (!force && cloc && (cloc !== process.cwd())) {
+    if (!force && config.workspace()) {
       console.log();
       console.log(chalk.bold.red('Oops!'));
       console.log();
-      console.log(`A stdlib workspace already exists above this one.`);
-      console.log(`We recommend you do not initialize another.`);
+      console.log(`A stdlib workspace has already been set.`);
       console.log(`The path of the stdlib workspace is:`)
-      console.log(`  ${chalk.bold(cloc)}`);
+      console.log(`  ${chalk.bold(config.workspace())}`);
       console.log();
-      console.log(`Use ${chalk.bold('lib init --force')} to override.`);
+      console.log(`Use ${chalk.bold('lib init --force')} to override and set a new workspace.`);
       console.log();
       return callback(null);
     }
 
-    Credentials.create();
+    config.initialize(process.cwd());
 
     let cb = (err) => {
       if (err) {

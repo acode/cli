@@ -6,7 +6,7 @@ const Command = require('cmnd').Command;
 const spawnSync = require('child_process').spawnSync;
 
 const APIResource = require('api-res');
-const Credentials = require('../../credentials.js');
+const config = require('../../config.js');
 const fileio = require('../../fileio.js');
 
 const async = require('async');
@@ -90,18 +90,19 @@ class SourceForkCommand extends Command {
       port = parseInt((matches[3] || '').substr(1) || (hostname.indexOf('https') === 0 ? 443 : 80));
     }
 
-    if (!force && !Credentials.location(1)) {
+    if (!config.location(0)) {
       console.log();
       console.log(chalk.bold.red('Oops!'));
       console.log();
       console.log(`You're trying to fork sourcecode in your local environment,`);
-      console.log(`But you're not in a root stdlib project directory.`);
-      console.log(`We recommend against this.`);
+      console.log(`But you're not in a root StdLib project directory.`);
       console.log();
-      if (install) {
-        console.log(`Use ${chalk.bold('lib create ' + aliasName + ' -s ' + sourceName + ' --force')} to override.`);
+      if (!config.workspace()) {
+        console.log(`Initialize a workspace first with:`);
+        console.log(`\t${chalk.bold('lib init')}`);
       } else {
-        console.log(`Use ${chalk.bold(`lib source:fork -s ${sourceName} --force`)} to override.`);
+        console.log('Visit your workspace directory with:');
+        console.log(`\t${chalk.bold('cd ' + config.workspace())}`);
       }
       console.log();
       return callback(null);
@@ -126,7 +127,7 @@ class SourceForkCommand extends Command {
     }
 
     let resource = new APIResource(host, port);
-    resource.authorize(Credentials.read('ACCESS_TOKEN'));
+    resource.authorize(config.get('ACCESS_TOKEN'));
 
     let endpoint = `~src/${sourcePath}/package.tgz`;
 

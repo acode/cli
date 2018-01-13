@@ -2,9 +2,10 @@
 
 const Command = require('cmnd').Command;
 const APIResource = require('api-res');
-const Credentials = require('../credentials.js');
 
 const chalk = require('chalk');
+
+const config = require('../config.js');
 
 const VALID_LOG_TYPES = ['stdout', 'stderr'];
 const LOG_TYPE_COLORS = {
@@ -94,7 +95,7 @@ class LogsCommand extends Command {
     queryParams.service_name = [username, service].join('/');
 
     let resource = new APIResource(host, port);
-    resource.authorize(Credentials.read('ACCESS_TOKEN'));
+    resource.authorize(config.get('ACCESS_TOKEN'));
 
     resource.request('v1/logs/read').index(queryParams, (err, results) => {
 
