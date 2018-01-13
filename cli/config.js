@@ -27,7 +27,7 @@ class Config {
       path.join.apply(path, ['/'].concat(pathnames.slice(0, pathnames.length - depth)));
     return this.workspace() &&
       depth <= pathnames.length &&
-      fullpath === this.workspace();
+      fullpath.toLowerCase() === this.workspace().toLowerCase();
   }
 
   workspace () {
