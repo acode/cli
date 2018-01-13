@@ -1,8 +1,9 @@
 'use strict';
 
 const Command = require('cmnd').Command;
-const Credentials = require('../../credentials.js');
 const APIResource = require('api-res');
+
+const config = require('../../config.js');
 
 class HostsAddCommand extends Command {
 
@@ -51,7 +52,7 @@ class HostsAddCommand extends Command {
     }
 
     let resource = new APIResource(host, port);
-    resource.authorize(Credentials.read('ACCESS_TOKEN'));
+    resource.authorize(config.get('ACCESS_TOKEN'));
 
     resource.request('v1/hostname_routes').create({}, {
       hostname: source,

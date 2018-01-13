@@ -5,7 +5,7 @@ const path = require('path');
 
 const Command = require('cmnd').Command;
 const APIResource = require('api-res');
-const Credentials = require('../credentials.js');
+const config = require('../config.js');
 
 const chalk = require('chalk');
 
@@ -25,11 +25,9 @@ class PkgCommand extends Command {
         'full service name'
       ],
       flags: {
-        f: 'Force command if not in root directory',
         o: 'Output path for the .tgz package'
       },
       vflags: {
-        force: 'Force command if not in root directory',
         output: 'Output path for the .tgz package'
       }
     };
@@ -42,17 +40,20 @@ class PkgCommand extends Command {
     let outputPath = params.flags.o || params.vflags.output || [];
     outputPath = outputPath[0] || '.';
 
-    let force = params.flags.hasOwnProperty('f') || params.vflags.hasOwnProperty('force');
-
-    if (!force && !Credentials.location(1)) {
+    if (!config.location(0)) {
       console.log();
       console.log(chalk.bold.red('Oops!'));
       console.log();
       console.log(`You're trying to download a tarball,`);
-      console.log(`But you're not in a root stdlib project directory.`);
-      console.log(`We recommend against this.`);
+      console.log(`But you're not in a root StdLib project directory.`);
       console.log();
-      console.log(`Use ${chalk.bold('lib pkg ' + service + ' --force')} to override.`);
+      if (!config.workspace()) {
+        console.log(`Initialize a workspace first with:`);
+        console.log(`\t${chalk.bold('lib init')}`);
+      } else {
+        console.log('Visit your workspace directory with:');
+        console.log(`\t${chalk.bold('cd ' + config.workspace())}`);
+      }
       console.log();
       return callback(null);
     }
@@ -71,7 +72,7 @@ class PkgCommand extends Command {
     let info = params.args[0];
 
     let resource = new APIResource(host, port);
-    resource.authorize(Credentials.read('ACCESS_TOKEN'));
+    resource.authorize(config.get('ACCESS_TOKEN'));
 
     let endpoint = `${service}/package.tgz`;
 

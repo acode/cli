@@ -2,9 +2,10 @@
 
 const Command = require('cmnd').Command;
 const APIResource = require('api-res');
-const Credentials = require('../credentials.js');
 
 const chalk = require('chalk');
+
+const config = require('../config.js');
 
 let formatDigits = (num, figs) => {
 
@@ -70,7 +71,7 @@ class InfoCommand extends Command {
     let info = params.args[0];
 
     let resource = new APIResource(host, port);
-    resource.authorize(Credentials.read('ACCESS_TOKEN'));
+    resource.authorize(config.get('ACCESS_TOKEN'));
 
     return resource.request(service).index({}, (err, response) => {
 

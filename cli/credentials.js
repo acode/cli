@@ -4,7 +4,7 @@ const path = require('path');
 const fs = require('fs');
 const FILENAME = '.stdlib';
 
-function findPath(maxDepth) {
+function findPath (maxDepth) {
 
   maxDepth = parseInt(maxDepth) || 0;
 
@@ -54,8 +54,7 @@ function readCredentials() {
       .filter(v => v)
       .map(l => l.split('='))
       .reduce((p, c) => {
-        p[c[0]] = c[1];
-
+        p[c[0]] = c.slice(1).join('=');
         return p;
       }, {});
   }
