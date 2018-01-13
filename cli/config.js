@@ -88,7 +88,7 @@ class Config {
   }
 
   write (data) {
-    data = data || this.data;
+    this.data = data = data || this.data;
     fs.writeFileSync(
       this.fullpath(),
       Object.keys(data)
