@@ -21,9 +21,13 @@ class Config {
   location (depth) {
     let loc = process.cwd();
     let pathnames = loc.split(path.sep);
+    // If Window directory drive, don't add starting "/"
+    let fullpath = pathnames[0].indexOf(':') > -1 ?
+      path.join.apply(path, pathnames.slice(0, pathnames.length - depth)) :
+      path.join.apply(path, ['/'].concat(pathnames.slice(0, pathnames.length - depth)));
     return this.workspace() &&
       depth <= pathnames.length &&
-      path.join.apply(path, ['/'].concat(pathnames.slice(0, pathnames.length - depth))) === this.workspace();
+      fullpath.toLowerCase() === this.workspace().toLowerCase();
   }
 
   workspace () {
@@ -84,7 +88,7 @@ class Config {
   }
 
   write (data) {
-    data = data || this.data;
+    this.data = data = data || this.data;
     fs.writeFileSync(
       this.fullpath(),
       Object.keys(data)
