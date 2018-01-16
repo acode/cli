@@ -74,7 +74,7 @@ class LogsCommand extends Command {
 
     let serviceParts = (serviceFilter || '').split('.');
     let username = serviceParts[0];
-    let service = serviceParts[1].toLowerCase();
+    let service = serviceParts[1];
     let pathname = serviceParts.slice(1).join('.');
     if (pathname) {
       let env = /^(.+?)\[@(.+?)\](?:\.(.*?))?$/.exec(pathname);
