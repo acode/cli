@@ -51,17 +51,20 @@ class LogsCommand extends Command {
       port = parseInt((matches[3] || '').substr(1) || (hostname.indexOf('https') === 0 ? 443 : 80));
     }
 
-    let logType = (params.flags.t || params.vflags.type || [])[0] || 'stdout';
+    let logType = (params.flags.t || params.vflags.type || [])[0];
     let lines = Math.max(parseInt((params.flags.l || params.vflags.lines || [])[0]) || 100, 1);
 
-    if (VALID_LOG_TYPES.indexOf(logType) === -1) {
-      return callback(new Error(`Log type must be one of: ${VALID_LOG_TYPES.join(', ')}`));
-    }
-
     let queryParams = {
-      log_type: logType,
       count: lines
     };
+
+    if (logType) {
+      if (VALID_LOG_TYPES.indexOf(logType) === -1) {
+        return callback(new Error(`Log type must be one of: ${VALID_LOG_TYPES.join(', ')}`));
+      } else {
+        queryParams.log_type = logType;
+      }
+    }
 
     let serviceFilter = params.args[0];
     let wildcard = serviceFilter[serviceFilter.length - 1] === '*';
