@@ -83,7 +83,8 @@ class TasksDestroyCommand extends Command {
           }
         ],
         answers => {
-          if (answers.task === 0) {
+          if (answers.verify === false) {
+            console.log('Task not deleted');
             return callback(null);
           }
 
