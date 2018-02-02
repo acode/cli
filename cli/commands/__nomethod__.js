@@ -95,7 +95,9 @@ class __nomethod__Command extends Command {
         try {
           gateway.service(pkg.stdlib.name);
           gateway.environment(env.local || {});
-          gateway.define(fp.load(process.cwd(), 'functions'));
+          let libignore = fs.existsSync('.libignore') ? fs.readFileSync('.libignore').toString() : '';
+          libignore = libignore.split('\n').map(v => v.replace(/^\s(.*)\s$/, '$1')).filter(v => v);
+          gateway.define(fp.load(process.cwd(), 'functions', libignore));
         } catch (e) {
           return callback(e);
         }
