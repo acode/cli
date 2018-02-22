@@ -42,8 +42,8 @@ class LocalGateway extends Gateway {
     super.listen(port);
   }
 
-  createContext(req, definitions, params, data) {
-    let context = super.createContext(req, definitions, params, data);
+  createContext(req, definitions, params, data, buffer) {
+    let context = super.createContext(req, definitions, params, data, buffer);
     context.service = {};
     context.service.name = this.serviceName;
     context.service.path = this.serviceName.split('/');
