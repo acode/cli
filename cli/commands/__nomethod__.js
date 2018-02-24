@@ -80,14 +80,74 @@ class __nomethod__Command extends Command {
       try {
         pkg = require(path.join(process.cwd(), 'package.json'));
       } catch (e) {
-        console.error(e);
-        return callback(new Error('Invalid package.json in this directory, your JSON syntax is likely malformed.'));
+        if (!config.workspace()) {
+          return callback(new Error([
+            'You have not set up a StdLib workspace yet.',
+            '\nTry running `lib init` in a directory that you would like to use as a workspace.'
+          ].join('')));
+        } else if (!config.location(2)) {
+          return callback(
+            new Error(
+              [
+                'There was an error parsing "package.json" from this directory.',
+                '\nIt could be malformed, but it\'s more likely you\'re running',
+                ' this command from the wrong directory.',
+                '\n\nYour StdLib workspace is located in:',
+                '\n  ' + config.workspace(),
+                '\nAnd you\'re currently in:',
+                '\n  ' + process.cwd(),
+                '\n\nStdLib services are normally two levels down from your workspace directory.',
+                '\n  (i.e. workspace/username/servicename)'
+              ].join('')
+            )
+          );
+        } else if (!fs.existsSync(path.join(process.cwd(), 'package.json'))) {
+          return callback(new Error(
+            [
+              'There was no "package.json" found in this directory, you may have deleted it.',
+              '\nTry creating a new service (using `lib create`) from your StdLib workspace directory:',
+              '\n  ' + config.workspace()
+            ].join(''))
+          );
+        } else {
+          return callback(new Error('Invalid "package.json" in this directory, your JSON syntax is likely malformed.'));
+        }
       }
       try {
         env = require(path.join(process.cwd(), 'env.json'));
       } catch (e) {
-        console.error(e);
-        return callback(new Error('Invalid env.json in this directory, your JSON syntax is likely malformed.'));
+        if (!config.workspace()) {
+          return callback(new Error([
+            'You have not set up a StdLib workspace yet.',
+            '\nTry running `lib init` in a directory that you would like to use as a workspace.'
+          ].join('')));
+        } else if (!config.location(2)) {
+          return callback(
+            new Error(
+              [
+                'There was an error parsing "env.json" from this directory.',
+                '\nIt could be malformed, but it\'s more likely you\'re running',
+                ' this command from the wrong directory.',
+                '\n\nYour StdLib workspace is located in:',
+                '\n  ' + config.workspace(),
+                '\nAnd you\'re currently in:',
+                '\n  ' + process.cwd(),
+                '\n\nStdLib services are normally two levels down from your workspace directory.',
+                '\n  (i.e. workspace/username/servicename)'
+              ].join('')
+            )
+          );
+        } else if (!fs.existsSync(path.join(process.cwd(), 'env.json'))) {
+          return callback(new Error(
+            [
+              'There was no "env.json" found in this directory, you may have deleted it.',
+              '\nTry creating a new service (using `lib create`) from your StdLib workspace directory:',
+              '\n  ' + config.workspace()
+            ].join(''))
+          );
+        } else {
+          return callback(new Error('Invalid "env.json" in this directory, your JSON syntax is likely malformed.'));
+        }
       }
       if (pkg.stdlib.build === 'faaslang') {
         gateway = new LocalGateway({debug: debug});

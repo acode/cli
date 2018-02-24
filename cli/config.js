@@ -19,6 +19,7 @@ class Config {
   }
 
   location (depth) {
+    depth = depth || 0;
     let loc = process.cwd();
     let pathnames = loc.split(path.sep);
     // If Window directory drive, don't add starting "/"
