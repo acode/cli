@@ -1,6 +1,6 @@
 {
   "name": "lib.cli",
-  "version": "4.2.0",
+  "version": "4.2.1",
   "description": "StdLib: Standard Library for Microservices Command Line Tools",
   "main": "index.js",
   "scripts": {
@@ -39,7 +39,7 @@
     "cmnd": "~0.3.0",
     "faaslang": "~0.3.5",
     "inquirer": "~0.11.3",
-    "lib": "^3.0.1",
+    "lib": "^3.0.2",
     "ncp": "^2.0.0",
     "stream": "0.0.2",
     "tar-stream": "^1.5.2"
