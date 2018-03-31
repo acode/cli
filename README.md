@@ -102,7 +102,7 @@ generate a service project scaffold in `stdlib-workspace/<username>/<service>`.
 Once created, enter the service directory:
 
 ```
-$ cd your-username/your-service
+$ cd your_username/your_service
 ```
 
 In this directory, you'll see something like:
@@ -164,7 +164,7 @@ To push your function to a development environment in the cloud...
 
 ```shell
 $ lib up dev
-$ lib your-username.your-service[@dev]
+$ lib your_username.your_service[@dev]
 "hello world"
 ```
 
@@ -172,7 +172,7 @@ And to release it (when you're ready!)
 
 ```shell
 $ lib release
-$ lib your-username.your-service
+$ lib your_username.your_service
 "hello world"
 ```
 
@@ -180,9 +180,9 @@ You can check out your service on the web, and use it in applications using our
 functions gateway, `lib.id`.
 
 ```
-https://functions.lib.id/your-username/your-service/
+https://functions.lib.id/your_username/your_service/
 OR
-https://your-username.lib.id/your-service/
+https://your_username.lib.id/your_service/
 ```
 
 That's it! You haven't written a line of code yet, and you have mastery over
@@ -233,8 +233,8 @@ module.exports = (a = 0, b = 0, context, callback) => {
 
 In this case, calling `lib .add 1 2` will return `3` and `lib .add_double 1 2`
 will return `6`. The `context` magic parameter is used for its
-`context.service.identifier` property, which will return the string `"your-username.your-service[@local]"`
-in the case of local execution, `"your-username.your-service[@ENV]"` when deployed to an
+`context.service.identifier` property, which will return the string `"your_username.your_service[@local]"`
+in the case of local execution, `"your_username.your_service[@ENV]"` when deployed to an
 environment or release (where `ENV` is your environment name or semver).
 
 Note that `lib .add --a 1 --b 2` and
