@@ -67,6 +67,9 @@ class LogsCommand extends Command {
     }
 
     let serviceFilter = params.args[0];
+    if (!serviceFilter) {
+      return callback(new Error('You must provide the identifier for the service you want to retrieve logs for as <username>.<service name>[@<optional environment>].<optional function name>'))
+    }
     let wildcard = serviceFilter[serviceFilter.length - 1] === '*';
     if (wildcard) {
       serviceFilter = serviceFilter.substr(0, serviceFilter.length -1);
