@@ -9,10 +9,15 @@ const LocalGateway = require('../local_gateway.js');
 const FunctionParser = require('faaslang').FunctionParser;
 const config = require('../config.js');
 
+const HOME_DIRECTORY_PATH = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
+
 function parseFileFromArg(arg) {
   if (arg.indexOf('file:') === 0) {
     let filename = arg.slice('file:'.length);
     let file;
+    if (filename.startsWith('~' + path.sep) && HOME_DIRECTORY_PATH) {
+      filename = path.join(HOME_DIRECTORY_PATH, filename.slice(('~' + path.sep).length));
+    }
     try {
       file = fs.readFileSync(filename);
       file = JSON.stringify({_base64: file.toString('base64')});
