@@ -287,7 +287,14 @@ class __nomethod__Command extends Command {
       }
 
       if (err) {
-        if (result && result.error) {
+        if (err.code == 'HPE_INVALID_CONSTANT') {
+          err.message = [
+            err.message,
+            'Received HTTP error code "HPE_INVALID_CONSTANT"',
+            'This is likely due to an invalid "Content-Length" header field',
+            'StdLib will set this field for you, you do not need to write it manually'
+          ].join('\n');
+        } else if (result && result.error) {
           let message = result.error.message || '';
           if (result.error.type === 'ParameterError' || result.error.type === 'ValueError') {
             let params = result.error.details;
