@@ -1,7 +1,7 @@
 {
   "name": "lib.cli",
-  "version": "4.2.4",
-  "description": "StdLib: Standard Library for Microservices Command Line Tools",
+  "version": "4.3.0",
+  "description": "StdLib: Standard Library for APIs",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -12,7 +12,7 @@
   "keywords": [
     "lib",
     "serverless",
-    "microservice",
+    "api",
     "stdlib",
     "stdlib.com",
     "standard",

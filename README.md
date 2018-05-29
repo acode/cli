@@ -1,5 +1,5 @@
 # ![StdLib](http://stdlib.com/static/images/stdlib-logo-wordmark-128.png)
-## [StdLib is a Standard Library for Microservices](https://stdlib.com)
+## [Standard Library is a serverless platform for API development and publishing](https://stdlib.com)
 
 **StdLib Setup** |
 [Node](https://github.com/stdlib/lib-node) |
@@ -10,15 +10,15 @@
 # Introduction
 
 
-StdLib is the *fastest, easiest* way to turn functions into infinitely scalable,
-self-healing web services. It has three components:
+StdLib is the *fastest, easiest* way to build infinitely scalable,
+self-healing APIs. It has three components:
 
-1. A central registry for microservices
-2. A distribution platform for hosting at scale
-3. A development framework for package management and service creation
+1. A central registry and library for APIs
+2. A scalable, serverless hosting platform
+3. Simple command line tooling for building and managing API development
 
 StdLib is based on Function as a Service ("server-less") architecture,
-popularized by AWS Lambda. You can use StdLib to build modular, scalable web services
+popularized by AWS Lambda. You can use StdLib to build modular, scalable APIs
 for yourself and other developers in *minutes* without having to manage servers,
 gateways, domains, write documentation, or build SDKs. Your development workflow
 has never been easier - focus on writing code you love, let StdLib handle
@@ -39,9 +39,9 @@ You can view services published by our large and growing developer community
 1. [Getting Started](#getting-started)
 1. [Creating Your First Service](#creating-your-first-service)
 1. [Connecting Service Endpoints](#connecting-service-endpoints)
-1. [Accessing Your Microservices From Other Applications](#accessing-your-microservices-from-other-applications)
-1. [Accessing Your Microservices Over HTTP](#accessing-your-microservices-over-http)
-1. [Running Your Microservices as Background Workers](#running-your-microservices-as-background-workers)
+1. [Accessing Your APIs From Other Applications](#accessing-your-apis-from-other-applications)
+1. [Accessing Your APIs Over HTTP](#accessing-your-apis-over-http)
+1. [Running Your APIs as Background Workers](#running-your-apis-as-background-workers)
 1. [Version Control and Package Management](#version-control-and-package-management)
 1. [Logging](#logging)
 1. [Sourcecode](#sourcecode)
@@ -252,11 +252,11 @@ module.exports = (a = 0, b = 0, context, callback) => {
 };
 ```
 
-# Accessing Your Microservices From Other Applications
+# Accessing Your APIs From Other Applications
 
 As mentioned in the previous section, you can use the NPM `lib` package that's
 [available on GitHub and NPM](https://github.com/stdlib/lib-node) to access your
-microservices from legacy Node.js applications and even the web browser. We'll
+APIs from legacy Node.js applications and even the web browser. We'll
 have more SDKs coming out in the following months.
 
 An existing app would call a function (username.bestTrekChar with version 0.2.1):
@@ -275,7 +275,7 @@ lib.username.bestTrekChar['@0.2.1']({name: 'spock'}, function (err, result) {
 });
 ```
 
-Which would speak to your microservice...
+Which would speak to your API...
 
 ```javascript
 module.exports = (name = 'kirk', callback) => {
@@ -291,10 +291,10 @@ module.exports = (name = 'kirk', callback) => {
 };
 ```
 
-# Accessing Your Microservices Over HTTP
+# Accessing Your APIs Over HTTP
 
 We definitely recommend using the [lib library on NPM](https://github.com/stdlib/lib-node)
-to make microservice calls as specified above, but you can also make HTTPS
+to make API calls as specified above, but you can also make HTTPS
 requests directly to the StdLib gateway. HTTP query parameters are mapped
 automatically to parameters by name.
 
@@ -316,7 +316,7 @@ module.exports = (name = 'world', callback) => {
 };
 ```
 
-# Running Your Microservices as Background Workers
+# Running Your APIs as Background Workers
 
 To run any StdLib service as a background worker (immediately returns a
   response, runs function after), simply append ":bg" to the URL before
