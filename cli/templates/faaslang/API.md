@@ -1,3 +1,7 @@
-# Add documentation to help others use your API here
+# Service Documentation
 
-If you publish your service, this file will appear on your service's documentation page on stdlib.com
+This is your service's `API.md` - it should contain documentation introducing your API to **end-users**.
+
+It will display on your service's StdLib documentation page if you choose to publish it.
+
+Usage examples, caveats, and additional information around calling your API belong in this file.
