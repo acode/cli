@@ -126,7 +126,9 @@ class GetCommand extends Command {
         }
       }
 
-      let tmpPath = `/tmp/${service.replace(/\//g, '.')}.tgz`;
+      !fs.existsSync('/tmp') && fs.mkdirSync('/tmp');
+      !fs.existsSync('/tmp/stdlib') && fs.mkdirSync('/tmp/stdlib', 0o777);
+      let tmpPath = `/tmp/stdlib/${service.replace(/\//g, '.')}.tgz`;
       try {
         fs.writeFileSync(tmpPath, response);
       } catch (e) {

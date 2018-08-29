@@ -149,7 +149,7 @@ class __nomethod__Command extends Command {
           return callback(new Error('Invalid "env.json" in this directory, your JSON syntax is likely malformed.'));
         }
       }
-      if (pkg.stdlib.build === 'faaslang') {
+      if (pkg.stdlib.build !== 'legacy') {
         gateway = new LocalGateway({debug: debug});
         let fp = new FunctionParser();
         try {
