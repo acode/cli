@@ -59,7 +59,7 @@ class HTTPCommand extends Command {
 
       scripts.run(pkg, '+http', null, null);
 
-      if (pkg.stdlib.build === 'faaslang') {
+      if (pkg.stdlib.build !== 'legacy') {
         console.log();
         console.log(`Service starting on:`);
         console.log(`\tlocalhost:${port}/${pkg.stdlib.name}/`);
