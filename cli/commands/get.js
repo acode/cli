@@ -2,13 +2,33 @@
 
 const fs = require('fs');
 const path = require('path');
-const child_process = require('child_process');
+const tar = require('tar-stream');
+const zlib = require('zlib');
+const stream = require('stream');
 
 const Command = require('cmnd').Command;
 const APIResource = require('api-res');
 const config = require('../config.js');
 
 const chalk = require('chalk');
+
+function rmdir(dir) {
+  if (!fs.existsSync(dir)) {
+    return null;
+  }
+  fs.readdirSync(dir).forEach(f => {
+    let pathname = path.join(dir, f);
+    if (!fs.existsSync(pathname)) {
+      return fs.unlinkSync(pathname);
+    }
+    if (fs.statSync(pathname).isDirectory()) {
+      return rmdir(pathname);
+    } else {
+      return fs.unlinkSync(pathname);
+    }
+  });
+  return fs.rmdirSync(dir);
+};
 
 class GetCommand extends Command {
 
@@ -115,6 +135,10 @@ class GetCommand extends Command {
         return callback(err);
       }
 
+      if (fs.existsSync(pathname)) {
+        rmdir(pathname);
+      }
+
       let directories = pathname.split(path.sep);
       for (let i = 1; i < directories.length; i++) {
         let relpath = pathname.split(path.sep).slice(0, i + 1).join(path.sep);
@@ -126,32 +150,51 @@ class GetCommand extends Command {
         }
       }
 
-      !fs.existsSync('/tmp') && fs.mkdirSync('/tmp');
-      !fs.existsSync('/tmp/stdlib') && fs.mkdirSync('/tmp/stdlib', 0o777);
-      let tmpPath = `/tmp/stdlib/${service.replace(/\//g, '.')}.tgz`;
-      try {
-        fs.writeFileSync(tmpPath, response);
-      } catch (e) {
-        console.error(e);
-        return callback(new Error(`Could not write temporary file ${tmpPath}`));
-      }
-
-      child_process.exec(`tar -xzf ${tmpPath} -C ${pathname}`, (err) => {
-
-        // cleanup
-        fs.unlinkSync(tmpPath);
+      zlib.gunzip(response, (err, result) => {
 
         if (err) {
-          return callback(`Could not extract from package`);
+          return callback(new Error(`Error decompressing package`));
         }
-
-        console.log(chalk.bold.green('Success!'));
-        console.log();
-        console.log(`${chalk.bold(service)} package retrieved to:`);
-        console.log(`  ${chalk.bold(pathname)}`);
-        console.log();
-        return callback(null);
-
+  
+        let files = {};
+        let extract = tar.extract();
+        let tarStream = new stream.PassThrough();
+  
+        extract.on('entry', (header, stream, cb) => {
+          let buffers = [];
+          stream.on('data', data => { buffers.push(data); });
+          stream.on('end', () => {
+            files[header.name] = Buffer.concat(buffers);
+            return cb();
+          });
+        });
+  
+        extract.on('finish', () => {
+          Object.keys(files).forEach(filename => {
+            let outputPath = path.join(pathname, filename);
+            let directories = outputPath.split(path.sep).slice(0, -1);
+            for (let i = 1; i < directories.length; i++) {
+              let relpath = outputPath.split(path.sep).slice(0, i + 1).join(path.sep);
+              try {
+                !fs.existsSync(relpath) && fs.mkdirSync(relpath);
+              } catch (e) {
+                console.error(e);
+                return callback(new Error(`Could not create directory ${relpath}`));
+              }
+            }
+            fs.writeFileSync(outputPath, files[filename], {mode: 0o777});
+          });
+          console.log(chalk.bold.green('Success!'));
+          console.log();
+          console.log(`${chalk.bold(service)} package retrieved to:`);
+          console.log(`  ${chalk.bold(pathname)}`);
+          console.log();
+          return callback(null);
+        });
+  
+        tarStream.end(result);
+        tarStream.pipe(extract);
+  
       });
 
     });
