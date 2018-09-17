@@ -63,9 +63,12 @@ class TasksListCommand extends Command {
             'Last Invoked'
           ],
           response.data.map((scheduledTask) => {
+            let scheduledTaskIdentifier = (scheduledTask.environment || scheduledTask.version) ? 
+              `[@${scheduledTask.environment || scheduledTask.version}]` : 
+              '';
             return {
               'Name': scheduledTask.name,
-              'Service': scheduledTask.service.name,
+              'Service': scheduledTask.service_name.replace('/', '.') + scheduledTaskIdentifier,
               'Function': scheduledTask.function_name || '__main__',
               'Frequency': `${scheduledTask.frequency} time(s)`,
               'Period': `per ${convertPeriodToString[scheduledTask.period]}`,
