@@ -53,7 +53,7 @@ class TasksDestroyCommand extends Command {
             pageSize: 100,
             message: `Select a task to ${chalk.bold.red('Destroy (Permanently)')}`,
             choices: tabler(
-              ['?', 'Name', 'Service', 'Function', 'Frequency', 'Period', 'Last Invoked'],
+              ['?', 'Name', 'Service', 'Function', 'Frequency', 'Period', 'Cron Expression', 'Last Invoked'],
               results.map((task, index) => {
                 let taskIdentifier = (task.environment || task.version) ? `[@${task.environment || task.version}]` : '';
                 return {
@@ -61,8 +61,9 @@ class TasksDestroyCommand extends Command {
                   Name: task.name,
                   Service: task.service_name.replace('/', '.') + taskIdentifier ,
                   Function: task.function_name || '__main__',
-                  Frequency: `${task.frequency} time(s)`,
-                  Period: `per ${convertPeriodToString[task.period]}`,
+                  Frequency: task.frequncy ? `${task.frequency} time(s)` : '',
+                  Period: task.period ? `per ${convertPeriodToString[task.period]}` : '',
+                  'Cron Expression': task.cron_expression || '',
                   'Last Invoked': task.last_invoked_at || 'never',
                   value: uuids[index]
                 };

@@ -60,6 +60,7 @@ class TasksListCommand extends Command {
             'Function',
             'Frequency',
             'Period',
+            'Cron Expression',
             'Last Invoked'
           ],
           response.data.map((scheduledTask) => {
@@ -70,8 +71,9 @@ class TasksListCommand extends Command {
               'Name': scheduledTask.name,
               'Service': scheduledTask.service_name.replace('/', '.') + scheduledTaskIdentifier,
               'Function': scheduledTask.function_name || '__main__',
-              'Frequency': `${scheduledTask.frequency} time(s)`,
-              'Period': `per ${convertPeriodToString[scheduledTask.period]}`,
+              'Frequency': scheduledTask.frequency ? `${scheduledTask.frequency} time(s)` : '',
+              'Period': scheduledTask.period ? `per ${convertPeriodToString[scheduledTask.period]}` : '',
+              'Cron Expression': scheduledTask.cron_expression || '',
               'Last Invoked': scheduledTask.last_invoked_at || 'never'
             };
           }), true
