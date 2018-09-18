@@ -13,11 +13,8 @@ const async = require('async');
 const path = require('path');
 const fs = require('fs');
 
-const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-const hours = ['0:00 UTC', '1:00 UTC', '3:00 UTC', '4:00 UTC', '5:00 UTC', '6:00 UTC',
-'7:00 UTC', '8:00 UTC', '9:00 UTC', '10:00 UTC', '11:00 UTC', '12:00 UTC',
-'13:00 UTC', '14:00 UTC', '15:00 UTC', '16:00 UTC', '17:00 UTC', '18:00 UTC',
-'19:00 UTC', '20:00 UTC', '21:00 UTC', '22:00 UTC', '23:00 UTC'];
+const days = 'Sunday Monday Tuesday Wednesday Thursday Friday Saturday'.split(' ');
+const hours = Array(24).fill('').map((v, i) => `${i}:00 UTC`);
 
 const convertPeriod = {
   'minute': 60,
@@ -51,7 +48,8 @@ function convertPeriodOffset(periodOffset, weeklyPeriodOffset) {
   }
 
   if (weeklyPeriodOffset) {
-    offset += 86400 * days.indexOf(weeklyPeriodOffset);
+    // Weekday period starts with Thursday, but we show Sunday as the first day in the selector
+    offset += 86400 * ((days.indexOf(weeklyPeriodOffset) + 3) % 7);
   }
 
   if (hours.indexOf(periodOffset) !== -1) {
