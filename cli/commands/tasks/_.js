@@ -8,7 +8,7 @@ const inquirer = require('inquirer');
 const config = require('../../config.js');
 const tabler = require('../../tabler.js');
 
-const convertPeriodToString = {
+const SECONDS_PER_TIME_UNIT = {
   60: 'minute',
   3600: 'hour',
   86400: 'day',
@@ -61,7 +61,8 @@ class TasksListCommand extends Command {
             'Frequency',
             'Period',
             'Cron Expression',
-            'Last Invoked'
+            'Last Invoked',
+            'Next Invoked'
           ],
           response.data.map((scheduledTask) => {
             let scheduledTaskIdentifier = (scheduledTask.environment || scheduledTask.version) ? 
@@ -72,9 +73,10 @@ class TasksListCommand extends Command {
               'Service': scheduledTask.service_name.replace('/', '.') + scheduledTaskIdentifier,
               'Function': scheduledTask.function_name || '__main__',
               'Frequency': scheduledTask.frequency ? `${scheduledTask.frequency} time(s)` : '',
-              'Period': scheduledTask.period ? `per ${convertPeriodToString[scheduledTask.period]}` : '',
+              'Period': scheduledTask.period ? `per ${SECONDS_PER_TIME_UNIT[scheduledTask.period]}` : '',
               'Cron Expression': scheduledTask.cron_expression || '',
-              'Last Invoked': scheduledTask.last_invoked_at || 'never'
+              'Last Invoked': scheduledTask.last_invoked_at || 'never',
+              'Next Invoked': scheduledTask.next_invocation_at || 'never'
             };
           }), true
         ) + '\n'
