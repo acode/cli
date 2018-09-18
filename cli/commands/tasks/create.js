@@ -130,7 +130,7 @@ function getTokens(resource, callback) {
 
 }
 
-function generateQuestions(tokens, functionDetails, cron) {
+function generateQuestions(tokens, functionDetails) {
 
   let questions = [];
 
