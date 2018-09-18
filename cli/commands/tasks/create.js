@@ -5,6 +5,7 @@ const Command = require('cmnd').Command;
 const APIResource = require('api-res');
 const config = require('../../config.js');
 
+const faaslang = require('faaslang');
 const chalk = require('chalk');
 const inquirer = require('inquirer');
 const async = require('async');
@@ -63,33 +64,41 @@ function convertPeriodOffset(periodOffset, weeklyPeriodOffset) {
 
 }
 
-function getFunctionDetails(resource, service, functionName, version, callback) {
+function getFunctionDetails(resource, service, functionName, identifier, callback) {
 
   let params = {
-    name: service,
-    include_private: true,
+    name: service
   }
-
-  if (version === 'latest') {
+  if (identifier === 'latest') {
     params.latest = true;
+  } else if (isNaN(identifier[0])) {
+    params.environment = identifier;
   } else {
-    params.version = version;
+    params.version = identifier;
   }
 
-  resource.request('/v1/services').index(params, (err, response) => {
+  resource.request('/v1/cached_services').index(params, (err, response) => {
 
     if (err) {
       return callback(err);
     }
 
-    let selectedService = response.data[0];
+    if (!response.data.length) {
+      return callback(new Error('No matching services found'));
+    }
+
+    if (!response.data[0].services.length) {
+      return callback(new Error('No services matching @' + identifier + ' found'));
+    }
+
+    let selectedService = response.data[0].services[0];
 
     if (!selectedService.definitions_json[functionName]) {
-     return callback(new Error(`Could not find function ${functionName} in service ${service}`));
+     return callback(new Error(`Could not find function "${functionName}" in service ${service.replace('/', '.')}`));
     }
 
     return callback(null, {
-      service_id: selectedService.id,
+      selectedService: selectedService,
       functionName: functionName,
       params: selectedService.definitions_json[functionName].params
     });
@@ -233,15 +242,8 @@ class TasksCreateCommand extends Command {
     return {
       description: 'Creates a Scheduled Task from a StdLib service',
       args: [
-        'service',
-        'function',
-      ],
-      flags: {
-        v: 'Service version (default lastest release)'
-      },
-      vflags: {
-        version: 'Service version (default lastest release)'
-      }
+        'service'
+      ]
     };
 
   }
@@ -255,8 +257,6 @@ class TasksCreateCommand extends Command {
     resource.authorize(config.get('ACCESS_TOKEN'));
 
     let service = params.args[0];
-    let functionName = params.args[1] || '';
-    let version = (params.flags.v || params.vflags.version || [])[0] || 'latest';
 
     if (!service) {
       console.log();
@@ -267,11 +267,26 @@ class TasksCreateCommand extends Command {
       return callback(null);
     }
 
+    let functionName = '';
+    let identifier = 'latest';
+
+    let serviceParts = service.split('.');
+    if (serviceParts.length === 3) {
+      service = serviceParts.slice(0, 2).join('.');
+      functionName = serviceParts[2];
+    }
+    
+    let env = /^(.+?)\[@(.+?)\](?:\.(.*?))?$/.exec(service);
+    if (env) {
+      service = env[1];
+      identifier = env[2];
+    }
+
     service = service.replace('.', '/');
 
     async.parallel([
       getTokens.bind(null, resource),
-      getFunctionDetails.bind(null, resource, service, functionName, version)
+      getFunctionDetails.bind(null, resource, service, functionName, identifier)
     ], (err, results) => {
 
       if (err) {
@@ -280,18 +295,24 @@ class TasksCreateCommand extends Command {
 
       let tokens = results[0];
       let functionDetails = results[1];
+      let functionDefinition = functionDetails.selectedService.definitions_json[functionDetails.functionName];
 
       inquirer.prompt(generateQuestions(tokens, functionDetails), (answers) => {
 
         let taskParams = {
           name: answers.taskName,
           library_token_id: answers.library_token_id,
-          service_id: functionDetails.service_id,
+          service_name: functionDetails.selectedService.name,
           function_name: functionDetails.functionName,
           frequency: convertFrequency[answers.frequency],
           period: convertPeriod[answers.period],
           period_offset: convertPeriodOffset(answers.period_offset, answers.weekly_period_offset)
         };
+
+        if (identifier !== 'latest') {
+          taskParams.environment = functionDetails.selectedService.environment;
+          taskParams.version = functionDetails.selectedService.version;
+        }
 
         try {
 
@@ -300,10 +321,16 @@ class TasksCreateCommand extends Command {
             .reduce((params, key) => {
               let paramName = key.substr(paramPromptPrefix.length);
               let value = answers[key];
+              let paramInfo = functionDefinition.params.find((param) => {
+                return param.name === paramName;
+              });
               try {
-                value = JSON.parse(value);
+                let isValid = faaslang.types.validate(paramInfo.type, faaslang.types.parse(paramInfo.type, value, true), !!paramInfo.hasOwnProperty('defaultValue'));
+                if (!isValid) {
+                  throw new Error('Invalid type');
+                }
               } catch (e) {
-                throw new Error(`Invalid value for parameter "${paramName}"`);
+                throw new Error(`Invalid value for parameter "${paramName}". "${value}" should be type ${paramInfo.type}.`);
               }
               params[paramName] = value;
               return params;

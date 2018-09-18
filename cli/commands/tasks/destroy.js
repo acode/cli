@@ -33,13 +33,18 @@ class TasksDestroyCommand extends Command {
     let host = params.flags.h ? params.flags.h[0] : 'https://api.polybit.com';
     let port = params.flags.p && params.flags.p[0];
 
-    ListCommand.prototype.run.call(this, {flags: {}, vflags: {json: true}}, (err, results) => {
+    let listCommandFlags = {
+      h: params.flags.h,
+      p: params.flags.p
+    };
+
+    ListCommand.prototype.run.call(this, {flags: listCommandFlags, vflags: {json: true}}, (err, results) => {
 
       if (err) {
         return callback(err);
       }
       
-      let ids = results.map(task => task.id);
+      let uuids = results.map(task => task.uuid);
       inquirer.prompt(
         [
           {
@@ -48,17 +53,19 @@ class TasksDestroyCommand extends Command {
             pageSize: 100,
             message: `Select a task to ${chalk.bold.red('Destroy (Permanently)')}`,
             choices: tabler(
-              ['?', 'Name', 'Service', 'Function', 'Frequency', 'Period', 'Last Invoked'],
+              ['?', 'Name', 'Service', 'Function', 'Frequency', 'Period', 'Cron Expression', 'Last Invoked'],
               results.map((task, index) => {
+                let taskIdentifier = (task.environment || task.version) ? `[@${task.environment || task.version}]` : '';
                 return {
                   '?': ['✖', chalk.bold.red],
                   Name: task.name,
-                  Service: task.service.name,
+                  Service: task.service_name.replace('/', '.') + taskIdentifier ,
                   Function: task.function_name || '__main__',
-                  Frequency: `${task.frequency} time(s)`,
-                  Period: `per ${convertPeriodToString[task.period]}`,
+                  Frequency: task.frequncy ? `${task.frequency} time(s)` : '',
+                  Period: task.period ? `per ${convertPeriodToString[task.period]}` : '',
+                  'Cron Expression': task.cron_expression || '',
                   'Last Invoked': task.last_invoked_at || 'never',
-                  value: ids[index]
+                  value: uuids[index]
                 };
               }),
               true,
@@ -83,7 +90,7 @@ class TasksDestroyCommand extends Command {
           }
         ],
         answers => {
-          if (answers.task === 0) {
+          if (!answers.verify || answers.task === 0) {
             return callback(null);
           }
 
@@ -91,7 +98,9 @@ class TasksDestroyCommand extends Command {
           resource.authorize(config.get('ACCESS_TOKEN'));
           resource
             .request('/v1/scheduled_tasks')
-            .destroy(answers.task.value, {}, (err, response) => {
+            .destroy(null, {
+              uuid: answers.task.value
+            }, (err, response) => {
               if (err) {
                 return callback(err);
               }
