@@ -11,7 +11,7 @@ const async = require('async');
 
 const DAYS = 'Sunday Monday Tuesday Wednesday Thursday Friday Saturday'.split(' ');
 const UTC_WEEKDAY_OFFSET = 4;
-const UTC_ADJUSTED_WEEKDAY_OFFSETS = DAYS.slice(UTC_WEEKDAY_OFFSET).concat(DAYS.slice(0, UTC_WEEKDAY_OFFSET));
+const UTC_ADJUSTED_DAYS = DAYS.slice(UTC_WEEKDAY_OFFSET).concat(DAYS.slice(0, UTC_WEEKDAY_OFFSET));
 const HOURS = Array(24).fill('').map((v, i) => `${i}:00 UTC`);
 
 const TIME_UNITS = 'minute hour day week'.split(' ');
@@ -48,7 +48,7 @@ function convertPeriodOffset(periodOffset, weeklyPeriodOffset) {
   }
 
   if (weeklyPeriodOffset) {
-    offset += SECONDS_PER_TIME_UNIT['day'] * UTC_ADJUSTED_WEEKDAY_OFFSETS.indexOf(weeklyPeriodOffset);
+    offset += SECONDS_PER_TIME_UNIT['day'] * UTC_ADJUSTED_DAYS.indexOf(weeklyPeriodOffset);
   }
 
   if (HOURS.indexOf(periodOffset) !== -1) {
