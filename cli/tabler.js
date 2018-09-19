@@ -23,7 +23,7 @@ function formatDate (dt) {
   let hh = zeroPad(dt.getHours(), 2);
   let mm = zeroPad(dt.getMinutes(), 2);
   let ss = zeroPad(dt.getSeconds(), 2);
-  return `${m} ${d} ${y}`;
+  return `${m} ${d} ${y} ${hh}:${mm} UTC`;
 }
 
 module.exports = (fields, objects, consoleOutput, isOption) => {

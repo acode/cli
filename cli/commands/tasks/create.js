@@ -1,6 +1,5 @@
 'use strict';
 
-const lib = require('lib');
 const Command = require('cmnd').Command;
 const APIResource = require('api-res');
 const config = require('../../config.js');
@@ -10,23 +9,18 @@ const chalk = require('chalk');
 const inquirer = require('inquirer');
 const async = require('async');
 
-const path = require('path');
-const fs = require('fs');
+const DAYS = 'Sunday Monday Tuesday Wednesday Thursday Friday Saturday'.split(' ');
+const HOURS = Array(24).fill().map((v, i) => `${i}:00 UTC`);
 
-const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-const hours = ['0:00 UTC', '1:00 UTC', '3:00 UTC', '4:00 UTC', '5:00 UTC', '6:00 UTC',
-'7:00 UTC', '8:00 UTC', '9:00 UTC', '10:00 UTC', '11:00 UTC', '12:00 UTC',
-'13:00 UTC', '14:00 UTC', '15:00 UTC', '16:00 UTC', '17:00 UTC', '18:00 UTC',
-'19:00 UTC', '20:00 UTC', '21:00 UTC', '22:00 UTC', '23:00 UTC'];
-
-const convertPeriod = {
+const TIME_UNITS = 'minute hour day week'.split(' ');
+const SECONDS_PER_TIME_UNIT = {
   'minute': 60,
   'hour': 3600,
   'day': 86400,
   'week': 604800
 };
 
-const convertFrequency = {
+const FREQUENCY_TABLE = {
   'once': 1,
   'twice': 2,
   'three times': 3,
@@ -40,7 +34,8 @@ const convertFrequency = {
   'thirty times': 30
 };
 
-const paramPromptPrefix = '$param__';
+const PARAM_PROMPT_PREFIX = '$param__';
+const CRON_EXPRESSION_LENGTH = 5;
 
 function convertPeriodOffset(periodOffset, weeklyPeriodOffset) {
 
@@ -51,13 +46,13 @@ function convertPeriodOffset(periodOffset, weeklyPeriodOffset) {
   }
 
   if (weeklyPeriodOffset) {
-    offset += 86400 * days.indexOf(weeklyPeriodOffset);
+    offset += SECONDS_PER_TIME_UNIT['day'] * DAYS.indexOf(weeklyPeriodOffset);
   }
 
-  if (hours.indexOf(periodOffset) !== -1) {
-    offset += 3600 * hours.indexOf(periodOffset);
+  if (HOURS.indexOf(periodOffset) !== -1) {
+    offset += SECONDS_PER_TIME_UNIT['hour'] * HOURS.indexOf(periodOffset);
   } else {
-    offset += 60 * periodOffset;
+    offset += SECONDS_PER_TIME_UNIT['minute'] * periodOffset;
   }
 
   return offset;
@@ -124,7 +119,7 @@ function getTokens(resource, callback) {
         name: `${token.label}: ${token.token.slice(0, 5)}...`,
         value: token.id.toString(),
         short: token.label
-      }
+      };
     });
 
     return callback(null, tokens);
@@ -140,10 +135,10 @@ function generateQuestions(tokens, functionDetails) {
   if (functionDetails.params) {
     questions = functionDetails.params.map((param) => {
       return {
-        name: `${paramPromptPrefix}${param.name}`,
+        name: `${PARAM_PROMPT_PREFIX}${param.name}`,
         type: 'input',
         message: `Enter param for parameter "${param.name}" (type ${param.type})`,
-        argument: true,
+        argument: true
       };
     });
   }
@@ -154,75 +149,82 @@ function generateQuestions(tokens, functionDetails) {
     message: 'Pick a library token to use',
     choices: tokens
   }, {
+    name: 'syntax',
+    type: 'list',
+    message: 'Which syntax would you like to use to create your task?',
+    choices: ['simple', 'cron']
+  }, {
+    name: 'cron_expression',
+    type: 'input',
+    message: `Enter a cron expression with ${CRON_EXPRESSION_LENGTH} fields: `,
+    validate: (value) => {
+      if (value.trim().split(' ').length === CRON_EXPRESSION_LENGTH) {
+        return true;
+      } else {
+        return 'Please enter a cron expression with the correct number of fields.';
+      }
+    },
+    when: (answers) => answers.syntax === 'cron'
+  }, {
     name: 'period',
     type: 'list',
     message: 'Run service every: ',
-    choices: ['minute', 'hour', 'day', 'week']
+    choices: TIME_UNITS,
+    when: (answers) => answers.syntax === 'simple'
   }, {
     name: 'frequency',
     type: 'list',
     message: (answers) => `How ofter per ${answers.period}`,
-    choices: ['once'],
-    when: (answers) => answers.period === 'minute'
-  }, {
-    name: 'frequency',
-    type: 'list',
-    message: (answers) => `How ofter per ${answers.period}`,
-    choices: ['once', 'twice', 'three times', 'four times', 'five times',
-              'six times', 'ten times', 'twelve times', 'fifteen times',
-              'twenty times', 'thirty times'],
-    when: (answers) => answers.period === 'hour'
-  }, {
-    name: 'frequency',
-    type: 'list',
-    message: (answers) => `How ofter per ${answers.period}`,
-    choices: ['once', 'twice', 'three times', 'four times', 'six times', 'twelve times'],
-    when: (answers) => answers.period === 'day'
-  }, {
-    name: 'frequency',
-    type: 'list',
-    message: (answers) => `How ofter per ${answers.period}`,
-    choices: ['once'],
-    when: (answers) => answers.period === 'week'
+    choices: (answers) => {
+      if (answers.period === 'minute') {
+        return ['once'];
+      }
+      return Object.keys(FREQUENCY_TABLE).filter((v) => {
+        let periodSeconds = SECONDS_PER_TIME_UNIT[answers.period];
+        let dividingPeriod = TIME_UNITS[TIME_UNITS.indexOf(answers.period) - 1];
+        let dividingPeriodSeconds = SECONDS_PER_TIME_UNIT[dividingPeriod];
+        return (periodSeconds % (dividingPeriodSeconds * FREQUENCY_TABLE[v])) === 0;
+      });
+    },
+    when: (answers) => answers.syntax === 'simple'
   }, {
     name: 'period_offset',
     type: 'input',
     message: 'Starting at minute',
     validate: (value, answers) => {
       let offset = Number(value);
-      let maxOffset = convertPeriod[answers.period] / convertFrequency[answers.frequency] / 60;
+      let maxOffset = SECONDS_PER_TIME_UNIT[answers.period] / FREQUENCY_TABLE[answers.frequency] / 60;
       if (Number.isInteger(offset) && (offset >= 0 && offset < maxOffset)) {
         return true;
       }
-      return `Please enter an integer between 0 - ${maxOffset - 1} inclusive`;
+      return `Please enter an integer between 0 - ${maxOffset - 1} inclusive.`;
     },
-    when: (answers) => answers.period === 'hour'
+    when: (answers) => answers.period === 'hour' && answers.syntax === 'simple'
   }, {
     name: 'weekly_period_offset',
     type: 'list',
     message: 'Starting on',
-    choices: days,
-    when: (answers) => answers.period === 'week'
+    choices: DAYS,
+    when: (answers) => answers.period === 'week' && answers.syntax === 'simple'
   }, {
     name: 'period_offset',
     type: 'list',
     message: 'Starting at',
     choices: (answers) => {
-      let maxOffset = hours.length / convertFrequency[answers.frequency];
-      return hours.slice(0, maxOffset);
+      let maxOffset = HOURS.length / FREQUENCY_TABLE[answers.frequency];
+      return HOURS.slice(0, maxOffset);
     },
-    when: (answers) => answers.period === 'day'
+    when: (answers) => answers.period === 'day' && answers.syntax === 'simple'
   }, {
     name: 'period_offset',
     type: 'list',
     message: 'Starting at',
-    choices: hours,
-    when: (answers) => answers.period === 'week'
+    choices: HOURS,
+    when: (answers) => answers.period === 'week' && answers.syntax === 'simple'
   }, {
     name: 'taskName',
     type: 'input',
     message: 'Task name',
-    //default: 'Task',
   }]);
 
   return questions;
@@ -303,11 +305,16 @@ class TasksCreateCommand extends Command {
           name: answers.taskName,
           library_token_id: answers.library_token_id,
           service_name: functionDetails.selectedService.name,
-          function_name: functionDetails.functionName,
-          frequency: convertFrequency[answers.frequency],
-          period: convertPeriod[answers.period],
-          period_offset: convertPeriodOffset(answers.period_offset, answers.weekly_period_offset)
-        };
+          function_name: functionDetails.functionName
+        }
+        
+        if (answers.cron_expression) {
+          taskParams.cron_expression = answers.cron_expression.trim();
+        } else {
+          taskParams.frequency = FREQUENCY_TABLE[answers.frequency],
+          taskParams.period = SECONDS_PER_TIME_UNIT[answers.period],
+          taskParams.period_offset = convertPeriodOffset(answers.period_offset, answers.weekly_period_offset)
+        }
 
         if (identifier !== 'latest') {
           taskParams.environment = functionDetails.selectedService.environment;
@@ -317,9 +324,9 @@ class TasksCreateCommand extends Command {
         try {
 
           taskParams.kwargs = Object.keys(answers)
-            .filter(key => key.indexOf(paramPromptPrefix) === 0)
+            .filter(key => key.indexOf(PARAM_PROMPT_PREFIX) === 0)
             .reduce((params, key) => {
-              let paramName = key.substr(paramPromptPrefix.length);
+              let paramName = key.substr(PARAM_PROMPT_PREFIX.length);
               let value = answers[key];
               let paramInfo = functionDefinition.params.find((param) => {
                 return param.name === paramName;

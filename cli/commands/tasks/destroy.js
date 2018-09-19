@@ -9,7 +9,7 @@ const tabler = require('../../tabler.js');
 const inquirer = require('inquirer');
 const chalk = require('chalk');
 
-const convertPeriodToString = {
+const SECONDS_PER_TIME_UNIT = {
   60: 'minute',
   3600: 'hour',
   86400: 'day',
@@ -53,7 +53,7 @@ class TasksDestroyCommand extends Command {
             pageSize: 100,
             message: `Select a task to ${chalk.bold.red('Destroy (Permanently)')}`,
             choices: tabler(
-              ['?', 'Name', 'Service', 'Function', 'Frequency', 'Period', 'Cron Expression', 'Last Invoked'],
+              ['?', 'Name', 'Service', 'Function', 'Frequency', 'Period', 'Cron Expression', 'Last Invoked', 'Next Invoked'],
               results.map((task, index) => {
                 let taskIdentifier = (task.environment || task.version) ? `[@${task.environment || task.version}]` : '';
                 return {
@@ -62,9 +62,10 @@ class TasksDestroyCommand extends Command {
                   Service: task.service_name.replace('/', '.') + taskIdentifier ,
                   Function: task.function_name || '__main__',
                   Frequency: task.frequncy ? `${task.frequency} time(s)` : '',
-                  Period: task.period ? `per ${convertPeriodToString[task.period]}` : '',
+                  Period: task.period ? `per ${SECONDS_PER_TIME_UNIT[task.period]}` : '',
                   'Cron Expression': task.cron_expression || '',
                   'Last Invoked': task.last_invoked_at || 'never',
+                  'Next Invoked': task.next_invocation_at || 'never',
                   value: uuids[index]
                 };
               }),
