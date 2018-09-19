@@ -336,6 +336,7 @@ class TasksCreateCommand extends Command {
                 if (!isValid) {
                   throw new Error('Invalid type');
                 }
+                value = faaslang.types.convert(paramInfo.type, value);
               } catch (e) {
                 throw new Error(`Invalid value for parameter "${paramName}". "${value}" should be type ${paramInfo.type}.`);
               }
