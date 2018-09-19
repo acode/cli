@@ -10,9 +10,7 @@ const inquirer = require('inquirer');
 const async = require('async');
 
 const DAYS = 'Sunday Monday Tuesday Wednesday Thursday Friday Saturday'.split(' ');
-const UTC_WEEKDAY_OFFSET = 4;
-const UTC_ADJUSTED_DAYS = DAYS.slice(UTC_WEEKDAY_OFFSET).concat(DAYS.slice(0, UTC_WEEKDAY_OFFSET));
-const HOURS = Array(24).fill('').map((v, i) => `${i}:00 UTC`);
+const HOURS = Array(24).fill().map((v, i) => `${i}:00 UTC`);
 
 const TIME_UNITS = 'minute hour day week'.split(' ');
 const SECONDS_PER_TIME_UNIT = {
@@ -48,7 +46,7 @@ function convertPeriodOffset(periodOffset, weeklyPeriodOffset) {
   }
 
   if (weeklyPeriodOffset) {
-    offset += SECONDS_PER_TIME_UNIT['day'] * UTC_ADJUSTED_DAYS.indexOf(weeklyPeriodOffset);
+    offset += SECONDS_PER_TIME_UNIT['day'] * DAYS.indexOf(weeklyPeriodOffset);
   }
 
   if (HOURS.indexOf(periodOffset) !== -1) {
@@ -121,7 +119,7 @@ function getTokens(resource, callback) {
         name: `${token.label}: ${token.token.slice(0, 5)}...`,
         value: token.id.toString(),
         short: token.label
-      }
+      };
     });
 
     return callback(null, tokens);
@@ -140,7 +138,7 @@ function generateQuestions(tokens, functionDetails) {
         name: `${PARAM_PROMPT_PREFIX}${param.name}`,
         type: 'input',
         message: `Enter param for parameter "${param.name}" (type ${param.type})`,
-        argument: true,
+        argument: true
       };
     });
   }
