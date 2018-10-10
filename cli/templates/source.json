@@ -1,7 +1,6 @@
 {
   "name": "@user/source",
   "version": "0.0.0",
-  "publish": true,
   "description": "",
   "env": [
     {
