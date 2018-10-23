@@ -50,6 +50,8 @@ class LocalGateway extends Gateway {
     context.service.version = null;
     context.service.environment = 'local';
     context.service.identifier = `${context.service.path.join('.')}[@${context.service.version || context.service.environment}]`;
+    context.service.uuid = '000000';
+    context.service.hash = '000000';
     return context;
   }
 
