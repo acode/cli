@@ -1,7 +1,7 @@
-# ![StdLib](http://stdlib.com/static/images/stdlib-logo-wordmark-128.png)
+# ![StdLib](http://stdlib.com/static/images/standard-library-logo-wordmark.svg)
 ## [Standard Library is a serverless platform for API development and publishing](https://stdlib.com)
 
-**StdLib Setup** |
+**Standard Library Setup** |
 [Node](https://github.com/stdlib/lib-node) |
 [Python](https://github.com/stdlib/lib-python) |
 [Ruby](https://github.com/stdlib/lib-ruby) |
@@ -10,27 +10,27 @@
 # Introduction
 
 
-StdLib is the *fastest, easiest* way to build infinitely scalable,
+Standard Library is the *fastest, easiest* way to build infinitely scalable,
 self-healing APIs. It has three components:
 
 1. A central registry and library for APIs
 2. A scalable, serverless hosting platform
 3. Simple command line tooling for building and managing API development
 
-StdLib is based on Function as a Service ("server-less") architecture,
-popularized by AWS Lambda. You can use StdLib to build modular, scalable APIs
+Standard Library is based on Function as a Service ("server-less") architecture,
+popularized by AWS Lambda. You can use Standard Library to build modular, scalable APIs
 for yourself and other developers in *minutes* without having to manage servers,
 gateways, domains, write documentation, or build SDKs. Your development workflow
-has never been easier - focus on writing code you love, let StdLib handle
+has never been easier - focus on writing code you love, let Standard Library handle
 everything else.
 
-StdLib uses an **open specification** called
+Standard Library uses an **open specification** called
 [FaaSlang](https://github.com/faaslang/faaslang) for function definitions and
 execution - if you run into concerns or questions as you're building from this
 guide, please reference the FaaSlang repository. :)
 
 You can view services published by our large and growing developer community
-[on the StdLib search page](https://stdlib.com/search).
+[on the Standard Library search page](https://stdlib.com/search).
 
 ![stdlib-process](http://stdlib.com/static/images/stdlib_usage.gif)
 
@@ -51,9 +51,9 @@ You can view services published by our large and growing developer community
 
 # Getting Started
 
-To get started with StdLib, first make sure you have Node 6.x installed,
+To get started with Standard Library, first make sure you have Node 6.x installed,
 [available from the official Node.js website](https://nodejs.org). Next install
-the StdLib CLI tools with:
+the Standard Library CLI tools with:
 
 ```
 $ npm install lib.cli -g
@@ -63,7 +63,7 @@ And you're now ready to start building!
 
 # Upgrading From Previous Versions
 
-If you're running a previous version of StdLib and having issues with the CLI,
+If you're running a previous version of Standard Library and having issues with the CLI,
 try cleaning up the old CLI binary links first;
 
 ```
@@ -83,7 +83,7 @@ $ cd stdlib-workspace
 $ lib init
 ```
 
-You'll be asked for an e-mail address to log in to the StdLib registry.
+You'll be asked for an e-mail address to log in to the Standard Library registry.
 If you don't yet have an account, you can create one from the command line.
 Note that you can skip account creation with `lib init --no-login`.
 You'll be unable to use the registry, but it's useful for creating workspaces
@@ -117,7 +117,7 @@ In this directory, you'll see something like:
 ```
 
 At this point, there's a "hello world" function that's been automatically
-created (`__main__.js`). StdLib comes paired with a simple `lib` command for
+created (`__main__.js`). Standard Library comes paired with a simple `lib` command for
 testing your functions locally and running them in the cloud.
 To test your function:
 
@@ -189,9 +189,10 @@ That's it! You haven't written a line of code yet, and you have mastery over
 building a service, testing it in a development (staging) environment online,
 and releasing it for private (or public) consumption.
 
-**Note:** You'll need to set `"publish": true` in the `lib` key of your
-`package.json` file to see your service appear in the public registry. It's
-set to `false` by default.
+**Note:** By default, APIs that you publish with `lib release` will have a visible
+documentation page in the Standard Library public registry. You can keep your page private, 
+as well as restrict execution access or add collaborators to your API,
+by modifying your API's permissions. For more information, see this [docs page](https://docs.stdlib.com/main/#/access-control/api-permissions).
 
 **Another Note:** Staging environments (like the one created with `lib up dev`)
 are *mutable* and can be replaced indefinitely. Releases (`lib release`) are
@@ -295,7 +296,7 @@ module.exports = (name = 'kirk', callback) => {
 
 We definitely recommend using the [lib library on NPM](https://github.com/stdlib/lib-node)
 to make API calls as specified above, but you can also make HTTPS
-requests directly to the StdLib gateway. HTTP query parameters are mapped
+requests directly to the Standard Library gateway. HTTP query parameters are mapped
 automatically to parameters by name.
 
 ```
@@ -318,7 +319,7 @@ module.exports = (name = 'world', callback) => {
 
 # Running Your APIs as Background Workers
 
-To run any StdLib service as a background worker (immediately returns a
+To run any Standard Library service as a background worker (immediately returns a
   response, runs function after), simply append ":bg" to the URL before
   the HTTP query parameters (search portion of the URL), for example (from
   above):
@@ -399,7 +400,7 @@ This will return `{"name":"world"}` in this example (if no other parameters are
 
 # Version Control and Package Management
 
-A quick note on version control - StdLib is *not* a replacement for normal
+A quick note on version control - Standard Library is *not* a replacement for normal
 git-based workflows, it is a supplement focused around service creation and
 execution.
 
@@ -446,7 +447,7 @@ Limit the number of lines to show with the `-l` argument (or `--lines`).
 
 # Sourcecode
 
-StdLib Sourcecode is designed to streamline the creation of different types of projects.
+Standard Library Sourcecode is designed to streamline the creation of different types of projects.
 Sources provide defaults for things like boilerplate code, workflows, and directory
 setup so you can get right to development and implementation of more complex functionality.
 You can create services from existing source codes, or create and share your own sources.
@@ -454,7 +455,7 @@ You can create services from existing source codes, or create and share your own
 ## Installing A Service from Sourcecode
 
 You can create a service from a source code directly from the command line. To create a service using a source code,
-navigate to a StdLib root directory and run
+navigate to a Standard Library root directory and run
 
 ```
 $ lib create -s <source name>
@@ -495,7 +496,7 @@ Which you can then modify and publish again under your own account. For more inf
 
 # Additional Functionality
 
-StdLib comes packed with a bunch of other goodies - if your service goes down
+Standard Library comes packed with a bunch of other goodies - if your service goes down
 for any reason (the service platform is acting up), use `lib restart`.
 Similarly, as we roll out updates to the platform the builds we're using on
 AWS Lambda may change. You can update your service to our latest build using
@@ -701,11 +702,11 @@ version
 Yep, it's really that easy. To keep up-to-date on developments, please
 star us here on GitHub, and sign up a user account for the registry. You
 can read more about service hosting and keep track of official updates on
-[the official StdLib website, stdlib.com](https://stdlib.com).
+[the official Standard Library website, stdlib.com](https://stdlib.com).
 
 # Acknowledgements
 
-StdLib is a product of and &copy; 2016 - 2017 Polybit Inc.
+Standard Library is a product of and &copy; 2016 - 2017 Polybit Inc.
 
 We'd love for you to pay attention to [@StdLibHQ](https://twitter.com/StdLibHQ) and
 what we're building next! If you'd consider joining the team, [shoot us an e-mail](mailto:careers@stdlib.com).
