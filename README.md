@@ -1,7 +1,7 @@
 # ![StdLib](http://stdlib.com/static/images/stdlib-logo-wordmark-128.png)
 ## [Standard Library is a serverless platform for API development and publishing](https://stdlib.com)
 
-**StdLib Setup** |
+**Standard Library Setup** |
 [Node](https://github.com/stdlib/lib-node) |
 [Python](https://github.com/stdlib/lib-python) |
 [Ruby](https://github.com/stdlib/lib-ruby) |
@@ -190,8 +190,8 @@ building a service, testing it in a development (staging) environment online,
 and releasing it for private (or public) consumption.
 
 **Note:** By default, APIs that you publish with `lib release` will have a visible
-documentation page in the Standard Library public registry. You can remove this 
-visibility, as well as restrict execution access or add collaborators to your API,
+documentation page in the Standard Library public registry. You can keep your page private, 
+as well as restrict execution access or add collaborators to your API,
 by modifying your API's permissions. For more information, see this [docs page](https://docs.stdlib.com/main/#/access-control/api-permissions).
 
 **Another Note:** Staging environments (like the one created with `lib up dev`)
