@@ -1,4 +1,4 @@
-# ![StdLib](http://stdlib.com/static/images/stdlib-logo-wordmark-128.png)
+# ![StdLib](http://stdlib.com/static/images/standard-library-logo-wordmark.svg)
 ## [Standard Library is a serverless platform for API development and publishing](https://stdlib.com)
 
 **Standard Library Setup** |
