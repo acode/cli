@@ -67,7 +67,11 @@ class LogsCommand extends Command {
     }
 
     let serviceFilter = params.args[0];
-    let wildcard = serviceFilter[serviceFilter.length - 1] === '*';
+    if (!serviceFilter) {
+      return callback(new Error('Please enter a service to check logs for in the format: username.service[@environment].*'));
+    }
+    
+    let wildcard = serviceFilter && serviceFilter[serviceFilter.length - 1] === '*';
     if (wildcard) {
       serviceFilter = serviceFilter.substr(0, serviceFilter.length -1);
       if (['.', ']'].indexOf(serviceFilter[serviceFilter.length - 1]) === -1) {
