@@ -26,8 +26,8 @@ function generateFunction(name, description, params) {
     }).join('\n'),
     `* @returns {any}`,
     `*/`,
-    `module.exports = (${params.map(p => p.name).concat(['context', 'callback']).join(', ')}) => {`,
-    `  callback(null, 'hello world');`,
+    `module.exports = async (${params.map(p => p.name).concat('context').join(', ')}) => {`,
+    `  return 'hello world';`,
     `};`,
   ].filter(v => !!v).join('\n') + '\n';
 
