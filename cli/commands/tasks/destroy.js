@@ -24,7 +24,7 @@ class TasksDestroyCommand extends Command {
 
   help() {
     return {
-      description: 'Stops a StdLib scheduled task'
+      description: 'Stops a Standard Libraryscheduled task'
     };
   }
 

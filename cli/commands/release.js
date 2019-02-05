@@ -17,7 +17,7 @@ class ReleaseCommand extends Command {
   help() {
 
     return {
-      description: 'Pushes release of StdLib package to registry and cloud (Alias of `lib up -r`)'
+      description: 'Pushes release of Standard Librarypackage to registry and cloud (Alias of `lib up -r`)'
     };
 
   }

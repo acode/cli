@@ -41,7 +41,7 @@ class GetCommand extends Command {
   help() {
 
     return {
-      description: 'Retrieves and extracts StdLib package',
+      description: 'Retrieves and extracts Standard Librarypackage',
       args: [
         'full service name'
       ],
@@ -80,7 +80,7 @@ class GetCommand extends Command {
       console.log(chalk.bold.red('Oops!'));
       console.log();
       console.log(`You're trying to retrieve a package,`);
-      console.log(`But you're not in your root StdLib project directory.`);
+      console.log(`But you're not in your root Standard Libraryproject directory.`);
       console.log();
       if (!config.workspace()) {
         console.log(`Initialize a workspace first with:`);

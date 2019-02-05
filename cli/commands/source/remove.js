@@ -19,7 +19,7 @@ class SourceRemoveCommand extends Command {
   help() {
 
     return {
-      description: 'Removes StdLib sourcecode from the registry',
+      description: 'Removes Standard Librarysourcecode from the registry',
       args: [
         'environment'
       ],

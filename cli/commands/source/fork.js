@@ -24,7 +24,7 @@ class SourceForkCommand extends Command {
   help() {
 
     return {
-      description: 'Downloads and Forks Sourcecode from StdLib',
+      description: 'Downloads and Forks Sourcecode from Standard Library',
       args: [],
       flags: {
         f: 'Force command if not in root directory',
@@ -95,7 +95,7 @@ class SourceForkCommand extends Command {
       console.log(chalk.bold.red('Oops!'));
       console.log();
       console.log(`You're trying to fork sourcecode in your local environment,`);
-      console.log(`But you're not in a root StdLib project directory.`);
+      console.log(`But you're not in a root Standard Libraryproject directory.`);
       console.log();
       if (!config.workspace()) {
         console.log(`Initialize a workspace first with:`);

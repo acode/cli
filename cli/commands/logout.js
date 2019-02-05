@@ -18,7 +18,7 @@ class LogoutCommand extends Command {
   help() {
 
     return {
-      description: 'Logs out of StdLib in this workspace',
+      description: 'Logs out of Standard Libraryin this workspace',
       flags: {
         'f': 'Force - clears information even if current Access Token invalid'
       },

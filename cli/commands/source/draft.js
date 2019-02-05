@@ -65,7 +65,7 @@ class SourceDraftCommand extends Command {
   help() {
 
     return {
-      description: 'Pushes a draft of StdLib source code to the registry ',
+      description: 'Pushes a draft of Standard Librarysource code to the registry ',
       args: [
         'draftName'
       ],

@@ -1,5 +1,5 @@
-# ![StdLib](http://stdlib.com/static/images/standard-library-logo-wordmark.svg)
-## [Standard Library is a serverless platform for API development and publishing](https://stdlib.com)
+# ![Standard Library](http://stdlib.com/static/images/standard-library-logo-wordmark.svg)
+## [Standard Library is an API Development, Hosting and Integration Platform](https://stdlib.com)
 
 **Standard Library Setup** |
 [Node](https://github.com/stdlib/lib-node) |
@@ -11,14 +11,14 @@
 
 
 Standard Library is the *fastest, easiest* way to build infinitely scalable,
-self-healing APIs. It has three components:
+self-healing APIs. The Standard Library platform consists of three components:
 
 1. A central registry and library for APIs
 2. A scalable, serverless hosting platform
 3. Simple command line tooling for building and managing API development
 
-Standard Library is based on Function as a Service ("server-less") architecture,
-popularized by AWS Lambda. You can use Standard Library to build modular, scalable APIs
+Standard Library is based on Function as a Service ("serverless") architecture,
+initially popularized by AWS Lambda. You can use Standard Library to build modular, scalable APIs
 for yourself and other developers in *minutes* without having to manage servers,
 gateways, domains, write documentation, or build SDKs. Your development workflow
 has never been easier - focus on writing code you love, let Standard Library handle
@@ -134,19 +134,12 @@ If we examine the `functions/__main__.js` file, we see the following:
 * @param {string} name Who you're saying hello to
 * @returns {string}
 */
-module.exports = (name = 'world', context, callback) => {
-  callback(null, `hello ${name}`);
+module.exports = async (name = 'world', context) => {
+  return `hello ${name}`;
 };
 ```
 
-We can pass parameters to it using the CLI, either in order:
-
-```shell
-$ lib . "jon snow"
-"hello jon snow"
-```
-
-Or named:
+We can pass parameters to it using the CLI by specifying named parameters:
 
 ```shell
 $ lib . --name "dolores abernathy"
@@ -177,12 +170,10 @@ $ lib your_username.your_service
 ```
 
 You can check out your service on the web, and use it in applications using our
-functions gateway, `lib.id`.
+functions gateway, `api.stdlib.com`.
 
 ```
-https://functions.lib.id/your_username/your_service/
-OR
-https://your_username.lib.id/your_service/
+https://your_username.api.stdlib.com/your_service/
 ```
 
 That's it! You haven't written a line of code yet, and you have mastery over
@@ -190,7 +181,7 @@ building a service, testing it in a development (staging) environment online,
 and releasing it for private (or public) consumption.
 
 **Note:** By default, APIs that you publish with `lib release` will have a visible
-documentation page in the Standard Library public registry. You can keep your page private, 
+documentation page in the Standard Library public registry. You can keep your page private,
 as well as restrict execution access or add collaborators to your API,
 by modifying your API's permissions. For more information, see this [docs page](https://docs.stdlib.com/main/#/access-control/api-permissions).
 
@@ -216,8 +207,8 @@ In your main service directory to add it, and use it like so:
 
 #### functions/add.js
 ```javascript
-module.exports = (a = 0, b = 0, callback) => {
-  return callback(null, a + b);
+module.exports = async (a = 0, b = 0) => {
+  return a + b;
 };
 ```
 
@@ -225,33 +216,17 @@ module.exports = (a = 0, b = 0, callback) => {
 ```javascript
 const lib = require('lib');
 
-module.exports = (a = 0, b = 0, context, callback) => {
-  return lib[`${context.service.identifier}.add`](a, b, (err, result) => {
-    callback(err, result * 2);
-  });
+module.exports = async (a = 0, b = 0, context) => {
+  let result = await lib[`${context.service.identifier}.add`]({a: a, b: b});
+  return result * 2;
 };
 ```
 
-In this case, calling `lib .add 1 2` will return `3` and `lib .add_double 1 2`
+In this case, calling `lib .add --a 1 --b 2` will return `3` and `lib .add_double --a 1 --b 2`
 will return `6`. The `context` magic parameter is used for its
 `context.service.identifier` property, which will return the string `"your_username.your_service[@local]"`
 in the case of local execution, `"your_username.your_service[@ENV]"` when deployed to an
 environment or release (where `ENV` is your environment name or semver).
-
-Note that `lib .add --a 1 --b 2` and
-`lib .add_double --a 1 --b 2` are also perfectly valid, as is specifying keywords
-via an object in the `add_double` function:
-
-#### functions/add_double.js
-```javascript
-const lib = require('lib');
-
-module.exports = (a = 0, b = 0, context, callback) => {
-  return lib[`${context.service.identifier}.add`]({a: a, b: b}, (err, result) => {
-    callback(err, result * 2);
-  });
-};
-```
 
 # Accessing Your APIs From Other Applications
 
@@ -279,14 +254,14 @@ lib.username.bestTrekChar['@0.2.1']({name: 'spock'}, function (err, result) {
 Which would speak to your API...
 
 ```javascript
-module.exports = (name = 'kirk', callback) => {
+module.exports = async (name = 'kirk') => {
 
   if (name === 'kirk') {
-    return callback(null, 'why, thank, you, too, kind');
+    return 'why, thank, you, too, kind';
   } else if (name === 'spock') {
-    return callback(null, 'i think this feeling is called "pleased"');
+    return 'i think this feeling is called "pleased"';
   } else {
-    return callback(new Error('Only kirk and spock supported.'));
+    throw new Error('Only kirk and spock supported.');
   }
 
 };
@@ -300,7 +275,7 @@ requests directly to the Standard Library gateway. HTTP query parameters are map
 automatically to parameters by name.
 
 ```
-https://username.lib.id/liveService@1.12.2/?name=BATMAN
+https://username.api.stdlib.com/liveService@1.12.2/?name=BATMAN
 ```
 
 Maps directly to:
@@ -311,9 +286,9 @@ Maps directly to:
 * @param {string} name
 * @returns {string}
 */
-module.exports = (name = 'world', callback) => {
+module.exports = async (name = 'world') => {
   // returns "HELLO BATMAN" from above HTTP query
-  callback(null, `Hello ${name}`);
+  return `Hello ${name}`;
 };
 ```
 
@@ -325,7 +300,7 @@ To run any Standard Library service as a background worker (immediately returns 
   above):
 
 ```
-https://username.lib.id/liveService@1.12.2/:bg?name=BATMAN
+https://username.api.stdlib.com/liveService@1.12.2/:bg?name=BATMAN
 ```
 
 To do so from the `lib-node` library, use:
@@ -352,8 +327,8 @@ Set `@bg info` in your comment definition like so:
 * @param {string} name
 * @returns {string}
 */
-module.exports = (name = 'world', callback) => {
-  callback(null, `Hello ${name}`);
+module.exports = async (name = 'world') => {
+  return `Hello ${name}`;
 };
 ```
 
@@ -370,8 +345,8 @@ Set `@bg empty` in your comment definition like so:
 * @param {string} name
 * @returns {string}
 */
-module.exports = (name = 'world', callback) => {
-  callback(null, `Hello ${name}`);
+module.exports = async (name = 'world') => {
+  return `Hello ${name}`;
 };
 ```
 
@@ -388,8 +363,8 @@ Set `@bg params` in your comment definition like so:
 * @param {string} name
 * @returns {string}
 */
-module.exports = (name = 'world', callback) => {
-  callback(null, `Hello ${name}`);
+module.exports = async (name = 'world') => {
+  return `Hello ${name}`;
 };
 ```
 
@@ -519,19 +494,19 @@ We've conveniently copy-and-pasted the output here for you to peruse;
 	-w                   Specify a Webhook (Deprecated)
 	--*                  all verbose flags converted to named keyword parameters
 
-	Runs a StdLib function, i.e. "lib user.service[@ver]" (remote) or "lib ." (local)
+	Runs a Standard Libraryfunction, i.e. "lib user.service[@ver]" (remote) or "lib ." (local)
 
 create [service]
 	-d                   (DEPRECATED) Dev Mode - Specify another HTTP address for the Template Service (e.g. localhost:8170)
 	-f                   Force command if not in root directory
 	-n                   No login - don't require an internet connection
-	-s                   Source - creates service from a StdLib sourcecode
-	-t                   (DEPRECATED) Template - a StdLib service template to use
+	-s                   Source - creates service from a Standard Librarysourcecode
+	-t                   (DEPRECATED) Template - a Standard Libraryservice template to use
 	-w                   Write over - overwrite the current directory contents
 	--develop            (DEPRECATED) Dev Mode - Specify another HTTP address for the Template Service (e.g. localhost:8170)
 	--force              Force command if not in root directory
 	--no-login           No login - don't require an internet connection
-	--source             Source - creates service from a StdLib sourcecode
+	--source             Source - creates service from a Standard Librarysourcecode
 	--template           (DEPRECATED) Template - a stdlib service template to use
 	--write-over         Write over - overwrite the current directory contents
 
@@ -541,7 +516,7 @@ down [environment]
 	-r                   Remove a release version (provide number)
 	--release            Remove a release version (provide number)
 
-	Removes StdLib package from registry and cloud environment
+	Removes Standard Librarypackage from registry and cloud environment
 
 function:create [name] [description] [param_1] [param_2] [...] [param_n]
 	-n                   New directory: Create as a __main__.js file, with the name representing the directory
@@ -555,7 +530,7 @@ get [full service name]
 	--force              Force command if not in root directory
 	--write-over         Write over - overwrite the target directory contents
 
-	Retrieves and extracts StdLib package
+	Retrieves and extracts Standard Librarypackage
 
 hosts
 	Displays created hostname routes from source custom hostnames to target services you own
@@ -581,16 +556,16 @@ init [environment]
 	--force              Force command to overwrite existing workspace
 	--no-login           No login - don't require an internet connection
 
-	Initializes StdLib workspace
+	Initializes Standard Libraryworkspace
 
 login
 	--email              E-Mail
 	--password           Password
 
-	Logs in to StdLib in this directory
+	Logs in to Standard Libraryin this directory
 
 logout
-	Logs out of StdLib in this workspace
+	Logs out of Standard Libraryin this workspace
 
 logs [service]
 	-l                   The number of log lines you want to retrieve
@@ -606,7 +581,7 @@ pkg [full service name]
 	--force              Force command if not in root directory
 	--output             Output path for the .tgz package
 
-	Downloads StdLib tarball (.tgz)
+	Downloads Standard Librarytarball (.tgz)
 
 rebuild [environment]
 	-r                   Rebuild a release package
@@ -615,10 +590,10 @@ rebuild [environment]
 	Rebuilds a service (useful for registry performance updates), alias of `lib restart -b`
 
 register
-	Registers a new StdLib user account
+	Registers a new Standard Libraryuser account
 
 release
-	Pushes release of StdLib package to registry and cloud (Alias of `lib up -r`)
+	Pushes release of Standard Librarypackage to registry and cloud (Alias of `lib up -r`)
 
 restart [environment]
 	-b                   Rebuild service fully
@@ -626,20 +601,20 @@ restart [environment]
 	--build              Rebuild service fully
 	--release            Restart a release package
 
-	Restarts a StdLib service (if necessary)
+	Restarts a Standard Libraryservice (if necessary)
 
 rollback
-	Rolls back (removes) release of StdLib package (alias of `lib down -r`)
+	Rolls back (removes) release of Standard Librarypackage (alias of `lib down -r`)
 
 source
 
-	Converts a local service to StdLib sourcecode by creating "source.json"
+	Converts a local service to Standard Librarysourcecode by creating "source.json"
 
 source:draft [draftName]
 	-p                   Publishes as a release
 	--publish            Publishes as a release
 
-	Pushes a draft of StdLib source code to the registry
+	Pushes a draft of Standard Librarysource code to the registry
 
 source:fork
 	-a                   Alias (Optional) - The new alias of the source
@@ -653,25 +628,25 @@ source:fork
 	--source             Source (Required) - The name of the sourcecode to fork
 	--write-over         Write over - overwrite the target directory contents
 
-	Downloads and Forks Sourcecode from StdLib
+	Downloads and Forks Sourcecode from Standard Library
 
 source:publish
-	Publishes a versioned release of StdLib sourcecode to registry (alias of `lib source:draft -p`)
+	Publishes a versioned release of Standard Librarysourcecode to registry (alias of `lib source:draft -p`)
 
 source:remove [environment]
 	-p                   Removes a published release version (provide number)
 	--publish            Removes a published release version (provide number)
 
-	Removes StdLib sourcecode from the registry
+	Removes Standard Librarysourcecode from the registry
 
 tasks:create [service] [function]
 	-v                   Service version (default lastest release)
 	--version            Service version (default lastest release)
 
-	Creates a Scheduled Task from a StdLib service
+	Creates a Scheduled Task from a Standard Libraryservice
 
 tasks:destroy
-	Stops a StdLib scheduled task
+	Stops a Standard Libraryscheduled task
 
 tasks:list
 	-j                   Returns tasks as a JSON object
@@ -683,7 +658,7 @@ up [environment]
 	-r                   Upload a release package
 	--release            Upload a release package
 
-	Pushes StdLib package to registry and cloud environment
+	Pushes Standard Librarypackage to registry and cloud environment
 
 user
 	-s                   <key> <value> Sets a specified key-value pair
@@ -694,7 +669,7 @@ user
 	Retrieves (and sets) current user information
 
 version
-	Returns currently installed version of StdLib command line tools
+	Returns currently installed version of Standard Librarycommand line tools
 ```
 
 # That's it!
@@ -706,7 +681,7 @@ can read more about service hosting and keep track of official updates on
 
 # Acknowledgements
 
-Standard Library is a product of and &copy; 2016 - 2017 Polybit Inc.
+Standard Library is a product of and &copy; 2018 Polybit Inc.
 
 We'd love for you to pay attention to [@StdLibHQ](https://twitter.com/StdLibHQ) and
 what we're building next! If you'd consider joining the team, [shoot us an e-mail](mailto:careers@stdlib.com).
@@ -718,7 +693,14 @@ Enjoy and happy building :)
 
 # Thanks
 
-Special thanks to; [AngelPad](https://angelpad.org),
-[Brian LeRoux](https://twitter.com/brianleroux),
-[Boris Mann](https://twitter.com/bmann),
-[TJ Holowaychuk](https://twitter.com/tjholowaychuk)
+Special thanks to the people and companies that have believed in and supported our
+vision and development over the years.
+
+- Slack [@SlackHQ](https://twitter.com/SlackHQ)
+- Stripe [@Stripe](https://twitter.com/Stripe)
+- Romain Huet [@romainhuet](https://twitter.com/romainhuet)
+- Chad Fowler [@chadfowler](https://twitter.com/chadfowler)
+- Brian LeRoux [@brianleroux](https://twitter.com/brianleroux)
+- Ahmad Nassri [@AhmadNassri](https://twitter.com/AhmadNassri)
+
+... and many more!
