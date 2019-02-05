@@ -36,7 +36,7 @@ class HostsAddCommand extends Command {
     let versionString = target.split('[@')[1];
     versionString = versionString && versionString.replace(']', '');
     let service = target.split('[@')[0];
-    let urlComponentArray = [service.split('.')[1], service.split('.')[0], 'lib.id'];
+    let urlComponentArray = [service.split('.')[1], service.split('.')[0], 'api.stdlib.com'];
 
     if (versionString) {
       versionString = versionString.split('.').join('-');
