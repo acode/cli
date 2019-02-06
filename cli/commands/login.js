@@ -21,7 +21,7 @@ class LoginCommand extends Command {
   help() {
 
     return {
-      description: 'Logs in to Standard Libraryin this directory',
+      description: 'Logs in to Standard Library in this directory',
       vflags: {
         email: 'E-Mail',
         password: 'Password'

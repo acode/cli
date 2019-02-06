@@ -494,19 +494,19 @@ We've conveniently copy-and-pasted the output here for you to peruse;
 	-w                   Specify a Webhook (Deprecated)
 	--*                  all verbose flags converted to named keyword parameters
 
-	Runs a Standard Libraryfunction, i.e. "lib user.service[@ver]" (remote) or "lib ." (local)
+	Runs a Standard Library function, i.e. "lib user.service[@ver]" (remote) or "lib ." (local)
 
 create [service]
 	-d                   (DEPRECATED) Dev Mode - Specify another HTTP address for the Template Service (e.g. localhost:8170)
 	-f                   Force command if not in root directory
 	-n                   No login - don't require an internet connection
-	-s                   Source - creates service from a Standard Librarysourcecode
-	-t                   (DEPRECATED) Template - a Standard Libraryservice template to use
+	-s                   Source - creates service from a Standard Library sourcecode
+	-t                   (DEPRECATED) Template - a Standard Library service template to use
 	-w                   Write over - overwrite the current directory contents
 	--develop            (DEPRECATED) Dev Mode - Specify another HTTP address for the Template Service (e.g. localhost:8170)
 	--force              Force command if not in root directory
 	--no-login           No login - don't require an internet connection
-	--source             Source - creates service from a Standard Librarysourcecode
+	--source             Source - creates service from a Standard Library sourcecode
 	--template           (DEPRECATED) Template - a stdlib service template to use
 	--write-over         Write over - overwrite the current directory contents
 
@@ -516,7 +516,7 @@ down [environment]
 	-r                   Remove a release version (provide number)
 	--release            Remove a release version (provide number)
 
-	Removes Standard Librarypackage from registry and cloud environment
+	Removes Standard Library package from registry and cloud environment
 
 function:create [name] [description] [param_1] [param_2] [...] [param_n]
 	-n                   New directory: Create as a __main__.js file, with the name representing the directory
@@ -530,7 +530,7 @@ get [full service name]
 	--force              Force command if not in root directory
 	--write-over         Write over - overwrite the target directory contents
 
-	Retrieves and extracts Standard Librarypackage
+	Retrieves and extracts Standard Library package
 
 hosts
 	Displays created hostname routes from source custom hostnames to target services you own
@@ -556,16 +556,16 @@ init [environment]
 	--force              Force command to overwrite existing workspace
 	--no-login           No login - don't require an internet connection
 
-	Initializes Standard Libraryworkspace
+	Initializes Standard Library workspace
 
 login
 	--email              E-Mail
 	--password           Password
 
-	Logs in to Standard Libraryin this directory
+	Logs in to Standard Library in this directory
 
 logout
-	Logs out of Standard Libraryin this workspace
+	Logs out of Standard Library in this workspace
 
 logs [service]
 	-l                   The number of log lines you want to retrieve
@@ -581,7 +581,7 @@ pkg [full service name]
 	--force              Force command if not in root directory
 	--output             Output path for the .tgz package
 
-	Downloads Standard Librarytarball (.tgz)
+	Downloads Standard Library tarball (.tgz)
 
 rebuild [environment]
 	-r                   Rebuild a release package
@@ -590,10 +590,10 @@ rebuild [environment]
 	Rebuilds a service (useful for registry performance updates), alias of `lib restart -b`
 
 register
-	Registers a new Standard Libraryuser account
+	Registers a new Standard Library user account
 
 release
-	Pushes release of Standard Librarypackage to registry and cloud (Alias of `lib up -r`)
+	Pushes release of Standard Library package to registry and cloud (Alias of `lib up -r`)
 
 restart [environment]
 	-b                   Rebuild service fully
@@ -601,20 +601,20 @@ restart [environment]
 	--build              Rebuild service fully
 	--release            Restart a release package
 
-	Restarts a Standard Libraryservice (if necessary)
+	Restarts a Standard Library service (if necessary)
 
 rollback
-	Rolls back (removes) release of Standard Librarypackage (alias of `lib down -r`)
+	Rolls back (removes) release of Standard Library package (alias of `lib down -r`)
 
 source
 
-	Converts a local service to Standard Librarysourcecode by creating "source.json"
+	Converts a local service to Standard Library sourcecode by creating "source.json"
 
 source:draft [draftName]
 	-p                   Publishes as a release
 	--publish            Publishes as a release
 
-	Pushes a draft of Standard Librarysource code to the registry
+	Pushes a draft of Standard Library source code to the registry
 
 source:fork
 	-a                   Alias (Optional) - The new alias of the source
@@ -631,22 +631,22 @@ source:fork
 	Downloads and Forks Sourcecode from Standard Library
 
 source:publish
-	Publishes a versioned release of Standard Librarysourcecode to registry (alias of `lib source:draft -p`)
+	Publishes a versioned release of Standard Library sourcecode to registry (alias of `lib source:draft -p`)
 
 source:remove [environment]
 	-p                   Removes a published release version (provide number)
 	--publish            Removes a published release version (provide number)
 
-	Removes Standard Librarysourcecode from the registry
+	Removes Standard Library sourcecode from the registry
 
 tasks:create [service] [function]
 	-v                   Service version (default lastest release)
 	--version            Service version (default lastest release)
 
-	Creates a Scheduled Task from a Standard Libraryservice
+	Creates a Scheduled Task from a Standard Library service
 
 tasks:destroy
-	Stops a Standard Libraryscheduled task
+	Stops a Standard Library scheduled task
 
 tasks:list
 	-j                   Returns tasks as a JSON object
@@ -658,7 +658,7 @@ up [environment]
 	-r                   Upload a release package
 	--release            Upload a release package
 
-	Pushes Standard Librarypackage to registry and cloud environment
+	Pushes Standard Library package to registry and cloud environment
 
 user
 	-s                   <key> <value> Sets a specified key-value pair
@@ -669,7 +669,7 @@ user
 	Retrieves (and sets) current user information
 
 version
-	Returns currently installed version of Standard Librarycommand line tools
+	Returns currently installed version of Standard Library command line tools
 ```
 
 # That's it!

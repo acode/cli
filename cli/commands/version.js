@@ -13,7 +13,7 @@ class VersionCommand extends Command {
   help() {
 
     return {
-      description: 'Returns currently installed version of Standard Librarycommand line tools'
+      description: 'Returns currently installed version of Standard Library command line tools'
     };
 
   }

@@ -51,14 +51,14 @@ class CreateCommand extends Command {
       flags: {
         n: 'No login - don\'t require an internet connection',
         w: 'Write over - overwrite the current directory contents',
-        s: 'Source - creates service from a Standard Librarysourcecode',
-        t: '(DEPRECATED) Template - a Standard Libraryservice template to use',
+        s: 'Source - creates service from a Standard Library sourcecode',
+        t: '(DEPRECATED) Template - a Standard Library service template to use',
         d: '(DEPRECATED) Dev Mode - Specify another HTTP address for the Template Service (e.g. localhost:8170)'
       },
       vflags: {
         'no-login': 'No login - don\'t require an internet connection',
         'write-over': 'Write over - overwrite the current directory contents',
-        'source': 'Source - creates service from a Standard Librarysourcecode',
+        'source': 'Source - creates service from a Standard Library sourcecode',
         'template': '(DEPRECATED) Template - a stdlib service template to use',
         'develop': '(DEPRECATED) Dev Mode - Specify another HTTP address for the Template Service (e.g. localhost:8170)'
       }
@@ -91,7 +91,7 @@ class CreateCommand extends Command {
       console.log(chalk.bold.red('Oops!'));
       console.log();
       console.log(`You're trying to create a new service in development,`);
-      console.log(`But you're not your a root Standard Libraryproject directory.`);
+      console.log(`But you're not your a root Standard Library project directory.`);
       console.log();
       if (!config.workspace()) {
         console.log(`Initialize a workspace first with:`);

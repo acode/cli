@@ -71,7 +71,7 @@ class FunctionCreateCommand extends Command {
     let newDir = !!(params.flags.n || params.vflags['new'] || false);
 
     if (!fs.existsSync('package.json')) {
-      return callback(new Error('Not in valid Standard Librarydirectory'));
+      return callback(new Error('Not in valid Standard Library directory'));
     }
 
     let questions = [];

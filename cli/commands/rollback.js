@@ -14,7 +14,7 @@ class RollbackCommand extends Command {
   help() {
 
     return {
-      description: 'Rolls back (removes) release of Standard Librarypackage (alias of `lib down -r`)'
+      description: 'Rolls back (removes) release of Standard Library package (alias of `lib down -r`)'
     };
 
   }

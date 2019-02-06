@@ -242,7 +242,7 @@ class TasksCreateCommand extends Command {
   help() {
 
     return {
-      description: 'Creates a Scheduled Task from a Standard Libraryservice',
+      description: 'Creates a Scheduled Task from a Standard Library service',
       args: [
         'service'
       ]

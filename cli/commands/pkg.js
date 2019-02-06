@@ -20,7 +20,7 @@ class PkgCommand extends Command {
   help() {
 
     return {
-      description: 'Downloads Standard Librarytarball (.tgz)',
+      description: 'Downloads Standard Library tarball (.tgz)',
       args: [
         'full service name'
       ],
@@ -45,7 +45,7 @@ class PkgCommand extends Command {
       console.log(chalk.bold.red('Oops!'));
       console.log();
       console.log(`You're trying to download a tarball,`);
-      console.log(`But you're not in a root Standard Libraryproject directory.`);
+      console.log(`But you're not in a root Standard Library project directory.`);
       console.log();
       if (!config.workspace()) {
         console.log(`Initialize a workspace first with:`);

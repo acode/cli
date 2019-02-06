@@ -22,7 +22,7 @@ class SourceCommand extends Command {
   help() {
 
     return {
-      description: 'Converts a local service to Standard Librarysourcecode by creating "source.json"',
+      description: 'Converts a local service to Standard Library sourcecode by creating "source.json"',
       args: [],
       flags: {},
       vflags: {}
@@ -66,7 +66,7 @@ class SourceCommand extends Command {
     let createDir;
 
     console.log();
-    console.log(chalk.bold.green('Great!') + ` You're ready to create some Standard Librarysourcecode.`);
+    console.log(chalk.bold.green('Great!') + ` You're ready to create some Standard Library sourcecode.`);
 
     if (newPathnames[0].startsWith('@')) {
       console.log();

@@ -14,7 +14,7 @@ class SourcePublishCommand extends Command {
   help() {
 
     return {
-      description: 'Publishes a versioned release of Standard Librarysourcecode to registry (alias of `lib source:draft -p`)'
+      description: 'Publishes a versioned release of Standard Library sourcecode to registry (alias of `lib source:draft -p`)'
     };
 
   }

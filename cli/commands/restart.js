@@ -19,7 +19,7 @@ class RestartCommand extends Command {
   help() {
 
     return {
-      description: 'Restarts a Standard Libraryservice (if necessary)',
+      description: 'Restarts a Standard Library service (if necessary)',
       args: [
         'environment'
       ],

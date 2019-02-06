@@ -18,7 +18,7 @@ class RegisterCommand extends Command {
   help() {
 
     return {
-      description: 'Registers a new Standard Libraryuser account'
+      description: 'Registers a new Standard Library user account'
     };
 
   }
