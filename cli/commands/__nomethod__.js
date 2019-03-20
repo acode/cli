@@ -296,8 +296,8 @@ class __nomethod__Command extends Command {
         } else {
           let message = err.message || '';
           if (err.type === 'ParameterError' || err.type === 'ValueError') {
-            let params = err.details;
-            params && Object.keys(params).forEach(name => {
+            let params = err.details || {};
+            Object.keys(params).forEach(name => {
               message += `\n - [${name}] ${params[name].message}`;
             });
             delete err.details;
