@@ -293,13 +293,14 @@ class __nomethod__Command extends Command {
             'This is likely due to an invalid "Content-Length" header field',
             'Standard Library will set this field for you, you do not need to write it manually'
           ].join('\n');
-        } else if (result && result.error) {
-          let message = result.error.message || '';
-          if (result.error.type === 'ParameterError' || result.error.type === 'ValueError') {
-            let params = result.error.details;
-            params && Object.keys(params).forEach(name => {
+        } else {
+          let message = err.message || '';
+          if (err.type === 'ParameterError' || err.type === 'ValueError') {
+            let params = err.details || {};
+            Object.keys(params).forEach(name => {
               message += `\n - [${name}] ${params[name].message}`;
             });
+            delete err.details;
           }
           err.message = message;
         }
