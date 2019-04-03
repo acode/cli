@@ -174,7 +174,7 @@ function generateQuestions(tokens, functionDetails) {
   }, {
     name: 'frequency',
     type: 'list',
-    message: (answers) => `How ofter per ${answers.period}`,
+    message: (answers) => `How often per ${answers.period}`,
     choices: (answers) => {
       if (answers.period === 'minute') {
         return ['once'];
