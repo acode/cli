@@ -46,7 +46,7 @@ class LoginCommand extends Command {
       name: 'email',
       type: 'input',
       default: '',
-      message: 'E-mail',
+      message: 'Username or E-mail',
     });
 
     password || questions.push({
