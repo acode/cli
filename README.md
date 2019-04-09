@@ -84,7 +84,7 @@ $ lib init
 ```
 
 You'll be asked for an e-mail address to log in to the Standard Library registry.
-If you don't yet have an account, you can create one from the command line.
+If you don't yet have an account, you can create one by going to https://stdlib.com/.
 Note that you can skip account creation with `lib init --no-login`.
 You'll be unable to use the registry, but it's useful for creating workspaces
 when you don't have internet access.
@@ -588,9 +588,6 @@ rebuild [environment]
 	--release            Rebuild a release package
 
 	Rebuilds a service (useful for registry performance updates), alias of `lib restart -b`
-
-register
-	Registers a new Standard Library user account
 
 release
 	Pushes release of Standard Library package to registry and cloud (Alias of `lib up -r`)

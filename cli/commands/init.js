@@ -82,13 +82,13 @@ class InitCommand extends Command {
     }
 
     console.log();
-    console.log(chalk.bold.green('Welcome to stdlib! :)'))
+    console.log(chalk.bold.green('Welcome to Standard Library! :)'))
     console.log();
-    console.log(`To use the ${chalk.bold('stdlib')} registry, you must have a registered Standard Library account.`);
+    console.log(`To use the ${chalk.bold('Standard Library')} registry, you must have a registered account.`);
     console.log(`It will allow you to push your services to the cloud and manage environments.`);
-    console.log(`It\'s ${chalk.bold.underline.green('free')} to create an account. Let's get started!`);
+    console.log(`If you don\'t have an account, it\'s ${chalk.bold.underline.green('free')} to sign up! Please go to https://stdlib.com/ to get started.`);
     console.log();
-    console.log(`Please enter your e-mail to login or register.`);
+    console.log(`If you already have an account, please enter your e-mail to login.`);
     console.log();
 
     let questions = [];
@@ -116,9 +116,7 @@ class InitCommand extends Command {
 
         if (!response.data.length) {
           console.log();
-          console.log(`${chalk.bold.green('Welcome!')} It appears you do not yet have an account.`);
-          console.log('Please create a username and password.');
-          console.log();
+          console.log(`It appears you do not yet have an account.`);
           require('./register.js').prototype.run(params, cb);
         } else {
           console.log();
