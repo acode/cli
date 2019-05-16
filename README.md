@@ -636,7 +636,7 @@ source:remove [environment]
 
 	Removes Standard Library sourcecode from the registry
 
-tasks:create [service] [function]
+tasks:create [service] [function name]
 	-v                   Service version (default lastest release)
 	--version            Service version (default lastest release)
 

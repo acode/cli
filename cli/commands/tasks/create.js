@@ -244,7 +244,8 @@ class TasksCreateCommand extends Command {
     return {
       description: 'Creates a Scheduled Task from a Standard Library service',
       args: [
-        'service'
+        'service',
+        'function name'
       ]
     };
 
@@ -269,7 +270,7 @@ class TasksCreateCommand extends Command {
       return callback(null);
     }
 
-    let functionName = '';
+    let functionName = params.args[1] ? params.args[1].replace(/\./gi, '/') : '';
     let identifier = 'latest';
 
     let serviceParts = service.split('.');
