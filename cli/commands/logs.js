@@ -89,10 +89,10 @@ class LogsCommand extends Command {
         service = env[1];
         let environment = env[2];
         let functionName = env[3] || '';
-        if (/\w+/i.exec(environment)) {
-          queryParams.environment = environment;
-        } else {
+        if (/^\d+/.exec(environment)) {
           queryParams.version = environment;
+        } else {
+          queryParams.environment = environment;
         }
         if (!wildcard || functionName) {
           queryParams.function_name = functionName.split('.').join('/');
