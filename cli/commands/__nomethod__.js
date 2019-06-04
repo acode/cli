@@ -6,7 +6,7 @@ const fs = require('fs');
 const path = require('path');
 
 const LocalGateway = require('../local_gateway.js');
-const FunctionParser = require('faaslang').FunctionParser;
+const FunctionParser = require('functionscript').FunctionParser;
 const config = require('../config.js');
 
 function parseFileFromArg(arg) {
