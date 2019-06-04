@@ -3,7 +3,7 @@ const url = require('url');
 const chalk = require('chalk');
 
 const config = require('./config.js');
-const Gateway = require('faaslang').Gateway;
+const Gateway = require('functionscript').Gateway;
 
 class LocalGateway extends Gateway {
 

@@ -4,7 +4,7 @@ const Command = require('cmnd').Command;
 const APIResource = require('api-res');
 const config = require('../../config.js');
 
-const faaslang = require('faaslang');
+const functionscript = require('functionscript');
 const chalk = require('chalk');
 const inquirer = require('inquirer');
 const async = require('async');
@@ -277,7 +277,7 @@ class TasksCreateCommand extends Command {
       service = serviceParts.slice(0, 2).join('.');
       functionName = serviceParts[2];
     }
-    
+
     let env = /^(.+?)\[@(.+?)\](?:\.(.*?))?$/.exec(service);
     if (env) {
       service = env[1];
@@ -307,7 +307,7 @@ class TasksCreateCommand extends Command {
           service_name: functionDetails.selectedService.name,
           function_name: functionDetails.functionName
         }
-        
+
         if (answers.cron_expression) {
           taskParams.cron_expression = answers.cron_expression.trim();
         } else {
@@ -332,11 +332,11 @@ class TasksCreateCommand extends Command {
                 return param.name === paramName;
               });
               try {
-                let isValid = faaslang.types.validate(paramInfo.type, faaslang.types.parse(paramInfo.type, value, true), !!paramInfo.hasOwnProperty('defaultValue'));
+                let isValid = functionscript.types.validate(paramInfo.type, functionscript.types.parse(paramInfo.type, value, true), !!paramInfo.hasOwnProperty('defaultValue'));
                 if (!isValid) {
                   throw new Error('Invalid type');
                 }
-                value = faaslang.types.convert(paramInfo.type, value);
+                value = functionscript.types.convert(paramInfo.type, value);
               } catch (e) {
                 throw new Error(`Invalid value for parameter "${paramName}". "${value}" should be type ${paramInfo.type}.`);
               }
