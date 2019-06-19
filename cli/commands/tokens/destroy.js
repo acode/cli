@@ -18,7 +18,7 @@ class TokensDestroyCommand extends Command {
 
   help() {
     return {
-      description: 'Selects an active Library Token for API Authentication',
+      description: 'Destroys an active Library Token for API Authentication',
     };
   }
 
@@ -77,11 +77,12 @@ class TokensDestroyCommand extends Command {
                   'Active': activeToken === libraryToken.token ? ['(active)', chalk.yellow] : '',
                   'User': libraryToken.user.username,
                   'Label': libraryToken.label ?
-                    libraryToken.label.length > 16 ?
-                      libraryToken.label.substr(0, 13) + '...' :
+                    libraryToken.label.length > 36 ?
+                      libraryToken.label.substr(0, 33) + '...' :
                       libraryToken.label :
                       '',
-                  'Token': libraryToken.token.substr(0, 8) + '...',
+                  'fullLabel': libraryToken.label,
+                  'Token': libraryToken.token.substr(0, 16) + '...',
                   'Valid': libraryToken.is_valid ?
                     ['✔', chalk.bold.green] :
                     ['✖', chalk.bold.red],
@@ -104,7 +105,7 @@ class TokensDestroyCommand extends Command {
             type: 'confirm',
             message: (answers) => {
               return `Are you sure you want to ${chalk.bold.red('permanently destroy')} ` +
-                `token "${chalk.bold(answers.libraryToken.Label)}"?`;
+                `token "${chalk.bold(answers.libraryToken.fullLabel)}"?`;
             },
             when: (answers) => !!answers.libraryToken
           }

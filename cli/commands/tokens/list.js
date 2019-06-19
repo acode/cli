@@ -77,11 +77,11 @@ class TokensListCommand extends Command {
           ['Active', 'User', 'Label', 'Token', 'Valid', 'Created'],
           tokens.map(libraryToken => {
             let label = libraryToken.label ?
-              libraryToken.label.length > 16 ?
-                libraryToken.label.substr(0, 13) + '...' :
+              libraryToken.label.length > 36 ?
+                libraryToken.label.substr(0, 33) + '...' :
                 libraryToken.label :
                 '';
-            let Token = libraryToken.token.substr(0, 8) + '...';
+            let Token = libraryToken.token.substr(0, 16) + '...';
             return {
               'Active': activeToken === libraryToken.token ? ['(active)', chalk.yellow] : '',
               'User': libraryToken.is_valid ?
