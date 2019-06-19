@@ -74,19 +74,19 @@ class TokensRetrieveCommand extends Command {
 
       if (!!matchingLibraryToken) {
         let newEnv = {
-          local: env.local
+          local: env.local || {}
         };
         Object.keys(env).forEach((key) => {
           newEnv[key] = env[key];
         });
-        env.local.STDLIB_SECRET_TOKEN = matchingLibraryToken.token;
+        newEnv.local.STDLIB_SECRET_TOKEN = matchingLibraryToken.token;
         fs.writeFileSync(path.join(process.cwd(), 'env.json'), JSON.stringify(newEnv, null, 2));
         console.log();
         console.log(chalk.bold.green('Success!'));
         console.log();
-        console.log(`Added the Development Library Token associated with ${chalk.bold(serviceName)} to your local "env.json" file.`);
+        console.log(`Added the Development Library Token associated with ${chalk.bold(serviceName)}\nto your local "env.json" file as ${chalk.bold('STDLIB_SECRET_TOKEN')}.`);
         console.log();
-        console.log(`Your API will now use this token when you run ${chalk.bold('lib .')}`);
+        console.log(`Your API will now use this token when you test locally with ${chalk.bold('lib .')}`);
         console.log();
         return callback();
       } else {
