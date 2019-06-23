@@ -18,7 +18,7 @@ class TokensCreateCommand extends Command {
 
   help() {
     return {
-      description: 'Selects an active Library Token for API Authentication',
+      description: 'Creates a Library Token for API Authentication',
     };
   }
 

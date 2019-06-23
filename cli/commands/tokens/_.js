@@ -76,11 +76,11 @@ class TokensCommand extends Command {
                   'Active': activeToken === libraryToken.token ? ['(active)', chalk.yellow] : '',
                   'User': libraryToken.user.username,
                   'Label': libraryToken.label ?
-                    libraryToken.label.length > 16 ?
-                      libraryToken.label.substr(0, 13) + '...' :
+                    libraryToken.label.length > 36 ?
+                      libraryToken.label.substr(0, 33) + '...' :
                       libraryToken.label :
                       '',
-                  'Token': libraryToken.token.substr(0, 8) + '...',
+                  'Token': libraryToken.token.substr(0, 16) + '...',
                   'Valid': libraryToken.is_valid ?
                     ['✔', chalk.bold.green] :
                     ['✖', chalk.bold.red],
