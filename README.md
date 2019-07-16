@@ -25,9 +25,9 @@ has never been easier - focus on writing code you love, let Standard Library han
 everything else.
 
 Standard Library uses an **open specification** called
-[FaaSlang](https://github.com/faaslang/faaslang) for function definitions and
-execution - if you run into concerns or questions as you're building from this
-guide, please reference the FaaSlang repository. :)
+[FunctionScript](https://github.com/FunctionScript/FunctionScript) for function definitions and
+execution. If you run into concerns or questions as you're building from this
+guide, please reference the FunctionScript repository. :)
 
 You can view services published by our large and growing developer community
 [on the Standard Library search page](https://stdlib.com/search).
