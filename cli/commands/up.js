@@ -2,7 +2,6 @@
 
 const Command = require('cmnd').Command;
 const APIResource = require('api-res');
-const scripts = require('../scripts.js');
 
 const fs = require('fs');
 const zlib = require('zlib');
@@ -12,6 +11,8 @@ const async = require('async');
 const tar = require('tar-stream');
 
 const config = require('../config.js');
+const scripts = require('../scripts.js');
+const serviceConfig = require('../service_config');
 
 const RELEASE_ENV = 'release';
 
@@ -113,17 +114,9 @@ class UpCommand extends Command {
     let pkg;
 
     try {
-      pkg = require(path.join(process.cwd(), 'package.json'));
-    } catch(e) {
-      return callback(new Error('Invalid package.json'));
-    }
-
-    if (!pkg.stdlib) {
-      return callback(new Error('No stdlib information set in "package.json"'));
-    }
-
-    if (!pkg.stdlib.name) {
-      return callback(new Error('No stdlib name set in "package.json"'));
+      pkg = serviceConfig.get();
+    } catch(err) {
+      return callback(err);
     }
 
     scripts.run(pkg, 'preup', environment, {version: pkg.version}, err => {
@@ -137,7 +130,8 @@ class UpCommand extends Command {
 
       !fs.existsSync('/tmp') && fs.mkdirSync('/tmp');
       !fs.existsSync('/tmp/stdlib') && fs.mkdirSync('/tmp/stdlib', 0o777);
-      let tmpPath = `/tmp/stdlib/${pkg.stdlib.name.replace(/\//g, '.')}.${new Date().valueOf()}.tar.gz`;
+      let serviceName = (pkg.stdlib ? pkg.stdlib.name : pkg.name).replace(/\//g, '.');
+      let tmpPath = `/tmp/stdlib/${serviceName}.${new Date().valueOf()}.tar.gz`;
 
       let start = new Date().valueOf();
 
@@ -190,13 +184,13 @@ class UpCommand extends Command {
 
           let t = new Date().valueOf() - start;
 
-          let endpoint = environment === RELEASE_ENV ?
-            `${pkg.stdlib.name}@${pkg.version}` :
-            `${pkg.stdlib.name}@${environment}`;
+          let endpoint = environment === RELEASE_ENV
+            ? `${pkg.stdlib ? pkg.stdlib.name : pkg.name}@${pkg.version}`
+            : `${pkg.stdlib ? pkg.stdlib.name : pkg.name}@${environment}`;
 
           return resource
             .request(endpoint)
-            .headers({'X-Stdlib-Build': pkg.stdlib.build || ''})
+            .headers({'X-Stdlib-Build': pkg.build || pkg.stdlib.build || ''})
             .stream(
               'POST',
               result,

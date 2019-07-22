@@ -7,6 +7,7 @@ const fs = require('fs');
 const path = require('path');
 
 const config = require('../config.js');
+const serviceConfig = require('../service_config');
 
 class RestartCommand extends Command {
 
@@ -69,25 +70,17 @@ class RestartCommand extends Command {
     let pkg;
 
     try {
-      pkg = require(path.join(process.cwd(), 'package.json'));
-    } catch(e) {
-      return callback(new Error('Invalid package.json'));
-    }
-
-    if (!pkg.stdlib) {
-      return callback(new Error('No stdlib information set in "package.json"'));
-    }
-
-    if (!pkg.stdlib.name) {
-      return callback(new Error('No stdlib name set in "package.json"'));
+      pkg = serviceConfig.get();
+    } catch(err) {
+      return callback(err);
     }
 
     let resource = new APIResource(host, port);
     resource.authorize(config.get('ACCESS_TOKEN'));
 
-    let endpoint = environment ?
-      `${pkg.stdlib.name}@${environment}` :
-      `${pkg.stdlib.name}@${version || pkg.version}`;
+    let endpoint = environment
+      ? `${pkg.stdlib ? pkg.stdlib.name : pkg.name}@${environment}`
+      : `${pkg.stdlib ? pkg.stdlib.name : pkg.name}@${version || pkg.version}`;
 
     return resource.request(`${endpoint}/${rebuild ? 'rebuild' : 'restart'}`).stream(
       'PUT',

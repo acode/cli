@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 
 const config = require('../../config.js');
+const serviceConfig = require('../../service_config.js');
 
 const Command = require('cmnd').Command;
 
@@ -32,13 +33,13 @@ class SourceCommand extends Command {
 
   run(params, callback) {
 
-    let pkg;
+    let stdlibJSON;
     let env;
 
     try {
-      pkg = require(path.join(process.cwd(), 'package.json'));
+      stdlibJSON = serviceConfig.get();
     } catch(e) {
-      return callback(new Error('Invalid package.json'));
+      return callback(new Error('Invalid service configuration'));
     }
 
     if (fs.existsSync('env.json')) {
@@ -47,14 +48,6 @@ class SourceCommand extends Command {
       } catch (e) {
         return callback(new Error('Invalid env.json'));
       }
-    }
-
-    if (!pkg.stdlib) {
-      return callback(new Error('No stdlib information set in "package.json"'));
-    }
-
-    if (!pkg.stdlib.name) {
-      return callback(new Error('No stdlib name set in "package.json"'));
     }
 
     if (fs.existsSync('source.json')) {
@@ -102,7 +95,7 @@ class SourceCommand extends Command {
           source: require(path.join(__dirname, `../../templates/source.json`))
         };
 
-        let sourceName = `@${pkg.stdlib.name}`;
+        let sourceName = `@${stdlibJSON.name}`;
 
         json.source.name = sourceName;
         json.source.env = Object.keys(env.local || env.dev || env.release || {}).map(key => {

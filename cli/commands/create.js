@@ -266,14 +266,13 @@ class CreateCommand extends Command {
 
           }
 
-          let json = {
-            pkg: require(path.join(__dirname, `../templates/${build}/package.json`))
-          };
+          let packageJSON = require(path.join(__dirname, `../templates/${build}/package.json`));
+          let stdlibJSON = require(path.join(__dirname, `../templates/${build}/stdlib.json`));
 
-          json.pkg.name = name;
-          json.pkg.author = user.username + (user.email ? ` <${user.email}>` : '');
-          json.pkg.stdlib.name = [username, name].join('/');
-          json.pkg.stdlib.build = build;
+          packageJSON.name = name;
+          packageJSON.author = user.username + (user.email ? ` <${user.email}>` : '');
+          stdlibJSON.name = [username, name].join('/');
+          stdlibJSON.build = build;
 
           // EXTERNAL: Assign package details
           if (extPkg && extPkg.pkg) {
@@ -284,8 +283,8 @@ class CreateCommand extends Command {
             if (build !== extBuild) {
               return callback(new Error(`Can not use this template with this build`));
             }
-            deepAssign(json.pkg, extPkg.pkg);
-            json.pkg.stdlib.source = extPkgName;
+            deepAssign(packageJSON, extPkg.pkg);
+            packageJSON.stdlib.source = extPkgName;
           }
 
           fileio.writeFiles(
@@ -297,7 +296,12 @@ class CreateCommand extends Command {
 
           fs.writeFileSync(
             path.join(servicePath, 'package.json'),
-            JSON.stringify(json.pkg, null, 2)
+            JSON.stringify(packageJSON, null, 2)
+          );
+
+          fs.writeFileSync(
+            path.join(servicePath, 'stdlib.json'),
+            JSON.stringify(stdlibJSON, null, 2)
           );
 
           let fns = [];
@@ -320,8 +324,8 @@ class CreateCommand extends Command {
             }
 
             if (
-              (json.pkg.dependencies && Object.keys(json.pkg.dependencies).length) ||
-              (json.pkg.devDependencies && Object.keys(json.pkg.devDependencies).length)
+              (packageJSON.dependencies && Object.keys(packageJSON.dependencies).length) ||
+              (packageJSON.devDependencies && Object.keys(packageJSON.devDependencies).length)
             ) {
               console.log(`Installing npm packages...`);
               console.log();
