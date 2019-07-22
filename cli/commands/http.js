@@ -8,6 +8,7 @@ const FunctionParser = require('functionscript').FunctionParser;
 
 const parser = require('../parser.js');
 const scripts = require('../scripts.js');
+const serviceConfig = require('../service_config');
 
 class HTTPCommand extends Command {
 
@@ -38,10 +39,9 @@ class HTTPCommand extends Command {
     let env;
 
     try {
-      pkg = require(path.join(process.cwd(), 'package.json'));
-    } catch (e) {
-      console.error(e);
-      return callback(new Error('Invalid package.json in this directory'));
+      pkg = serviceConfig.get();
+    } catch(err) {
+      return callback(err);
     }
 
     try {
@@ -59,15 +59,18 @@ class HTTPCommand extends Command {
 
       scripts.run(pkg, '+http', null, null);
 
-      if (pkg.stdlib.build !== 'legacy') {
+      let build = pkg.build || pkg.stdlib.build;
+      let serviceName = pkg.stdlib ? pkg.stdlib.name : pkg.name;
+
+      if (build !== 'legacy') {
         console.log();
         console.log(`Service starting on:`);
-        console.log(`\tlocalhost:${port}/${pkg.stdlib.name}/`);
+        console.log(`\tlocalhost:${port}/${serviceName}/`);
         console.log();
         let gateway = new LocalGateway({debug: true});
         let fp = new FunctionParser();
         try {
-          gateway.service(pkg.stdlib.name);
+          gateway.service(serviceName);
           gateway.environment(env.local || {});
           gateway.define(fp.load(process.cwd(), 'functions'));
         } catch (e) {

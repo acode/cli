@@ -1,13 +1,15 @@
 'use strict';
 
-const chalk = require('chalk');
-const Command = require('cmnd').Command;
 const fs = require('fs');
 const path = require('path');
 
-const LocalGateway = require('../local_gateway.js');
 const FunctionParser = require('functionscript').FunctionParser;
+const chalk = require('chalk');
+const Command = require('cmnd').Command;
+
+const LocalGateway = require('../local_gateway.js');
 const config = require('../config.js');
+const serviceConfig = require('../service_config');
 
 function parseFileFromArg(arg) {
   if (arg.indexOf('file:') === 0) {
@@ -75,7 +77,7 @@ class __nomethod__Command extends Command {
       let pkg;
       let env;
       try {
-        pkg = require(path.join(process.cwd(), 'package.json'));
+        pkg = serviceConfig.get()
       } catch (e) {
         if (!config.workspace()) {
           return callback(new Error([
@@ -146,18 +148,22 @@ class __nomethod__Command extends Command {
           return callback(new Error('Invalid "env.json" in this directory, your JSON syntax is likely malformed.'));
         }
       }
-      if (pkg.stdlib.build !== 'legacy') {
+      let build = pkg.build || pkg.stdlib.build;
+      let serviceName = pkg.stdlib ? pkg.stdlib.name : pkg.name;
+
+      if (build !== 'legacy') {
         gateway = new LocalGateway({debug: debug});
         let fp = new FunctionParser();
         try {
-          gateway.service(pkg.stdlib.name);
+          gateway.service(serviceName);
           gateway.environment(env.local || {});
           gateway.define(fp.load(process.cwd(), 'functions'));
         } catch (e) {
           return callback(e);
         }
         gateway.listen();
-        params.name = `${pkg.stdlib.name.replace(/\//gi, '.')}[@local]${params.name.length > 1 ? params.name : ''}`;
+        let name = (serviceName).replace(/\//gi, '.')
+        params.name = `${name}[@local]${params.name.length > 1 ? params.name : ''}`;
       }
     }
 

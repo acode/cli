@@ -70,7 +70,7 @@ class FunctionCreateCommand extends Command {
     let functionParams = params.args.slice(2) || [];
     let newDir = !!(params.flags.n || params.vflags['new'] || false);
 
-    if (!fs.existsSync('package.json')) {
+    if (!fs.existsSync('package.json') && !fs.existsSync('stdlib.json')) {
       return callback(new Error('Not in valid Standard Library directory'));
     }
 

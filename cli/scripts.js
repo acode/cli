@@ -13,7 +13,9 @@ module.exports = {
     const BACKGROUND = type && type[0] === '+';
     let bgproc = [];
 
-    let allScripts = pkg && pkg.stdlib && pkg.stdlib.scripts;
+    let allScripts = pkg && pkg.stdlib
+      ? pkg.stdlib.scripts
+      : pkg.scripts;
 
     if (!allScripts) {
       return callback();
@@ -37,7 +39,7 @@ module.exports = {
     let envVars = {
       PATH: pathVar,
       FORCE_COLOR: 1,
-      NAME: pkg.stdlib.name,
+      NAME: pkg.stdlib ? pkg.stdlib.name : pkg.name,
       SUBTYPE: subtype
     };
     envVars = Object.keys(data).reduce((envVars, key) => {
