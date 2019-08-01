@@ -188,9 +188,11 @@ class UpCommand extends Command {
             ? `${pkg.stdlib ? pkg.stdlib.name : pkg.name}@${pkg.version}`
             : `${pkg.stdlib ? pkg.stdlib.name : pkg.name}@${environment}`;
 
+          let build = pkg.stdlib ? pkg.stdlib.build : pkg.build;
+
           return resource
             .request(endpoint)
-            .headers({'X-Stdlib-Build': pkg.build || pkg.stdlib.build || ''})
+            .headers({'X-Stdlib-Build': build || ''})
             .stream(
               'POST',
               result,
