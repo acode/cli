@@ -1,6 +1,6 @@
 {
   "name": "lib.cli",
-  "version": "4.6.5",
+  "version": "4.6.6",
   "description": "Command Line Tools for Standard Library - stdlib.com",
   "main": "index.js",
   "scripts": {
