@@ -53,7 +53,7 @@ class __nomethod__Command extends Command {
 
   }
 
-  run(params, callback) {
+  run (params, callback) {
 
     let debug = !!params.flags.d;
     let isLocal = false;
@@ -154,16 +154,18 @@ class __nomethod__Command extends Command {
       if (build !== 'legacy') {
         gateway = new LocalGateway({debug: debug});
         let fp = new FunctionParser();
+        let names = serviceName.split('/');
+        while (names.length < 2) {
+          names.unshift('_');
+        }
+        params.name = `${names.join('.')}[@local]${params.name.length > 1 ? params.name : ''}`;
         try {
-          gateway.service(serviceName);
+          gateway.service(names.join('/'));
           gateway.environment(env.local || {});
           gateway.define(fp.load(process.cwd(), 'functions'));
         } catch (e) {
           return callback(e);
         }
-        gateway.listen();
-        let name = (serviceName).replace(/\//gi, '.')
-        params.name = `${name}[@local]${params.name.length > 1 ? params.name : ''}`;
       }
     }
 
@@ -341,12 +343,23 @@ class __nomethod__Command extends Command {
     );
     debugLog();
 
-    try {
-      let cfg = {token: token, host: host, port: port, webhook: webhook, bg: bg, convert: true};
-      lib(cfg)[params.name](kwargs, cb);
-    } catch(e) {
-      console.error(e);
-      return callback(e);
+    let completeCallback = function () {
+      if (gateway) {
+        params.name = params.name.replace(/(\[\@local\])/gi, '[@local:' + gateway.port + ']');
+      }
+      try {
+        let cfg = {token: token, host: host, port: port, webhook: webhook, bg: bg, convert: true};
+        lib(cfg)[params.name](kwargs, cb);
+      } catch(e) {
+        console.error(e);
+        return callback(e);
+      }
+    };
+
+    if (isLocal) {
+      gateway.listen(null, completeCallback, {retry: true});
+    } else {
+      completeCallback();
     }
 
   }

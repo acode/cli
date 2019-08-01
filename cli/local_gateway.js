@@ -36,10 +36,10 @@ class LocalGateway extends Gateway {
     return true;
   }
 
-  listen(port) {
+  listen(port, callback, opts) {
     port = port || this.port;
     process.env.STDLIB_LOCAL_PORT = port;
-    super.listen(port);
+    super.listen(port, callback, opts);
   }
 
   createContext(req, definitions, params, data, buffer) {
