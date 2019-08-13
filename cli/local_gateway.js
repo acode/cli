@@ -28,7 +28,7 @@ class LocalGateway extends Gateway {
   }
 
   service(serviceName) {
-    this.serviceName = serviceName;
+    this.serviceName = serviceName.replace(/^\//gi, '');
   }
 
   environment(env) {
@@ -58,7 +58,7 @@ class LocalGateway extends Gateway {
   resolve(req, res, buffer, callback) {
     let urlinfo = url.parse(req.url, true);
     let pathname = urlinfo.pathname;
-    if (pathname.indexOf(this.serviceName) !== 1) {
+    if (this.serviceName && pathname.indexOf(this.serviceName) !== 1) {
       let e = new Error(`Local Service Not Loaded: ${pathname}`);
       e.statusCode = 404;
       return callback(e);

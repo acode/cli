@@ -130,7 +130,7 @@ class UpCommand extends Command {
 
       !fs.existsSync('/tmp') && fs.mkdirSync('/tmp');
       !fs.existsSync('/tmp/stdlib') && fs.mkdirSync('/tmp/stdlib', 0o777);
-      let serviceName = (pkg.stdlib ? pkg.stdlib.name : pkg.name).replace(/\//g, '.');
+      let serviceName = (pkg.stdlib.name).replace(/\//g, '.');
       let tmpPath = `/tmp/stdlib/${serviceName}.${new Date().valueOf()}.tar.gz`;
 
       let start = new Date().valueOf();
@@ -185,10 +185,10 @@ class UpCommand extends Command {
           let t = new Date().valueOf() - start;
 
           let endpoint = environment === RELEASE_ENV
-            ? `${pkg.stdlib ? pkg.stdlib.name : pkg.name}@${pkg.version}`
-            : `${pkg.stdlib ? pkg.stdlib.name : pkg.name}@${environment}`;
+            ? `${pkg.stdlib.name}@${pkg.version}`
+            : `${pkg.stdlib.name}@${environment}`;
 
-          let build = pkg.stdlib ? pkg.stdlib.build : pkg.build;
+          let build = pkg.stdlib.build;
 
           return resource
             .request(endpoint)

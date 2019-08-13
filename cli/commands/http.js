@@ -10,6 +10,8 @@ const parser = require('../parser.js');
 const scripts = require('../scripts.js');
 const serviceConfig = require('../service_config');
 
+const DEFAULT_BUILD = 'faaslang';
+
 class HTTPCommand extends Command {
 
   constructor() {
@@ -34,7 +36,6 @@ class HTTPCommand extends Command {
 
   run(params, callback) {
 
-    let port = (params.flags.p || params.vflags.port || [])[0] || 8170;
     let pkg;
     let env;
 
@@ -59,18 +60,21 @@ class HTTPCommand extends Command {
 
       scripts.run(pkg, '+http', null, null);
 
-      let build = pkg.build || pkg.stdlib.build;
-      let serviceName = pkg.stdlib ? pkg.stdlib.name : pkg.name;
+      let build = pkg.stdlib.build;
+      let serviceName = pkg.stdlib.name;
+      let localRoute = pkg.stdlib.local.route;
+      let route = localRoute || serviceName;
+      let port = (params.flags.p || params.vflags.port || [])[0] || parseInt(pkg.stdlib.local.port) || 8170;
 
       if (build !== 'legacy') {
         console.log();
         console.log(`Service starting on:`);
-        console.log(`\tlocalhost:${port}/${serviceName}/`);
+        console.log(`\tlocalhost:${port}/${localRoute.replace(/^\//gi, '')}`);
         console.log();
         let gateway = new LocalGateway({debug: true});
         let fp = new FunctionParser();
         try {
-          gateway.service(serviceName);
+          gateway.service(route);
           gateway.environment(env.local || {});
           gateway.define(fp.load(process.cwd(), 'functions'));
         } catch (e) {

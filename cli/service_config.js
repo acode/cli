@@ -1,4 +1,6 @@
 const path = require('path');
+const DEFAULT_BUILD = 'faaslang';
+const DEFAULT_VERSION = '0.0.0';
 
 module.exports = {
 	get: () => {
@@ -14,17 +16,23 @@ module.exports = {
 		try {
       stdlibJSON = require(path.join(process.cwd(), 'stdlib.json'));
 		} catch (err) {
-			// Nothing
+			stdlibJSON = null;
 		}
 
-		if (!stdlibJSON && !packageJSON.stdlib) {
-			throw new Error('No stdlib information set in "package.json"');
+		if (packageJSON.hasOwnProperty('stdlib') && stdlibJSON) {
+			throw new Error('Please remove property "stdlib" from package.json since stdlib.json is present.');
 		}
 
-		if ((stdlibJSON && !stdlibJSON.name) && !packageJSON.stdlib.name) {
-			throw new Error(`No stdlib name set in "${stdlibJSON ? 'stdlib.json' : 'package.json'}"`);
-		}
+		packageJSON.stdlib = packageJSON.stdlib || stdlibJSON || {};
 
-		return stdlibJSON || packageJSON;
+		// Set from package.json (legacy path)
+		packageJSON.stdlib.build = packageJSON.stdlib.build || packageJSON.build || 'faaslang';
+		packageJSON.stdlib.version = packageJSON.stdlib.version || packageJSON.version || '0.0.0';
+		packageJSON.stdlib.name = packageJSON.stdlib.name || packageJSON.name || '';
+
+		// Set fields that are needed
+		packageJSON.stdlib.local = packageJSON.stdlib.local || {};
+
+		return packageJSON;
 	}
 };

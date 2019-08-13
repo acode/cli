@@ -9,6 +9,8 @@ const path = require('path');
 
 const config = require('../../config.js');
 const tabler = require('../../tabler.js');
+const serviceConfig = require('../../service_config');
+
 
 const TokensListCommand = require('./list.js');
 
@@ -35,12 +37,9 @@ class TokensRetrieveCommand extends Command {
     let env;
 
     try {
-      pkg = require(path.join(process.cwd(), 'package.json'));
-      if (!pkg.stdlib) {
-        throw new Error();
-      }
+      pkg = serviceConfig.get();
     } catch (e) {
-      return callback(new Error('You must run this command from within a Standard Library service directory.'));
+      return callback(e);
     }
 
     try {

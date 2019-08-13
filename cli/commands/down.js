@@ -73,8 +73,8 @@ class DownCommand extends Command {
     resource.authorize(config.get('ACCESS_TOKEN'));
 
     let endpoint = environment
-      ? `${pkg.stdlib ? pkg.stdlib.name : pkg.name}@${environment}`
-      : `${pkg.stdlib ? pkg.stdlib.name : pkg.name}@${version || pkg.version}`;
+      ? `${pkg.stdlib.name}@${environment}`
+      : `${pkg.stdlib.name}@${version || pkg.version}`;
 
     return resource.request(endpoint).stream(
       'DELETE',

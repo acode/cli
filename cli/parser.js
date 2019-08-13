@@ -15,7 +15,7 @@ module.exports = {
 
     offline = !!offline;
 
-    let serviceName = (pkg.stdlib && pkg.stdlib.name) || pkg.name || '';
+    let serviceName = pkg.stdlib.name;
     process.env = env();
 
     if (offline) {
@@ -40,7 +40,7 @@ module.exports = {
           res.writeHead(400, {'Content-Type': 'text/plain'});
           return res.end(`Error: ${err.message}`);
         }
-        
+
         console.log(`[function: ${libname}] ${JSON.stringify({args: params.args, kwargs: params.kwargs})}`);
 
         lib[`${libname}`](...params.args, params.kwargs, (err, result, headers) => {

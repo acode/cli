@@ -148,8 +148,8 @@ class __nomethod__Command extends Command {
           return callback(new Error('Invalid "env.json" in this directory, your JSON syntax is likely malformed.'));
         }
       }
-      let build = pkg.build || pkg.stdlib.build;
-      let serviceName = pkg.stdlib ? pkg.stdlib.name : pkg.name;
+      let build = pkg.stdlib.build;
+      let serviceName = pkg.stdlib.name;
 
       if (build !== 'legacy') {
         gateway = new LocalGateway({debug: debug});
