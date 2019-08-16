@@ -32,6 +32,12 @@ class HostsAddCommand extends Command {
 
     let source = params.args[0] || '';
     let target = params.args[1] || '';
+    let wildcard;
+    let wildcardMatch = source.split('.')[0].match(/{(.*)}/);
+    if (!!wildcardMatch) {
+      wildcard = wildcardMatch[1];
+      source = source.split('.').slice(1).join('.');
+    }
 
     let versionString = target.split('[@')[1];
     versionString = versionString && versionString.replace(']', '');
@@ -56,6 +62,7 @@ class HostsAddCommand extends Command {
 
     resource.request('v1/hostname_routes').create({}, {
       hostname: source,
+      wildcard: wildcard,
       target: urlComponentArray.join('.')
     }, (err, response) => {
 
