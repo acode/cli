@@ -43,7 +43,7 @@ class TasksDestroyCommand extends Command {
       if (err) {
         return callback(err);
       }
-      
+
       let uuids = results.map(task => task.uuid);
       inquirer.prompt(
         [
@@ -59,7 +59,7 @@ class TasksDestroyCommand extends Command {
                 return {
                   '?': ['✖', chalk.bold.red],
                   Name: task.name,
-                  Service: task.service_name.replace('/', '.') + taskIdentifier ,
+                  Service: task.service_name.replace('/', '.') + taskIdentifier,
                   Function: task.function_name || '__main__',
                   Frequency: task.frequncy ? `${task.frequency} time(s)` : '',
                   Period: task.period ? `per ${SECONDS_PER_TIME_UNIT[task.period]}` : '',
