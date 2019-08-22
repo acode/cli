@@ -69,7 +69,7 @@ class HTTPCommand extends Command {
       if (build !== 'legacy') {
         console.log();
         console.log(`Service starting on:`);
-        console.log(`\tlocalhost:${port}/${localRoute.replace(/^\//gi, '')}`);
+        console.log(`\tlocalhost:${port}/${route.replace(/^\//gi, '')}`);
         console.log();
         let gateway = new LocalGateway({debug: true});
         let fp = new FunctionParser();

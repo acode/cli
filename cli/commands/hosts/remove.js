@@ -2,8 +2,12 @@
 
 const Command = require('cmnd').Command;
 const APIResource = require('api-res');
+const chalk = require('chalk');
+const inquirer = require('inquirer');
 
 const config = require('../../config.js');
+const ListCommand = require('./_.js');
+const tabler = require('../../tabler.js');
 
 class HostsRemoveCommand extends Command {
 
@@ -16,10 +20,7 @@ class HostsRemoveCommand extends Command {
   help() {
 
     return {
-      description: 'Removes a hostname route from a source custom hostname to a target service you own',
-      args: [
-        'source'
-      ]
+      description: 'Removes a hostname route from a source custom hostname to a target service you own'
     };
 
   }
@@ -29,7 +30,10 @@ class HostsRemoveCommand extends Command {
     let host = 'api.polybit.com';
     let port = 443;
 
-    let source = params.args[0] || '';
+    let listCommandFlags = {
+      h: params.flags.h,
+      p: params.flags.p
+    };
 
     let hostname = (params.flags.h && params.flags.h[0]) || '';
     let matches = hostname.match(/^(https?:\/\/)?(.*?)(:\d+)?$/);
@@ -39,32 +43,70 @@ class HostsRemoveCommand extends Command {
       port = parseInt((matches[3] || '').substr(1) || (hostname.indexOf('https') === 0 ? 443 : 80));
     }
 
-    let resource = new APIResource(host, port);
-    resource.authorize(config.get('ACCESS_TOKEN'));
-
-    resource.request('v1/hostname_routes').index({}, (err, response) => {
+    ListCommand.prototype.run.call(this, {flags: listCommandFlags, vflags: {json: true}}, (err, results) => {
 
       if (err) {
         return callback(err);
       }
 
-      let route = response.data.filter((route) => {
-        return route.hostname === source;
-      });
+      let ids = results.map(host => host.id);
+      inquirer.prompt(
+        [
+          {
+            name: 'route',
+            type: 'list',
+            pageSize: 100,
+            message: `Select a route to ${chalk.bold.red('Destroy (Permanently)')}`,
+            choices: tabler(
+              ['?', 'Hostname', 'Target', 'Created At'],
+              results.map((hostnameRoute, index) => {
+                return {
+                  '?': ['✖', chalk.bold.red],
+                  Hostname: hostnameRoute.formatted_hostname,
+                  Target: hostnameRoute.target,
+                  'Created At': hostnameRoute.created_at,
+                  value: ids[index]
+                };
+              }),
+              true,
+              true
+            )
+              .map(row => (row.value === null ? new inquirer.Separator(row.name) : row))
+              .concat({
+                name: '○ ' + chalk.grey('(cancel)'),
+                value: 0
+              })
+          },
+          {
+            name: 'verify',
+            type: 'confirm',
+            message: answers => {
+              return (
+                `Are you sure you want to ${chalk.bold.red('permanently destroy')} ` +
+                `the route from "${chalk.bold(answers.route.Hostname)}"?`
+              );
+            },
+            when: answers => !!answers.route
+          }
+        ],
+        answers => {
+          if (!answers.verify || answers.route === 0) {
+            return callback(null);
+          }
 
-      if (!route.length) {
-        return callback(new Error(`No routes found matching "${source}"`))
-      }
-
-      resource.request(`v1/hostname_routes`).destroy(route[0].id, {}, (err, response) => {
-
-        if (err) {
-          return callback(err);
+          let resource = new APIResource(host, port);
+          resource.authorize(config.get('ACCESS_TOKEN'));
+          resource.request('/v1/hostname_routes').destroy(answers.route.value, {}, (err, response) => {
+            if (err) {
+              return callback(err);
+            }
+            console.log();
+            console.log('Route successfully deleted');
+            console.log();
+            return callback(null);
+          });
         }
-
-        return callback(null, `Successfully removed hostname route from "${source}"!`);
-
-      });
+      );
 
     });
 

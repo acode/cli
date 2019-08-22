@@ -2,8 +2,8 @@
 
 const Command = require('cmnd').Command;
 const APIResource = require('api-res');
-const config = require('../config.js');
-const tabler = require('../tabler.js');
+const config = require('../../config.js');
+const tabler = require('../../tabler.js');
 
 class HostsCommand extends Command {
 
@@ -28,6 +28,7 @@ class HostsCommand extends Command {
 
     let hostname = (params.flags.h && params.flags.h[0]) || '';
     let matches = hostname.match(/^(https?:\/\/)?(.*?)(:\d+)?$/);
+    let JSONoutput = params.flags.hasOwnProperty('j') || params.vflags.hasOwnProperty('json');
 
     if (hostname && matches) {
       host = matches[2];
@@ -43,12 +44,19 @@ class HostsCommand extends Command {
         return callback(err);
       }
 
-      let fields = ['hostname', 'target', 'created_at'];
-      let table = tabler(fields, response.data);
+      if (JSONoutput) {
+        return callback(null, response.data);
+      }
 
-      console.log(table);
+      let fields = ['Hostname', 'Target', 'Created At'];
 
-      return callback(null);
+      return callback(null, tabler(fields, response.data.map((hostnameRoute) => {
+        return {
+          Hostname: hostnameRoute.formatted_hostname,
+          Target: hostnameRoute.target,
+          'Created At': hostnameRoute.created_at
+        };
+      }), true) + '\n');
 
     });
 

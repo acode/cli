@@ -16,7 +16,10 @@ class HostsAddCommand extends Command {
   help() {
 
     return {
-      description: 'Adds a new hostname route from a source custom hostname to a target service you own',
+      description: [
+        'Adds a new hostname route from a source custom hostname to a target service you own.',
+        'Accepts wildcards wrapped in curly braces ("{}") or "*" at the front of the hostname.'
+      ].join('\n'),
       args: [
         'source',
         'target'
@@ -63,7 +66,7 @@ class HostsAddCommand extends Command {
         return callback(err);
       }
 
-      return callback(null, `Successfully added hostname route from "${source}" to "${target}"!`);
+      return callback(null, `Successfully added route from "${response.data[0].formatted_hostname}" to "${target}"!`);
 
     });
 
