@@ -323,6 +323,7 @@ class __nomethod__Command extends Command {
       if (gateway && gateway._requestCount) {
         gateway.once('empty', () => callback(err));
       } else {
+        console.error(err);
         callback(err);
       }
 
