@@ -10,8 +10,9 @@ const Command = require('cmnd').Command;
 const LocalGateway = require('../local_gateway.js');
 const config = require('../config.js');
 const serviceConfig = require('../service_config');
+const Tar = require('../tar.js');
 
-function parseFileFromArg(arg) {
+async function parseFileFromArg(arg) {
   if (arg.indexOf('file:') === 0) {
     let filename = arg.slice('file:'.length);
     let file;
@@ -21,6 +22,20 @@ function parseFileFromArg(arg) {
     } catch (e) {
       return new Error(`Can not read file: "${filename}"`);
     }
+    return file;
+  } else if (arg.indexOf('pack:') === 0) {
+    let filename = arg.slice('pack:'.length);
+    let dir;
+    try {
+      dir = fs.statSync(filename);
+    } catch (e) {
+      throw new Error(`Can not pack "${filename}", directory not found.`);
+    }
+    if (!dir.isDirectory()) {
+      throw new Error(`Can not pack "${filename}", is not a directory.`);
+    }
+    let tarball = await Tar.pack(filename);
+    let file = JSON.stringify({_base64: tarball.toString('base64')});
     return file;
   }
   return arg;
@@ -173,198 +188,207 @@ class __nomethod__Command extends Command {
       return callback(new Error('Must pass in named parameters with `--name value` or flags with `-f`, unnamed arguments not supported.'));
     }
 
-    let kwargs = Object.keys(params.vflags).reduce((kwargs, key) => {
-      kwargs[key] = parseFileFromArg(params.vflags[key].join(' '));
-      return kwargs;
-    }, {});
+    let kwargs = {};
 
-    let errors = Object.keys(kwargs).map(key => kwargs[key])
-      .filter(arg => arg instanceof Error);
-
-    if (errors.length) {
-      return callback(errors[0]);
-    }
-
-    let activeToken = config.get('ACTIVE_LIBRARY_TOKEN');
-    let unauth = !!params.flags.x;
-
-    if (!activeToken && !unauth) {
-      console.log();
-      console.log(chalk.bold.red('Oops!'));
-      console.log();
-      console.log(`It seems like you\'re trying to run a Standard Library function,`);
-      console.log(`  but you don't have an Active Library Token (API Key) set.`);
-      console.log();
-      console.log('You can run this command again without authentication by specifying:');
-      console.log(`\t${chalk.bold('lib ' + params.name + ' -x')}`);
-      console.log();
-      console.log(`But we recommend setting an Active Library Token with:`);
-      console.log(`\t${chalk.bold('lib tokens')}`);
-      console.log();
-      return callback(new Error(`No Library Token value set.`));
-    }
-
-    let setToken = unauth ? false : !!params.flags.t;
-    let token = unauth ?
-      null :
-      (params.flags.t && params.flags.t[0]) || activeToken || null;
-    let webhook = (params.flags.w && params.flags.w[0]) || null;
-    let bg = params.flags.b ? (params.flags.b[0] || true) : null;
-    let hostname = (params.flags.h && params.flags.h[0]) || '';
-    let matches = hostname.match(/^(https?:\/\/)?(.*?)(:\d+)?$/);
-    let host;
-    let port;
-
-    if (setToken && isLocal) {
-      console.log();
-      console.log(chalk.bold.red('Oops!'));
-      console.log();
-      console.log(`It seems like you\'re trying to run an authenticated request with a library token (-t),`);
-      console.log(`  but the function you're running is ${chalk.green('running locally')}.`);
-      console.log();
-      console.log('Local authentication via Standard Library is not supported.');
-      console.log('Please ship your service to a cloud-based development environment using:');
-      console.log(`\t${chalk.bold('lib up dev')}`);
-      console.log();
-      console.log(`Or simply run your service locally again ${chalk.red('without the ')}${chalk.bold.red('-t')}${chalk.red(' flag')}.`);
-      console.log();
-      return callback(new Error(`Can not use Library Tokens locally.`));
-    } else if (setToken && !token) {
-      console.log();
-      console.log(chalk.bold.red('Oops!'));
-      console.log();
-      console.log(
-        `It seems like you\'re trying to run an authenticated request with` +
-        ` a library token (-t), but have not provided a value`
-      );
-      console.log();
-      console.log(`Try running this command again using the flag:`);
-      console.log(`\t${chalk.bold('-t <token>')}`);
-      console.log();
-      console.log(`Or learn more about setting an active Library Token using:`);
-      console.log(`\t${chalk.bold('lib help tokens')}`);
-      console.log();
-      return callback(new Error(`No Library Token value set.`));
-    }
-
-    if (hostname && matches) {
-      host = matches[2];
-      port = parseInt((matches[3] || '').substr(1) || (hostname.indexOf('https') === 0 ? 443 : 80));
-    }
-
-    let debugLog = msg => {
-      if (!debug) {
-        return;
+    let kwargsCheck = async () => {
+      let keys = Object.keys(params.vflags);
+      for (let i = 0; i < keys.length; i++) {
+        let key = keys[i];
+        kwargs[key] = await parseFileFromArg(params.vflags[key].join(' '));
       }
-      msg = msg || '';
-      let prefix = '> ';
-      return console.log(
-        msg
-          .split('\n')
-          .map(line => chalk.grey(prefix + (line || '')))
-          .join('\n')
-      );
-    }
+    };
 
-    let cb = (err, result, headers) => {
+    kwargsCheck().catch(e => callback(e)).then(() => {
 
-      let responseMessage = `Response Received `;
-      let localityMessage = isLocal ? `(local)` : `(remote)`;
-      let localityFormatted = isLocal ?
-        chalk.green(localityMessage) :
-        chalk.cyan(localityMessage);
+      let errors = Object.keys(kwargs).map(key => kwargs[key])
+        .filter(arg => arg instanceof Error);
 
-      if (headers) {
-        let content = headers['content-type'];
-        let size = headers['content-length'];
-        let time = headers['x-stdlib-time'];
-        let data = [
-          `Content-Type:    ${content}`,
-          `Content-Length:  ${size} bytes`,
-          `X-StdLib-Time:   ${time} milliseconds`
-        ];
-        let separator = Array(Math.max.apply(null, data.map(s => s.length)) + 1).join('-')
-        debugLog(`${responseMessage}${localityFormatted}`);
-        debugLog(separator);
-        debugLog(data.join('\n'));
-        debugLog(separator);
-      } else {
-        debugLog(`${responseMessage}${localityFormatted}`);
-        debugLog(Array(responseMessage.length + localityMessage.length + 1).join('-'));
+      if (errors.length) {
+        return callback(errors[0]);
       }
 
-      if (err) {
-        if (err.code == 'HPE_INVALID_CONSTANT') {
-          err.message = [
-            err.message,
-            'Received HTTP error code "HPE_INVALID_CONSTANT"',
-            'This is likely due to an invalid "Content-Length" header field',
-            'Standard Library will set this field for you, you do not need to write it manually'
-          ].join('\n');
+      let activeToken = config.get('ACTIVE_LIBRARY_TOKEN');
+      let unauth = !!params.flags.x;
+
+      if (!activeToken && !unauth) {
+        console.log();
+        console.log(chalk.bold.red('Oops!'));
+        console.log();
+        console.log(`It seems like you\'re trying to run a Standard Library function,`);
+        console.log(`  but you don't have an Active Library Token (API Key) set.`);
+        console.log();
+        console.log('You can run this command again without authentication by specifying:');
+        console.log(`\t${chalk.bold('lib ' + params.name + ' -x')}`);
+        console.log();
+        console.log(`But we recommend setting an Active Library Token with:`);
+        console.log(`\t${chalk.bold('lib tokens')}`);
+        console.log();
+        return callback(new Error(`No Library Token value set.`));
+      }
+
+      let setToken = unauth ? false : !!params.flags.t;
+      let token = unauth ?
+        null :
+        (params.flags.t && params.flags.t[0]) || activeToken || null;
+      let webhook = (params.flags.w && params.flags.w[0]) || null;
+      let bg = params.flags.b ? (params.flags.b[0] || true) : null;
+      let hostname = (params.flags.h && params.flags.h[0]) || '';
+      let matches = hostname.match(/^(https?:\/\/)?(.*?)(:\d+)?$/);
+      let host;
+      let port;
+
+      if (setToken && isLocal) {
+        console.log();
+        console.log(chalk.bold.red('Oops!'));
+        console.log();
+        console.log(`It seems like you\'re trying to run an authenticated request with a library token (-t),`);
+        console.log(`  but the function you're running is ${chalk.green('running locally')}.`);
+        console.log();
+        console.log('Local authentication via Standard Library is not supported.');
+        console.log('Please ship your service to a cloud-based development environment using:');
+        console.log(`\t${chalk.bold('lib up dev')}`);
+        console.log();
+        console.log(`Or simply run your service locally again ${chalk.red('without the ')}${chalk.bold.red('-t')}${chalk.red(' flag')}.`);
+        console.log();
+        return callback(new Error(`Can not use Library Tokens locally.`));
+      } else if (setToken && !token) {
+        console.log();
+        console.log(chalk.bold.red('Oops!'));
+        console.log();
+        console.log(
+          `It seems like you\'re trying to run an authenticated request with` +
+          ` a library token (-t), but have not provided a value`
+        );
+        console.log();
+        console.log(`Try running this command again using the flag:`);
+        console.log(`\t${chalk.bold('-t <token>')}`);
+        console.log();
+        console.log(`Or learn more about setting an active Library Token using:`);
+        console.log(`\t${chalk.bold('lib help tokens')}`);
+        console.log();
+        return callback(new Error(`No Library Token value set.`));
+      }
+
+      if (hostname && matches) {
+        host = matches[2];
+        port = parseInt((matches[3] || '').substr(1) || (hostname.indexOf('https') === 0 ? 443 : 80));
+      }
+
+      let debugLog = msg => {
+        if (!debug) {
+          return;
+        }
+        msg = msg || '';
+        let prefix = '> ';
+        return console.log(
+          msg
+            .split('\n')
+            .map(line => chalk.grey(prefix + (line || '')))
+            .join('\n')
+        );
+      }
+
+      let cb = (err, result, headers) => {
+
+        let responseMessage = `Response Received `;
+        let localityMessage = isLocal ? `(local)` : `(remote)`;
+        let localityFormatted = isLocal ?
+          chalk.green(localityMessage) :
+          chalk.cyan(localityMessage);
+
+        if (headers) {
+          let content = headers['content-type'];
+          let size = headers['content-length'];
+          let time = headers['x-stdlib-time'];
+          let data = [
+            `Content-Type:    ${content}`,
+            `Content-Length:  ${size} bytes`,
+            `X-StdLib-Time:   ${time} milliseconds`
+          ];
+          let separator = Array(Math.max.apply(null, data.map(s => s.length)) + 1).join('-')
+          debugLog(`${responseMessage}${localityFormatted}`);
+          debugLog(separator);
+          debugLog(data.join('\n'));
+          debugLog(separator);
         } else {
-          let message = err.message || '';
-          if (err.type === 'ParameterError' || err.type === 'ValueError') {
-            let params = err.details || {};
-            Object.keys(params).forEach(name => {
-              message += `\n - [${name}] ${params[name].message}`;
-            });
-            delete err.details;
+          debugLog(`${responseMessage}${localityFormatted}`);
+          debugLog(Array(responseMessage.length + localityMessage.length + 1).join('-'));
+        }
+
+        if (err) {
+          if (err.code == 'HPE_INVALID_CONSTANT') {
+            err.message = [
+              err.message,
+              'Received HTTP error code "HPE_INVALID_CONSTANT"',
+              'This is likely due to an invalid "Content-Length" header field',
+              'Standard Library will set this field for you, you do not need to write it manually'
+            ].join('\n');
+          } else {
+            let message = err.message || '';
+            if (err.type === 'ParameterError' || err.type === 'ValueError') {
+              let params = err.details || {};
+              Object.keys(params).forEach(name => {
+                message += `\n - [${name}] ${params[name].message}`;
+              });
+              delete err.details;
+            }
+            err.message = message;
           }
-          err.message = message;
-        }
-      } else {
-        if (result instanceof Buffer) {
-          console.log(result.toString('binary'));
         } else {
-          console.log(JSON.stringify(result, null, 2));
+          if (result instanceof Buffer) {
+            console.log(result.toString('binary'));
+          } else {
+            console.log(JSON.stringify(result, null, 2));
+          }
         }
-      }
 
-      if (gateway && gateway._requestCount) {
-        gateway.once('empty', () => {
+        if (gateway && gateway._requestCount) {
+          gateway.once('empty', () => {
+            err && console.error(err);
+            callback(err)
+          });
+        } else {
           err && console.error(err);
-          callback(err)
-        });
+          callback(err);
+        }
+
+      };
+
+      let hostString = host ? (port ? `${host}:${port}` : host) : '';
+
+      debugLog();
+      debugLog(
+        `Running ${chalk[isLocal ? 'green' : 'cyan'](params.name)}` +
+        (hostString ? ` on ${chalk.cyan(hostString)}` : ``) +
+        `...`
+      );
+      debugLog(
+        token ?
+          `(authenticating using library token ${chalk.yellow(token.substr(0, 8) + '...')})` :
+          `(unauthenticated request)`
+      );
+      debugLog();
+
+      let completeCallback = function () {
+        if (gateway) {
+          params.name = params.name.replace(/(\[\@local\])/gi, '[@local:' + gateway.port + ']');
+        }
+        try {
+          let cfg = {token: token, host: host, port: port, webhook: webhook, bg: bg, convert: true};
+          lib(cfg)[params.name](kwargs, cb);
+        } catch(e) {
+          console.error(e);
+          return callback(e);
+        }
+      };
+
+      if (isLocal) {
+        gateway.listen(null, completeCallback, {retry: true});
       } else {
-        err && console.error(err);
-        callback(err);
+        completeCallback();
       }
 
-    };
-
-    let hostString = host ? (port ? `${host}:${port}` : host) : '';
-
-    debugLog();
-    debugLog(
-      `Running ${chalk[isLocal ? 'green' : 'cyan'](params.name)}` +
-      (hostString ? ` on ${chalk.cyan(hostString)}` : ``) +
-      `...`
-    );
-    debugLog(
-      token ?
-        `(authenticating using library token ${chalk.yellow(token.substr(0, 8) + '...')})` :
-        `(unauthenticated request)`
-    );
-    debugLog();
-
-    let completeCallback = function () {
-      if (gateway) {
-        params.name = params.name.replace(/(\[\@local\])/gi, '[@local:' + gateway.port + ']');
-      }
-      try {
-        let cfg = {token: token, host: host, port: port, webhook: webhook, bg: bg, convert: true};
-        lib(cfg)[params.name](kwargs, cb);
-      } catch(e) {
-        console.error(e);
-        return callback(e);
-      }
-    };
-
-    if (isLocal) {
-      gateway.listen(null, completeCallback, {retry: true});
-    } else {
-      completeCallback();
-    }
+    });
 
   }
 
