@@ -80,7 +80,7 @@ class RestartCommand extends Command {
 
     let endpoint = environment
       ? `${pkg.stdlib.name}@${environment}`
-      : `${pkg.stdlib.name}@${version || pkg.version}`;
+      : `${pkg.stdlib.name}@${version || pkg.stdlib.version}`;
 
     return resource.request(`${endpoint}/${rebuild ? 'rebuild' : 'restart'}`).stream(
       'PUT',

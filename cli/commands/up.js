@@ -119,7 +119,7 @@ class UpCommand extends Command {
       return callback(err);
     }
 
-    scripts.run(pkg, 'preup', environment, {version: pkg.version}, err => {
+    scripts.run(pkg, 'preup', environment, {version: pkg.stdlib.version}, err => {
 
       if (err) {
         return callback(err);
@@ -185,7 +185,7 @@ class UpCommand extends Command {
           let t = new Date().valueOf() - start;
 
           let endpoint = environment === RELEASE_ENV
-            ? `${pkg.stdlib.name}@${pkg.version}`
+            ? `${pkg.stdlib.name}@${pkg.stdlib.version}`
             : `${pkg.stdlib.name}@${environment}`;
 
           let build = pkg.stdlib.build;
@@ -208,7 +208,7 @@ class UpCommand extends Command {
                 if (response[response.length - 1] === 1) {
                   return callback(new Error('There was an error processing your request, try logging in again.'));
                 } else {
-                  scripts.run(pkg, 'postup', environment, {version: pkg.version}, err => callback(err));
+                  scripts.run(pkg, 'postup', environment, {version: pkg.stdlib.version}, err => callback(err));
                 }
 
               }
