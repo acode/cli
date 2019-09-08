@@ -12,7 +12,7 @@ const config = require('../config.js');
 const serviceConfig = require('../service_config');
 const Tar = require('../tar.js');
 
-async function parseFileFromArg(arg) {
+async function parseFileFromArg(arg, infoMode) {
   if (arg.indexOf('file:') === 0) {
     let filename = arg.slice('file:'.length);
     let file;
@@ -34,7 +34,7 @@ async function parseFileFromArg(arg) {
     if (!dir.isDirectory()) {
       throw new Error(`Can not pack "${filename}", is not a directory.`);
     }
-    let tarball = await Tar.pack(filename);
+    let tarball = await Tar.pack(filename, infoMode);
     let file = JSON.stringify({_base64: tarball.toString('base64')});
     return file;
   }
@@ -59,7 +59,8 @@ class __nomethod__Command extends Command {
         b: 'Execute as a Background Function',
         d: 'Specify debug mode (prints Gateway logs locally, response logs remotely)',
         t: 'Specify a Library Token to use manually',
-        x: 'Unauthenticated - Execute without a token (overrides active token and -t flag)'
+        x: 'Unauthenticated - Execute without a token (overrides active token and -t flag)',
+        i: 'Specify information mode (prints tar packing and execution request progress)'
       },
       vflags: {
         '*': 'all verbose flags converted to named keyword parameters'
@@ -71,6 +72,7 @@ class __nomethod__Command extends Command {
   run (params, callback) {
 
     let debug = !!params.flags.d;
+    let infoMode = !!params.flags.i;
     let isLocal = false;
     let gateway;
 
@@ -194,7 +196,7 @@ class __nomethod__Command extends Command {
       let keys = Object.keys(params.vflags);
       for (let i = 0; i < keys.length; i++) {
         let key = keys[i];
-        kwargs[key] = await parseFileFromArg(params.vflags[key].join(' '));
+        kwargs[key] = await parseFileFromArg(params.vflags[key].join(' '), infoMode);
       }
     };
 
