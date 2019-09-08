@@ -3,46 +3,46 @@ const url = require('url');
 const chalk = require('chalk');
 
 const config = require('./config.js');
-const Gateway = require('functionscript').Gateway;
+const Gateway = require('functionscript').Daemon.Gateway;
 
 class LocalGateway extends Gateway {
 
-  constructor(cfg) {
+  constructor (cfg) {
     cfg = cfg || {};
     cfg.name = 'LocalGateway';
     super(cfg);
     this._maxResultLogLength = 128;
   }
 
-  formatName(name) {
+  formatName (name) {
     return chalk.grey(`[${chalk.green(this.name)}]`);
   }
 
-  formatRequest(req) {
+  formatRequest (req) {
     return chalk.grey(`(${chalk.yellow(req ? (req._background ? chalk.bold('bg:') : '') + req._uuid.split('-')[0] : 'GLOBAL')}) ${this.routename(req)}`);
   }
 
-  formatMessage(message, logType) {
+  formatMessage (message, logType) {
     let color = {result: 'cyan', error: 'red'}[logType] || 'grey';
     return chalk[color](super.formatMessage(message, logType));
   }
 
-  service(serviceName) {
+  service (serviceName) {
     this.serviceName = serviceName.replace(/^\//gi, '');
   }
 
-  environment(env) {
+  environment (env) {
     Object.keys(env).forEach(key => process.env[key] = env[key]);
     return true;
   }
 
-  listen(port, callback, opts) {
+  listen (port, callback, opts) {
     port = port || this.port;
     process.env.STDLIB_LOCAL_PORT = port;
     super.listen(port, callback, opts);
   }
 
-  createContext(req, definitions, params, data, buffer) {
+  createContext (req, definitions, params, data, buffer) {
     let context = super.createContext(req, definitions, params, data, buffer);
     context.service = {};
     context.service.name = this.serviceName;
@@ -55,7 +55,7 @@ class LocalGateway extends Gateway {
     return context;
   }
 
-  resolve(req, res, buffer, callback) {
+  resolve (req, res, buffer, callback) {
     let urlinfo = url.parse(req.url, true);
     let pathname = urlinfo.pathname;
     if (this.serviceName && pathname.indexOf(this.serviceName) !== 1) {
@@ -75,7 +75,7 @@ class LocalGateway extends Gateway {
     return callback(null, definition, {}, buffer);
   }
 
-  end(req, value) {
+  end (req, value) {
     value = value === undefined ? null : value;
     value = value + '';
     if (value.length > this._maxResultLogLength) {

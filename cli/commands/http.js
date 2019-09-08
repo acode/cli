@@ -2,9 +2,7 @@
 
 const Command = require('cmnd').Command;
 const path = require('path');
-
-const LocalGateway = require('../local_gateway.js');
-const FunctionParser = require('functionscript').FunctionParser;
+const child_process = require('child_process');
 
 const parser = require('../parser.js');
 const scripts = require('../scripts.js');
@@ -67,20 +65,7 @@ class HTTPCommand extends Command {
       let port = (params.flags.p || params.vflags.port || [])[0] || parseInt(pkg.stdlib.local.port) || 8170;
 
       if (build !== 'legacy') {
-        console.log();
-        console.log(`Service starting on:`);
-        console.log(`\tlocalhost:${port}/${route.replace(/^\//gi, '')}`);
-        console.log();
-        let gateway = new LocalGateway({debug: true});
-        let fp = new FunctionParser();
-        try {
-          gateway.service(route);
-          gateway.environment(env.local || {});
-          gateway.define(fp.load(process.cwd(), 'functions'));
-        } catch (e) {
-          return callback(e);
-        }
-        gateway.listen(port);
+        child_process.fork(path.join(__dirname, '../local_http.js'), [`PORT=${port}`, `ROUTE=${route}`, `NAME=${serviceName}`]);
       } else {
         parser.check(err => parser.createServer(pkg, port, !!err));
       }
