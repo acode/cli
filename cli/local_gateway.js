@@ -82,7 +82,7 @@ class LocalGateway extends Gateway {
       value = value.substr(0, this._maxResultLogLength) +
         ` ... (truncated ${value.length - this._maxResultLogLength} bytes)`;
     }
-    this.log(req, value, 'result');
+    this.log(req, value.replace(/\a/gi, ''), 'result');
   }
 
 }
