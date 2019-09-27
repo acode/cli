@@ -90,7 +90,7 @@ module.exports = {
     search = search || '';
     method = method || 'GET';
     headers = headers || {};
-    buffer = buffer || new Buffer(0);
+    buffer = buffer || Buffer.from([]);
     delete headers['accept-encoding']; // no gzip
     delete headers['host']; // no host
 
