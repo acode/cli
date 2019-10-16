@@ -1,4 +1,4 @@
-# ![Standard Library](http://stdlib.com/static/images/standard-library-logo-wordmark.svg)
+# ![Standard Library](https://content.public.files.stdlib.com/www/static/images/standard-library-logo-wordmark.svg)
 ## [Standard Library is an API Development, Hosting and Integration Platform](https://stdlib.com)
 
 **Standard Library Setup** |
@@ -678,9 +678,9 @@ can read more about service hosting and keep track of official updates on
 
 # Acknowledgements
 
-Standard Library is a product of and &copy; 2018 Polybit Inc.
+Standard Library is a product of and &copy; 2019 Polybit Inc.
 
-We'd love for you to pay attention to [@StdLibHQ](https://twitter.com/StdLibHQ) and
+We'd love for you to pay attention to [@StandardLibrary](https://twitter.com/StandardLibrary) and
 what we're building next! If you'd consider joining the team, [shoot us an e-mail](mailto:careers@stdlib.com).
 
 You can also follow me, the original author, on Twitter: [@keithwhor](https://twitter.com/keithwhor).
