@@ -32,7 +32,7 @@ guide, please reference the FunctionScript repository. :)
 You can view services published by our large and growing developer community
 [on the Standard Library search page](https://stdlib.com/search).
 
-![stdlib-process](http://stdlib.com/static/images/stdlib_usage.gif)
+![stdlib-process](https://content.public.files.stdlib.com/www/static/images/stdlib_usage.gif)
 
 # Table of Contents
 
