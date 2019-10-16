@@ -1,4 +1,4 @@
-# ![Standard Library](https://content.public.files.stdlib.com/www/static/images/standard-library-logo-wordmark.svg)
+# <img src="https://content.public.files.stdlib.com/www/static/images/standard-library-logo-wordmark.svg" width="300">
 ## [Standard Library is an API Development, Hosting and Integration Platform](https://stdlib.com)
 
 **Standard Library Setup** |
