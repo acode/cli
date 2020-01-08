@@ -71,10 +71,12 @@ class UpCommand extends Command {
         'environment'
       ],
       flags: {
-        r: 'Upload a release package'
+        r: 'Upload a release package',
+        f: 'Force deploy'
       },
       vflags: {
         release: 'Upload a release package',
+        force: 'Force deploy'
       }
     };
 
@@ -84,6 +86,7 @@ class UpCommand extends Command {
 
     let environment = params.args[0];
     let release = params.flags.r || params.vflags.release;
+    let force = params.flags.f || params.vflags.force;
 
     if (environment) {
       if (environment === RELEASE_ENV) {
@@ -187,6 +190,10 @@ class UpCommand extends Command {
           let endpoint = environment === RELEASE_ENV
             ? `${pkg.stdlib.name}@${pkg.stdlib.version}`
             : `${pkg.stdlib.name}@${environment}`;
+
+          if (force) {
+            endpoint += '?force=true';
+          }
 
           let build = pkg.stdlib.build;
 
