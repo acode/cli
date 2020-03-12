@@ -338,7 +338,7 @@ class __nomethod__Command extends Command {
           }
         } else {
           if (result instanceof Buffer) {
-            console.log(`<Buffer (${buffer.byteLength} bytes)> ${result.toString()}`);
+            console.log(`<Buffer (${result.byteLength} bytes)> ${result.toString()}`);
           } else {
             console.log(
               JSON.stringify(

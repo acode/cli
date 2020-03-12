@@ -38,7 +38,7 @@
     "cmnd": "~0.3.0",
     "functionscript": "^1.2.0",
     "inquirer": "~0.11.3",
-    "lib": "^4.1.0",
+    "lib": "^4.1.1",
     "ncp": "^2.0.0",
     "stream": "0.0.2",
     "tar-stream": "^1.5.2"
