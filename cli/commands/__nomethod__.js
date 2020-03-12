@@ -338,9 +338,28 @@ class __nomethod__Command extends Command {
           }
         } else {
           if (result instanceof Buffer) {
-            console.log(result.toString('binary'));
+            console.log(`<Buffer (${buffer.byteLength} bytes)> ${result.toString()}`);
           } else {
-            console.log(JSON.stringify(result, null, 2));
+            console.log(
+              JSON.stringify(
+                result,
+                function (name, value) {
+                  if (
+                    value &&
+                    typeof value === 'object' &&
+                    value.type === 'Buffer' &&
+                    Array.isArray(value.data) &&
+                    Object.keys(value).length === 2
+                  ) {
+                    let buffer = Buffer.from(value.data);
+                    return `<Buffer (${buffer.byteLength} bytes)> ${buffer.toString()}`;
+                  } else {
+                    return value;
+                  }
+                },
+                2
+              )
+            );
           }
         }
 
