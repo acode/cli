@@ -64,6 +64,8 @@ class HTTPCommand extends Command {
       let route = localRoute || serviceName;
       let port = (params.flags.p || params.vflags.port || [])[0] || parseInt(pkg.stdlib.local.port) || 8170;
 
+      route = route.startsWith('/') ? route : '/' + route;
+
       if (build !== 'legacy') {
         child_process.fork(path.join(__dirname, '../local_http.js'), [`PORT=${port}`, `ROUTE=${route}`, `NAME=${serviceName}`]);
       } else {
