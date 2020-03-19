@@ -51,7 +51,7 @@ You can view services published by our large and growing developer community
 
 # Getting Started
 
-To get started with Standard Library, first make sure you have Node 6.x installed,
+To get started with Standard Library, first make sure you have Node 8.x or later installed,
 [available from the official Node.js website](https://nodejs.org). Next install
 the Standard Library CLI tools with:
 
