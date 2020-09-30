@@ -61,8 +61,8 @@ class LoginCommand extends Command {
 
       inquirer.prompt(questions, (promptResult) => {
 
-        email = email || promptResult.email;
-        password = password || promptResult.password;
+        email = promptResult.email || email;
+        password = promptResult.password || password;
 
         let resource = new APIResource(host, port);
 
@@ -70,7 +70,6 @@ class LoginCommand extends Command {
 
           if (err) {
             questions.filter(q => q.name === 'email').forEach(q => q.default = email);
-            email = null;
             password = null;
             return loopCb(err);
           }
