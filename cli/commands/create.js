@@ -75,7 +75,7 @@ class CreateCommand extends Command {
       console.log(chalk.bold.red('Oops!'));
       console.log();
       console.log(`You're trying to create a new service in development,`);
-      console.log(`But you're not your root Autocode project directory.`);
+      console.log(`But you're not in your root Autocode project directory.`);
       console.log();
       if (!config.workspace()) {
         console.log(`Initialize a workspace first with:`);
