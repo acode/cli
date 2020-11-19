@@ -49,7 +49,7 @@ if (cluster.isMaster) {
   gateway.listen(PORT);
 
   console.log();
-  console.log(`Standard Library API:`);
+  console.log(`Autocode API:`);
   console.log(`\t${chalk.bold.blue(NAME)}`);
   console.log();
   console.log(`Running on:`);

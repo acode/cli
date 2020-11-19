@@ -66,7 +66,7 @@ class UpCommand extends Command {
   help() {
 
     return {
-      description: 'Pushes Standard Library package to registry and cloud environment',
+      description: 'Pushes Autocode package to registry and cloud environment',
       args: [
         'environment'
       ],

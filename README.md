@@ -1,7 +1,7 @@
-# <img src="https://content.public.files.stdlib.com/www/static/images/standard-library-logo-wordmark.svg" width="300">
-## [Standard Library is an API Development, Hosting and Integration Platform](https://stdlib.com)
+# <img src="https://content.public.files.stdlib.com/shared/static/branding/autocode-logo-wordmark.svg" width="300">
+## [Autocode is an API Development, Hosting and Integration Platform](https://stdlib.com)
 
-**Standard Library Setup** |
+**Autocode Setup** |
 [Node](https://github.com/stdlib/lib-node) |
 [Python](https://github.com/stdlib/lib-python) |
 [Ruby](https://github.com/stdlib/lib-ruby) |
@@ -10,27 +10,27 @@
 # Introduction
 
 
-Standard Library is the *fastest, easiest* way to build infinitely scalable,
-self-healing APIs. The Standard Library platform consists of three components:
+Autocode is the *fastest, easiest* way to build infinitely scalable APIs.
+The Autocode platform consists of three components:
 
-1. A central registry and library for APIs
+1. A central registry and standard library for APIs
 2. A scalable, serverless hosting platform
 3. Simple command line tooling for building and managing API development
 
-Standard Library is based on Function as a Service ("serverless") architecture,
-initially popularized by AWS Lambda. You can use Standard Library to build modular, scalable APIs
+Autocode is based on Function as a Service ("serverless") architecture,
+initially popularized by AWS Lambda. You can use Autocode to build modular, scalable APIs
 for yourself and other developers in *minutes* without having to manage servers,
 gateways, domains, write documentation, or build SDKs. Your development workflow
-has never been easier - focus on writing code you love, let Standard Library handle
+has never been easier - focus on writing code you love, let Autocode handle
 everything else.
 
-Standard Library uses an **open specification** called
+Autocode uses an **open specification** called
 [FunctionScript](https://github.com/FunctionScript/FunctionScript) for function definitions and
 execution. If you run into concerns or questions as you're building from this
 guide, please reference the FunctionScript repository. :)
 
 You can view services published by our large and growing developer community
-[on the Standard Library search page](https://stdlib.com/search).
+[on the Autocode Standard Library page](https://autocode.com/lib).
 
 ![stdlib-process](https://content.public.files.stdlib.com/www/static/images/stdlib_usage.gif)
 
@@ -44,33 +44,21 @@ You can view services published by our large and growing developer community
 1. [Running Your APIs as Background Workers](#running-your-apis-as-background-workers)
 1. [Version Control and Package Management](#version-control-and-package-management)
 1. [Logging](#logging)
-1. [Sourcecode](#sourcecode)
 1. [Additional Functionality](#additional-functionality)
 1. [Acknowledgements](#acknowledgements)
 1. [Contact](#contact)
 
 # Getting Started
 
-To get started with Standard Library, first make sure you have Node 8.x or later installed,
+To get started with Autocode, first make sure you have Node 8.x or later installed,
 [available from the official Node.js website](https://nodejs.org). Next install
-the Standard Library CLI tools with:
+the Autocode CLI tools with:
 
 ```
 $ npm install lib.cli -g
 ```
 
 And you're now ready to start building!
-
-# Upgrading From Previous Versions
-
-If you're running a previous version of Standard Library and having issues with the CLI,
-try cleaning up the old CLI binary links first;
-
-```
-$ rm /usr/local/bin/f
-$ rm /usr/local/bin/lib
-$ rm /usr/local/bin/stdlib
-```
 
 # Creating Your First Service
 
@@ -83,8 +71,8 @@ $ cd stdlib-workspace
 $ lib init
 ```
 
-You'll be asked for an e-mail address to log in to the Standard Library registry.
-If you don't yet have an account, you can create one by going to https://stdlib.com/.
+You'll be asked for an e-mail address to log in to the Autocode registry.
+If you don't yet have an account, you can create one by going to https://autocode.com/.
 Note that you can skip account creation with `lib init --no-login`.
 You'll be unable to use the registry, but it's useful for creating workspaces
 when you don't have internet access.
@@ -97,7 +85,7 @@ $ lib create <service>
 
 You'll be asked for a default function name, which is the entry point
 into your service (useful if you only want a single entry point). This will automatically
-generate a service project scaffold in `stdlib-workspace/<username>/<service>`.
+generate a service project scaffold in `autocode-workspace/<username>/<service>`.
 
 Once created, enter the service directory:
 
@@ -117,7 +105,7 @@ In this directory, you'll see something like:
 ```
 
 At this point, there's a "hello world" function that's been automatically
-created (`__main__.js`). Standard Library comes paired with a simple `lib` command for
+created (`__main__.js`). Autocode comes paired with a simple `lib` command for
 testing your functions locally and running them in the cloud.
 To test your function:
 
@@ -180,8 +168,8 @@ That's it! You haven't written a line of code yet, and you have mastery over
 building a service, testing it in a development (staging) environment online,
 and releasing it for private (or public) consumption.
 
-**Note:** By default, APIs that you publish with `lib release` will have a visible
-documentation page in the Standard Library public registry. You can keep your page private,
+**Note:** By default, APIs that you publish with `lib release` will have a
+documentation page in the Autocode public registry. You can keep your page private,
 as well as restrict execution access or add collaborators to your API,
 by modifying your API's permissions. For more information, see this [docs page](https://docs.stdlib.com/main/#/access-control/api-permissions).
 
@@ -271,7 +259,7 @@ module.exports = async (name = 'kirk') => {
 
 We definitely recommend using the [lib library on NPM](https://github.com/stdlib/lib-node)
 to make API calls as specified above, but you can also make HTTPS
-requests directly to the Standard Library gateway. HTTP query parameters are mapped
+requests directly to the Autocode gateway. HTTP query parameters are mapped
 automatically to parameters by name.
 
 ```
@@ -294,7 +282,7 @@ module.exports = async (name = 'world') => {
 
 # Running Your APIs as Background Workers
 
-To run any Standard Library service as a background worker (immediately returns a
+To run any Autocode service as a background worker (immediately returns a
   response, runs function after), simply append ":bg" to the URL before
   the HTTP query parameters (search portion of the URL), for example (from
   above):
@@ -375,7 +363,7 @@ This will return `{"name":"world"}` in this example (if no other parameters are
 
 # Version Control and Package Management
 
-A quick note on version control - Standard Library is *not* a replacement for normal
+A quick note on version control - Autocode is *not* a replacement for normal
 git-based workflows, it is a supplement focused around service creation and
 execution.
 
@@ -420,58 +408,9 @@ The default log type is `stdout`, though you can specify `stderr` with
 
 Limit the number of lines to show with the `-l` argument (or `--lines`).
 
-# Sourcecode
-
-Standard Library Sourcecode is designed to streamline the creation of different types of projects.
-Sources provide defaults for things like boilerplate code, workflows, and directory
-setup so you can get right to development and implementation of more complex functionality.
-You can create services from existing source codes, or create and share your own sources.
-
-## Installing A Service from Sourcecode
-
-You can create a service from a source code directly from the command line. To create a service using a source code,
-navigate to a Standard Library root directory and run
-
-```
-$ lib create -s <source name>
-```
-
-Where `<source name>` is something like `@slack/app` with an optionally specified version or
-environment. This will create a new service based off the source code.
-
-## Creating Sources
-
-To turn a existing service into a source code, navigate to the service and run
-
-```
-$ lib source
-```
-
-This will copy the current directory contents into a new folder and add a `source.json` file
-based off of the `env.json` file. To deploy a draft of the source code to the cloud, you can run
-
-```
-$ lib source:draft <draft environment name>
-```
-
-To publish a versioned, immutable source code to the registry you can run
-
-```
-$ lib source:publish
-```
-
-You can also fork an existing source code, that belongs to you, a teammate, or is publicly available with
-
-```
-$ lib source:fork -s <source name> -a <alias>
-```
-
-Which you can then modify and publish again under your own account. For more information about source codes, check out the [docs](http://docs.stdlib.com/main/#/introduction)
-
-
 # Additional Functionality
 
-Standard Library comes packed with a bunch of other goodies - if your service goes down
+Autocode comes packed with a bunch of other goodies - if your service goes down
 for any reason (the service platform is acting up), use `lib restart`.
 Similarly, as we roll out updates to the platform the builds we're using on
 AWS Lambda may change. You can update your service to our latest build using
@@ -490,23 +429,20 @@ We've conveniently copy-and-pasted the output here for you to peruse;
 * [all arguments converted to parameters]
 	-b                   Execute as a Background Function
 	-d                   Specify debug mode (prints Gateway logs)
-	-t                   Specify a Library Token
+	-t                   Specify a Identity Token
 	-w                   Specify a Webhook (Deprecated)
 	--*                  all verbose flags converted to named keyword parameters
 
-	Runs a Standard Library function, i.e. "lib user.service[@ver]" (remote) or "lib ." (local)
+	Runs a Autocode function, i.e. "lib user.service[@ver]" (remote) or "lib ." (local)
 
 create [service]
 	-d                   (DEPRECATED) Dev Mode - Specify another HTTP address for the Template Service (e.g. localhost:8170)
 	-f                   Force command if not in root directory
 	-n                   No login - don't require an internet connection
-	-s                   Source - creates service from a Standard Library sourcecode
-	-t                   (DEPRECATED) Template - a Standard Library service template to use
 	-w                   Write over - overwrite the current directory contents
 	--develop            (DEPRECATED) Dev Mode - Specify another HTTP address for the Template Service (e.g. localhost:8170)
 	--force              Force command if not in root directory
 	--no-login           No login - don't require an internet connection
-	--source             Source - creates service from a Standard Library sourcecode
 	--template           (DEPRECATED) Template - a stdlib service template to use
 	--write-over         Write over - overwrite the current directory contents
 
@@ -516,7 +452,7 @@ down [environment]
 	-r                   Remove a release version (provide number)
 	--release            Remove a release version (provide number)
 
-	Removes Standard Library package from registry and cloud environment
+	Removes Autocode package from registry and cloud environment
 
 function:create [name] [description] [param_1] [param_2] [...] [param_n]
 	-n                   New directory: Create as a __main__.js file, with the name representing the directory
@@ -530,7 +466,7 @@ get [full service name]
 	--force              Force command if not in root directory
 	--write-over         Write over - overwrite the target directory contents
 
-	Retrieves and extracts Standard Library package
+	Retrieves and extracts Autocode package
 
 hosts
 	Displays created hostname routes from source custom hostnames to target services you own
@@ -556,16 +492,16 @@ init [environment]
 	--force              Force command to overwrite existing workspace
 	--no-login           No login - don't require an internet connection
 
-	Initializes Standard Library workspace
+	Initializes Autocode workspace
 
 login
 	--email              E-Mail
 	--password           Password
 
-	Logs in to Standard Library in this directory
+	Logs in to Autocode in this directory
 
 logout
-	Logs out of Standard Library in this workspace
+	Logs out of Autocode in this workspace
 
 logs [service]
 	-l                   The number of log lines you want to retrieve
@@ -581,7 +517,7 @@ pkg [full service name]
 	--force              Force command if not in root directory
 	--output             Output path for the .tgz package
 
-	Downloads Standard Library tarball (.tgz)
+	Downloads Autocode tarball (.tgz)
 
 rebuild [environment]
 	-r                   Rebuild a release package
@@ -590,7 +526,7 @@ rebuild [environment]
 	Rebuilds a service (useful for registry performance updates), alias of `lib restart -b`
 
 release
-	Pushes release of Standard Library package to registry and cloud (Alias of `lib up -r`)
+	Pushes release of Autocode package to registry and cloud (Alias of `lib up -r`)
 
 restart [environment]
 	-b                   Rebuild service fully
@@ -598,64 +534,16 @@ restart [environment]
 	--build              Rebuild service fully
 	--release            Restart a release package
 
-	Restarts a Standard Library service (if necessary)
+	Restarts a Autocode service (if necessary)
 
 rollback
-	Rolls back (removes) release of Standard Library package (alias of `lib down -r`)
-
-source
-
-	Converts a local service to Standard Library sourcecode by creating "source.json"
-
-source:draft [draftName]
-	-p                   Publishes as a release
-	--publish            Publishes as a release
-
-	Pushes a draft of Standard Library source code to the registry
-
-source:fork
-	-a                   Alias (Optional) - The new alias of the source
-	-f                   Force command if not in root directory
-	-i                   Install - install this sourcecode as a new library service
-	-s                   Source (Required) - The name of the sourcecode to fork
-	-w                   Write over - overwrite the target directory contents
-	--alias              Alias (Optional) - The new alias of the source
-	--force              Force command if not in root directory
-	--install            Install - install this sourcecode as a new library service
-	--source             Source (Required) - The name of the sourcecode to fork
-	--write-over         Write over - overwrite the target directory contents
-
-	Downloads and Forks Sourcecode from Standard Library
-
-source:publish
-	Publishes a versioned release of Standard Library sourcecode to registry (alias of `lib source:draft -p`)
-
-source:remove [environment]
-	-p                   Removes a published release version (provide number)
-	--publish            Removes a published release version (provide number)
-
-	Removes Standard Library sourcecode from the registry
-
-tasks:create [service] [function]
-	-v                   Service version (default lastest release)
-	--version            Service version (default lastest release)
-
-	Creates a Scheduled Task from a Standard Library service
-
-tasks:destroy
-	Stops a Standard Library scheduled task
-
-tasks:list
-	-j                   Returns tasks as a JSON object
-	--json               Returns tasks as a JSON object
-
-	Lists your scheduled tasks
+	Rolls back (removes) release of Autocode package (alias of `lib down -r`)
 
 up [environment]
 	-r                   Upload a release package
 	--release            Upload a release package
 
-	Pushes Standard Library package to registry and cloud environment
+	Pushes Autocode package to registry and cloud environment
 
 user
 	-s                   <key> <value> Sets a specified key-value pair
@@ -666,7 +554,18 @@ user
 	Retrieves (and sets) current user information
 
 version
-	Returns currently installed version of Standard Library command line tools
+	Returns currently installed version of Autocode command line tools
+```
+
+# Upgrading From Previous Versions
+
+If you're running a previous version and are having issues with the CLI,
+try cleaning up the old CLI binary links first;
+
+```
+$ rm /usr/local/bin/f
+$ rm /usr/local/bin/lib
+$ rm /usr/local/bin/stdlib
 ```
 
 # That's it!
@@ -674,14 +573,14 @@ version
 Yep, it's really that easy. To keep up-to-date on developments, please
 star us here on GitHub, and sign up a user account for the registry. You
 can read more about service hosting and keep track of official updates on
-[the official Standard Library website, stdlib.com](https://stdlib.com).
+[the official Autocode website, autocode.com](https://autocode.com).
 
 # Acknowledgements
 
-Standard Library is a product of and &copy; 2019 Polybit Inc.
+Autocode is a product of and &copy; 2019 Polybit Inc.
 
-We'd love for you to pay attention to [@StandardLibrary](https://twitter.com/StandardLibrary) and
-what we're building next! If you'd consider joining the team, [shoot us an e-mail](mailto:careers@stdlib.com).
+We'd love for you to pay attention to [@AutocodeHQ](https://twitter.com/AutocodeHQ) and
+what we're building next! If you'd consider joining the team, [shoot us an e-mail](mailto:careers@autocode.com).
 
 You can also follow me, the original author, on Twitter: [@keithwhor](https://twitter.com/keithwhor).
 

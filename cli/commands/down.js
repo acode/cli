@@ -17,7 +17,7 @@ class DownCommand extends Command {
   help() {
 
     return {
-      description: 'Removes Standard Library package from registry and cloud environment',
+      description: 'Removes Autocode package from registry and cloud environment',
       args: [
         'environment'
       ],

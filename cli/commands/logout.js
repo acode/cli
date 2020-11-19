@@ -18,7 +18,7 @@ class LogoutCommand extends Command {
   help() {
 
     return {
-      description: 'Logs out of Standard Library in this workspace',
+      description: 'Logs out of Autocode in this workspace',
       flags: {
         'f': 'Force - clears information even if current Access Token invalid'
       },

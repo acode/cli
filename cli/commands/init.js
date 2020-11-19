@@ -20,7 +20,7 @@ class InitCommand extends Command {
   help() {
 
     return {
-      description: 'Initializes Standard Library workspace',
+      description: 'Initializes Autocode workspace',
       args: [
         'environment'
       ],
@@ -48,8 +48,8 @@ class InitCommand extends Command {
       console.log();
       console.log(chalk.bold.red('Oops!'));
       console.log();
-      console.log(`A stdlib workspace has already been set.`);
-      console.log(`The path of the stdlib workspace is:`)
+      console.log(`An Autocode workspace has already been set.`);
+      console.log(`The path of the Autocode workspace is:`)
       console.log(`  ${chalk.bold(config.workspace())}`);
       console.log();
       console.log(`Use ${chalk.bold('lib init --force')} to override and set a new workspace.`);
@@ -65,7 +65,7 @@ class InitCommand extends Command {
       }
       console.log();
       console.log(chalk.bold.green(`Congratulations!`));
-      console.log(`Your stdlib development environment has been initialized.`);
+      console.log(`Your Autocode development environment has been initialized.`);
       console.log();
       console.log(`Use ${chalk.bold('lib create <service>')} to create a new (local) service package.`);
       console.log(`or type ${chalk.bold('lib get <service>')} to download an existing service package.`);
@@ -82,11 +82,11 @@ class InitCommand extends Command {
     }
 
     console.log();
-    console.log(chalk.bold.green('Welcome to Standard Library! :)'))
+    console.log(chalk.bold.green('Welcome to Autocode! :)'))
     console.log();
-    console.log(`To use the ${chalk.bold('Standard Library')} registry, you must have a registered account.`);
+    console.log(`To use the ${chalk.bold('Autocode')} registry, you must have a registered account.`);
     console.log(`It will allow you to push your services to the cloud and manage environments.`);
-    console.log(`If you don\'t have an account, it\'s ${chalk.bold.underline.green('free')} to sign up! Please go to https://stdlib.com/ to get started.`);
+    console.log(`If you don\'t have an account, it\'s ${chalk.bold.underline.green('free')} to sign up! Please go to https://autocode.com/ to get started.`);
     console.log();
     console.log(`If you already have an account, please enter your e-mail to login.`);
     console.log();

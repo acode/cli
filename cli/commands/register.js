@@ -15,7 +15,7 @@ class RegisterCommand extends Command {
   help() {
 
     return {
-      description: 'Registers a new Standard Library user account (deprecated)'
+      description: 'Registers a new Autocode user account (deprecated)'
     };
 
   }
@@ -24,7 +24,7 @@ class RegisterCommand extends Command {
 
     console.log();
     console.log(`Creating new accounts through the terminal has been ${chalk.bold('deprecated')}.`);
-    console.log(`Please create an account by going to "https://stdlib.com/".`);
+    console.log(`Please create an account by going to "https://autocode.com/".`);
     console.log();
     console.log(`Once complete, use ${chalk.bold('lib init')} to initialize your workspace and use the CLI.`);
     console.log();

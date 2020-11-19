@@ -21,7 +21,7 @@ class LoginCommand extends Command {
   help() {
 
     return {
-      description: 'Logs in to Standard Library in this directory',
+      description: 'Logs in to Autocode in this directory',
       vflags: {
         email: 'E-Mail',
         password: 'Password'
@@ -80,7 +80,7 @@ class LoginCommand extends Command {
           config.write();
 
           console.log();
-          console.log(chalk.bold.green('Logged in successfully!') + ' Retrieving default Library Token (API Key)...');
+          console.log(chalk.bold.green('Logged in successfully!') + ' Retrieving default Identity Token (API Key)...');
 
           resource.authorize(config.get('ACCESS_TOKEN'));
           resource.request('/v1/library_tokens').index({default: true}, (err, response) => {
@@ -92,10 +92,10 @@ class LoginCommand extends Command {
             let tokens = (response && response.data) || [];
 
             if (!tokens.length) {
-              console.log('Logged in, but could not retrieve default Library Token.');
+              console.log('Logged in, but could not retrieve default Identity Token.');
             } else {
               config.save('ACTIVE_LIBRARY_TOKEN', tokens[0].token);
-              console.log(`Active Library Token (API Key) set to: ${chalk.bold(tokens[0].label)}`);
+              console.log(`Active Identity Token (API Key) set to: ${chalk.bold(tokens[0].label)}`);
             }
 
             console.log();

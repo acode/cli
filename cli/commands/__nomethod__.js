@@ -54,11 +54,11 @@ class __nomethod__Command extends Command {
   help() {
 
     return {
-      description: 'Runs a Standard Library function, i.e. "lib user.service[@env]" (remote) or "lib ." (local)',
+      description: 'Runs an Autocode function, i.e. "lib user.service[@env]" (remote) or "lib ." (local)',
       flags: {
         b: 'Execute as a Background Function',
         d: 'Specify debug mode (prints Gateway logs locally, response logs remotely)',
-        t: 'Specify a Library Token to use manually',
+        t: 'Specify an Identity Token to use manually',
         x: 'Unauthenticated - Execute without a token (overrides active token and -t flag)',
         i: 'Specify information mode (prints tar packing and execution request progress)'
       },
@@ -98,7 +98,7 @@ class __nomethod__Command extends Command {
       } catch (e) {
         if (!config.workspace()) {
           return callback(new Error([
-            'You have not set up a Standard Library workspace yet.',
+            'You have not set up a Autocode workspace yet.',
             '\nTry running `lib init` in a directory that you would like to use as a workspace.'
           ].join('')));
         } else if (!config.location(2)) {
@@ -108,11 +108,11 @@ class __nomethod__Command extends Command {
                 'There was an error parsing "package.json" from this directory.',
                 '\nIt could be malformed, but it\'s more likely you\'re running',
                 ' this command from the wrong directory.',
-                '\n\nYour Standard Library workspace is located in:',
+                '\n\nYour Autocode workspace is located in:',
                 '\n  ' + config.workspace(),
                 '\nAnd you\'re currently in:',
                 '\n  ' + process.cwd(),
-                '\n\nStandard Library services are normally two levels down from your workspace directory.',
+                '\n\nAutocode services are normally two levels down from your workspace directory.',
                 '\n  (i.e. workspace/username/servicename)'
               ].join('')
             )
@@ -121,7 +121,7 @@ class __nomethod__Command extends Command {
           return callback(new Error(
             [
               'There was no "package.json" found in this directory, you may have deleted it.',
-              '\nTry creating a new service (using `lib create`) from your Standard Library workspace directory:',
+              '\nTry creating a new service (using `lib create`) from your Autocode workspace directory:',
               '\n  ' + config.workspace()
             ].join(''))
           );
@@ -134,7 +134,7 @@ class __nomethod__Command extends Command {
       } catch (e) {
         if (!config.workspace()) {
           return callback(new Error([
-            'You have not set up a Standard Library workspace yet.',
+            'You have not set up a Autocode workspace yet.',
             '\nTry running `lib init` in a directory that you would like to use as a workspace.'
           ].join('')));
         } else if (!config.location(2)) {
@@ -144,11 +144,11 @@ class __nomethod__Command extends Command {
                 'There was an error parsing "env.json" from this directory.',
                 '\nIt could be malformed, but it\'s more likely you\'re running',
                 ' this command from the wrong directory.',
-                '\n\nYour Standard Library workspace is located in:',
+                '\n\nYour Autocode workspace is located in:',
                 '\n  ' + config.workspace(),
                 '\nAnd you\'re currently in:',
                 '\n  ' + process.cwd(),
-                '\n\nStandard Library services are normally two levels down from your workspace directory.',
+                '\n\nAutocode services are normally two levels down from your workspace directory.',
                 '\n  (i.e. workspace/username/servicename)'
               ].join('')
             )
@@ -157,7 +157,7 @@ class __nomethod__Command extends Command {
           return callback(new Error(
             [
               'There was no "env.json" found in this directory, you may have deleted it.',
-              '\nTry creating a new service (using `lib create`) from your Standard Library workspace directory:',
+              '\nTry creating a new service (using `lib create`) from your Autocode workspace directory:',
               '\n  ' + config.workspace()
             ].join(''))
           );
@@ -216,16 +216,16 @@ class __nomethod__Command extends Command {
         console.log();
         console.log(chalk.bold.red('Oops!'));
         console.log();
-        console.log(`It seems like you\'re trying to run a Standard Library function,`);
-        console.log(`  but you don't have an Active Library Token (API Key) set.`);
+        console.log(`It seems like you\'re trying to run a Autocode function,`);
+        console.log(`  but you don't have an Active Identity Token (API Key) set.`);
         console.log();
         console.log('You can run this command again without authentication by specifying:');
         console.log(`\t${chalk.bold('lib ' + params.name + ' -x')}`);
         console.log();
-        console.log(`But we recommend setting an Active Library Token with:`);
+        console.log(`But we recommend setting an Active Identity Token with:`);
         console.log(`\t${chalk.bold('lib tokens')}`);
         console.log();
-        return callback(new Error(`No Library Token value set.`));
+        return callback(new Error(`No Identity Token value set.`));
       }
 
       let setToken = unauth ? false : !!params.flags.t;
@@ -243,32 +243,32 @@ class __nomethod__Command extends Command {
         console.log();
         console.log(chalk.bold.red('Oops!'));
         console.log();
-        console.log(`It seems like you\'re trying to run an authenticated request with a library token (-t),`);
+        console.log(`It seems like you\'re trying to run an authenticated request with an Identity Token (-t),`);
         console.log(`  but the function you're running is ${chalk.green('running locally')}.`);
         console.log();
-        console.log('Local authentication via Standard Library is not supported.');
+        console.log('Local authentication via Autocode is not supported.');
         console.log('Please ship your service to a cloud-based development environment using:');
         console.log(`\t${chalk.bold('lib up dev')}`);
         console.log();
         console.log(`Or simply run your service locally again ${chalk.red('without the ')}${chalk.bold.red('-t')}${chalk.red(' flag')}.`);
         console.log();
-        return callback(new Error(`Can not use Library Tokens locally.`));
+        return callback(new Error(`Can not use Identity Tokens locally.`));
       } else if (setToken && !token) {
         console.log();
         console.log(chalk.bold.red('Oops!'));
         console.log();
         console.log(
           `It seems like you\'re trying to run an authenticated request with` +
-          ` a library token (-t), but have not provided a value`
+          ` an Identity Token (-t), but have not provided a value`
         );
         console.log();
         console.log(`Try running this command again using the flag:`);
         console.log(`\t${chalk.bold('-t <token>')}`);
         console.log();
-        console.log(`Or learn more about setting an active Library Token using:`);
+        console.log(`Or learn more about setting an active Identity Token using:`);
         console.log(`\t${chalk.bold('lib help tokens')}`);
         console.log();
-        return callback(new Error(`No Library Token value set.`));
+        return callback(new Error(`No Identity Token value set.`));
       }
 
       if (hostname && matches) {
@@ -323,7 +323,7 @@ class __nomethod__Command extends Command {
               err.message,
               'Received HTTP error code "HPE_INVALID_CONSTANT"',
               'This is likely due to an invalid "Content-Length" header field',
-              'Standard Library will set this field for you, you do not need to write it manually'
+              'Autocode will set this field for you, you do not need to write it manually'
             ].join('\n');
           } else {
             let message = err.message || '';
@@ -385,7 +385,7 @@ class __nomethod__Command extends Command {
       );
       debugLog(
         token ?
-          `(authenticating using library token ${chalk.yellow(token.substr(0, 8) + '...')})` :
+          `(authenticating using Identity Token ${chalk.yellow(token.substr(0, 8) + '...')})` :
           `(unauthenticated request)`
       );
       debugLog();

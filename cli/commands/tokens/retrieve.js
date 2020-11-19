@@ -22,7 +22,7 @@ class TokensRetrieveCommand extends Command {
 
   help() {
     return {
-      description: 'Retrieve a Library Token for use in the local environment of the current service',
+      description: 'Retrieve an Identity Token for use in the local environment of the current service',
     };
   }
 
@@ -83,14 +83,14 @@ class TokensRetrieveCommand extends Command {
         console.log();
         console.log(chalk.bold.green('Success!'));
         console.log();
-        console.log(`Added the Development Library Token associated with ${chalk.bold(serviceName)}\nto your local "env.json" file as ${chalk.bold('STDLIB_SECRET_TOKEN')}.`);
+        console.log(`Added the Development Identity Token associated with ${chalk.bold(serviceName)}\nto your local "env.json" file as ${chalk.bold('STDLIB_SECRET_TOKEN')}.`);
         console.log();
         console.log(`Your API will now use this token when you test locally with ${chalk.bold('lib .')}`);
         console.log();
         return callback();
       } else {
         console.log();
-        console.log(`There is currently no Development Library Token associated with ${chalk.bold(serviceName)}.`);
+        console.log(`There is currently no Development Identity Token associated with ${chalk.bold(serviceName)}.`);
         console.log();
         console.log(`Please select one from this list that you would like to use with ${chalk.bold(serviceName)}:`);
         console.log();
@@ -101,7 +101,7 @@ class TokensRetrieveCommand extends Command {
               name: 'libraryToken',
               type: 'list',
               pageSize: 100,
-              message: `Select a Development Library Token to use for Authenticated API calls`,
+              message: `Select a Development Identity Token to use for Authenticated API calls`,
               choices: tabler(
                 ['User', 'Label', 'Token', 'Valid', 'Created'],
                 libraryTokens.filter((libraryToken) => {
@@ -141,7 +141,7 @@ class TokensRetrieveCommand extends Command {
             if (libraryToken !== 0) {
 
               console.log();
-              console.log(`Your Development Library Token value is:`);
+              console.log(`Your Development Identity Token value is:`);
               console.log();
               console.log(chalk.bold(libraryToken.token));
               console.log();

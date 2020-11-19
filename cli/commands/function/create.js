@@ -71,7 +71,7 @@ class FunctionCreateCommand extends Command {
     let newDir = !!(params.flags.n || params.vflags['new'] || false);
 
     if (!fs.existsSync('package.json') && !fs.existsSync('stdlib.json')) {
-      return callback(new Error('Not in valid Standard Library directory'));
+      return callback(new Error('Not in valid Autocode directory'));
     }
 
     let questions = [];
