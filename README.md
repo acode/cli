@@ -32,7 +32,7 @@ guide, please reference the FunctionScript repository. :)
 You can view services published by our large and growing developer community
 [on the Autocode Standard Library page](https://autocode.com/lib).
 
-![stdlib-process](https://content.public.files.stdlib.com/www/static/images/stdlib_usage.gif)
+![lib-process](https://content.public.files.stdlib.com/shared/static/images/lib-usage.gif)
 
 # Table of Contents
 
@@ -66,8 +66,8 @@ The first thing you'll want to do is create a workspace. Create a new directory
 you intend to build your services in and initialize the workspace.
 
 ```
-$ mkdir stdlib-workspace
-$ cd stdlib-workspace
+$ mkdir autocode-workspace
+$ cd autocode-workspace
 $ lib init
 ```
 
@@ -436,14 +436,11 @@ We've conveniently copy-and-pasted the output here for you to peruse;
 	Runs a Autocode function, i.e. "lib user.service[@ver]" (remote) or "lib ." (local)
 
 create [service]
-	-d                   (DEPRECATED) Dev Mode - Specify another HTTP address for the Template Service (e.g. localhost:8170)
 	-f                   Force command if not in root directory
 	-n                   No login - don't require an internet connection
 	-w                   Write over - overwrite the current directory contents
-	--develop            (DEPRECATED) Dev Mode - Specify another HTTP address for the Template Service (e.g. localhost:8170)
 	--force              Force command if not in root directory
 	--no-login           No login - don't require an internet connection
-	--template           (DEPRECATED) Template - a stdlib service template to use
 	--write-over         Write over - overwrite the current directory contents
 
 	Creates a new (local) service
@@ -577,7 +574,7 @@ can read more about service hosting and keep track of official updates on
 
 # Acknowledgements
 
-Autocode is a product of and &copy; 2019 Polybit Inc.
+Autocode is a product of and &copy; 2020 Polybit Inc.
 
 We'd love for you to pay attention to [@AutocodeHQ](https://twitter.com/AutocodeHQ) and
 what we're building next! If you'd consider joining the team, [shoot us an e-mail](mailto:careers@autocode.com).
