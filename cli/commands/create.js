@@ -1,7 +1,6 @@
 'use strict';
 
 const Command = require('cmnd').Command;
-const SourceForkCommand = require('./source/fork.js');
 
 const APIResource = require('api-res');
 const config = require('../config.js');
@@ -13,8 +12,6 @@ const inquirer = require('inquirer');
 const fs = require('fs');
 const path = require('path');
 const chalk = require('chalk');
-
-const lib = require('lib');
 
 const spawnSync = require('child_process').spawnSync;
 
@@ -50,17 +47,11 @@ class CreateCommand extends Command {
       ],
       flags: {
         n: 'No login - don\'t require an internet connection',
-        w: 'Write over - overwrite the current directory contents',
-        s: 'Source - creates service from a Standard Library sourcecode',
-        t: '(DEPRECATED) Template - a Standard Library service template to use',
-        d: '(DEPRECATED) Dev Mode - Specify another HTTP address for the Template Service (e.g. localhost:8170)'
+        w: 'Write over - overwrite the current directory contents'
       },
       vflags: {
         'no-login': 'No login - don\'t require an internet connection',
-        'write-over': 'Write over - overwrite the current directory contents',
-        'source': 'Source - creates service from a Standard Library sourcecode',
-        'template': '(DEPRECATED) Template - a stdlib service template to use',
-        'develop': '(DEPRECATED) Dev Mode - Specify another HTTP address for the Template Service (e.g. localhost:8170)'
+        'write-over': 'Write over - overwrite the current directory contents'
       }
     };
 
@@ -73,25 +64,18 @@ class CreateCommand extends Command {
     let host = params.flags.h ? params.flags.h[0] : 'https://api.polybit.com';
     let port = params.flags.p && params.flags.p[0];
 
-    let source = (params.flags.s || params.flags.source || [])[0];
-
     let nologin = params.flags.hasOwnProperty('n') || params.vflags.hasOwnProperty('no-login');
 
     let write = params.flags.hasOwnProperty('w') || params.vflags.hasOwnProperty('write-over');
-    let tdev = params.flags.hasOwnProperty('tdev');
 
-    let develop = (params.flags.d || params.vflags.develop || [])[0];
     let build = DEFAULT_BUILD;
-
-    let extPkgName = (params.flags.t || params.vflags.template || [])[0];
-    let extPkg = null;
 
     if (!config.location(0)) {
       console.log();
       console.log(chalk.bold.red('Oops!'));
       console.log();
       console.log(`You're trying to create a new service in development,`);
-      console.log(`But you're not your a root Standard Library project directory.`);
+      console.log(`But you're not in your root Autocode project directory.`);
       console.log();
       if (!config.workspace()) {
         console.log(`Initialize a workspace first with:`);
@@ -105,9 +89,7 @@ class CreateCommand extends Command {
     }
 
     console.log();
-    console.log(`Awesome! Let's create a ${chalk.bold.green('stdlib')} service!`);
-    extPkgName && console.log(`We'll use the template ${chalk.bold.green(extPkgName)} to proceed.`);
-    source && console.log(`We'll use the sourcecode ${chalk.bold.green(source)} to proceed.`);
+    console.log(`Awesome! Let's create an ${chalk.bold.green('Autocode')} service!`);
     console.log();
 
     let questions = [];
@@ -173,190 +155,91 @@ class CreateCommand extends Command {
 
         username = username || user.username;
 
-        // Send off to sourcecode fork
-        if (source) {
-          let srcFlags = {s: [source], i: [], a: [[username, name].join('/')]};
-          write && (srcFlags.w = []);
-          return SourceForkCommand.prototype.run.call(
-            this,
-            {
-              args: [],
-              flags: srcFlags,
-              vflags: {},
-              user: user || null
-            },
-            callback
-          );
-        }
+        !fs.existsSync(username) && fs.mkdirSync(username);
+        let serviceName = [username, name].join('/');
+        let servicePath = path.join(process.cwd(), username, name);
+        let fPath = path.join(servicePath, 'functions');
 
-        // Do template fetching...
-        let extPkgCalls = [];
+        if (fs.existsSync(servicePath)) {
 
-        if (extPkgName) {
+          if (!write) {
 
-          console.log(`Fetching template ${chalk.bold.green(extPkgName)}...`);
-          console.log();
-          let utils = develop ?
-            lib({
-              host: develop.split(':')[0],
-              port: develop.split(':')[1]
-            }).utils :
-            lib.utils;
-
-          extPkgCalls = [
-            cb => {
-              utils.templates[develop ? '@local' : '@release'].package({
-                name: extPkgName
-              }, (err, result) => {
-                cb(err, result);
-              });
-            },
-            cb => {
-              utils.templates[develop ? '@local' : '@release'].files({
-                name: extPkgName
-              }, (err, result) => {
-                cb(err, result);
-              });
-            }
-          ];
-
-        }
-
-        async.series(extPkgCalls, (err, results) => {
-
-          if (err) {
-            return callback(new Error(`Error retrieving template: ${extPkgName}`));
-          }
-
-          if (results.length === 2) {
-            extPkg = {
-              pkg: results[0],
-              files: results[1]
-            };
-          }
-
-          !fs.existsSync(username) && fs.mkdirSync(username);
-          let serviceName = [username, name].join('/');
-          let servicePath = path.join(process.cwd(), username, name);
-          let fPath = path.join(servicePath, 'functions');
-          let functionPath;
-
-          if (fs.existsSync(servicePath)) {
-
-            if (!write) {
-
-              console.log();
-              console.log(chalk.bold.red('Oops!'));
-              console.log();
-              console.log(`The directory you're creating a stdlib project in already exists:`);
-              console.log(`  ${chalk.bold(servicePath)}`);
-              console.log();
-              console.log(`Try removing the existing directory first.`);
-              console.log();
-              console.log(`Use ${chalk.bold('lib create --write-over')} to override.`);
-              console.log();
-              return callback(null);
-
-            }
-
-          } else {
-
-            fs.mkdirSync(servicePath);
-            fs.mkdirSync(fPath);
-
-          }
-
-          let packageJSON = require(path.join(__dirname, `../templates/${build}/package.json`));
-          let stdlibJSON = require(path.join(__dirname, `../templates/${build}/stdlib.json`));
-
-          packageJSON.name = name;
-          packageJSON.author = user.username + (user.email ? ` <${user.email}>` : '');
-          stdlibJSON.name = [username, name].join('/');
-          stdlibJSON.build = build;
-
-          // EXTERNAL: Assign package details
-          if (extPkg && extPkg.pkg) {
-            let extBuild = extPkg.pkg &&
-              extPkg.pkg.stdlib &&
-              extPkg.pkg.stdlib.build ||
-              DEFAULT_BUILD;
-            if (build !== extBuild) {
-              return callback(new Error(`Can not use this template with this build`));
-            }
-            deepAssign(packageJSON, extPkg.pkg);
-            packageJSON.stdlib.source = extPkgName;
-          }
-
-          fileio.writeFiles(
-            serviceName,
-            fileio.readTemplateFiles(
-              path.join(__dirname, '..', 'templates', build)
-            )
-          );
-
-          fs.writeFileSync(
-            path.join(servicePath, 'package.json'),
-            JSON.stringify(packageJSON, null, 2)
-          );
-
-          fs.writeFileSync(
-            path.join(servicePath, 'stdlib.json'),
-            JSON.stringify(stdlibJSON, null, 2)
-          );
-
-          let fns = [];
-          if (extPkg && extPkg.files && extPkg.files.length) {
-            fns.push(cb => {
-              fileio.extract(serviceName, extPkg.files, (err) => {
-                if (err) {
-                  console.error(err);
-                  return cb(new Error(`Could not install template ${extPkgName}`));
-                }
-                cb();
-              });
-            });
-          }
-
-          async.series(fns, (err) => {
-
-            if (err) {
-              return callback(err);
-            }
-
-            if (
-              (packageJSON.dependencies && Object.keys(packageJSON.dependencies).length) ||
-              (packageJSON.devDependencies && Object.keys(packageJSON.devDependencies).length)
-            ) {
-              console.log(`Installing npm packages...`);
-              console.log();
-              let command = spawnSync(
-                /^win/.test(process.platform) ? 'npm.cmd' : 'npm', ['install'], {
-                  stdio: [0, 1, 2],
-                  cwd: servicePath,
-                  env: process.env
-                }
-              );
-              if (command.status !== 0) {
-                console.log(command.error);
-                console.log(chalk.bold.yellow('Warn: ') + 'Error with npm install');
-              }
-            }
-
-            console.log(chalk.bold.green('Success!'));
             console.log();
-            console.log(`Service ${chalk.bold([username, name].join('/'))} created at:`);
+            console.log(chalk.bold.red('Oops!'));
+            console.log();
+            console.log(`The directory you're creating a Autocode project in already exists:`);
             console.log(`  ${chalk.bold(servicePath)}`);
             console.log();
-            console.log(`Use the following to enter your service directory:`);
-            console.log(`  ${chalk.bold('cd ' + [username, name].join('/'))}`);
+            console.log(`Try removing the existing directory first.`);
             console.log();
-            console.log(`Type ${chalk.bold('lib help')} for more commands.`);
+            console.log(`Use ${chalk.bold('lib create --write-over')} to override.`);
             console.log();
             return callback(null);
 
-          });
+          }
 
-        });
+        } else {
+
+          fs.mkdirSync(servicePath);
+          fs.mkdirSync(fPath);
+
+        }
+
+        let packageJSON = require(path.join(__dirname, `../templates/${build}/package.json`));
+        let stdlibJSON = require(path.join(__dirname, `../templates/${build}/stdlib.json`));
+
+        packageJSON.name = name;
+        packageJSON.author = user.username + (user.email ? ` <${user.email}>` : '');
+        stdlibJSON.name = [username, name].join('/');
+        stdlibJSON.build = build;
+
+        fileio.writeFiles(
+          serviceName,
+          fileio.readTemplateFiles(
+            path.join(__dirname, '..', 'templates', build)
+          )
+        );
+
+        fs.writeFileSync(
+          path.join(servicePath, 'package.json'),
+          JSON.stringify(packageJSON, null, 2)
+        );
+
+        fs.writeFileSync(
+          path.join(servicePath, 'stdlib.json'),
+          JSON.stringify(stdlibJSON, null, 2)
+        );
+
+        if (
+          (packageJSON.dependencies && Object.keys(packageJSON.dependencies).length) ||
+          (packageJSON.devDependencies && Object.keys(packageJSON.devDependencies).length)
+        ) {
+          console.log(`Installing npm packages...`);
+          console.log();
+          let command = spawnSync(
+            /^win/.test(process.platform) ? 'npm.cmd' : 'npm', ['install'], {
+              stdio: [0, 1, 2],
+              cwd: servicePath,
+              env: process.env
+            }
+          );
+          if (command.status !== 0) {
+            console.log(command.error);
+            console.log(chalk.bold.yellow('Warn: ') + 'Error with npm install');
+          }
+        }
+
+        console.log(chalk.bold.green('Success!'));
+        console.log();
+        console.log(`Service ${chalk.bold([username, name].join('/'))} created at:`);
+        console.log(`  ${chalk.bold(servicePath)}`);
+        console.log();
+        console.log(`Use the following to enter your service directory:`);
+        console.log(`  ${chalk.bold('cd ' + [username, name].join('/'))}`);
+        console.log();
+        console.log(`Type ${chalk.bold('lib help')} for more commands.`);
+        console.log();
+        return callback(null);
 
       });
 

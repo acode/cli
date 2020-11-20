@@ -18,7 +18,7 @@ class TokensDestroyCommand extends Command {
 
   help() {
     return {
-      description: 'Destroys an active Library Token for API Authentication',
+      description: 'Destroys an active Identity Token for API Authentication',
     };
   }
 
@@ -44,19 +44,19 @@ class TokensDestroyCommand extends Command {
         console.log();
         console.log(chalk.bold.red('Oops!'));
         console.log();
-        console.log(`It doesn't look like you have any Library Tokens.`);
+        console.log(`It doesn't look like you have any Identity Tokens.`);
         console.log(`This usually means you've removed them.`);
         console.log();
         console.log(`Try typing `);
         console.log(`\t${chalk.bold('lib tokens:create')}`);
         console.log();
-        console.log(`To create a new Library Token.`);
+        console.log(`To create a new Identity Token.`);
         console.log();
-        return callback(new Error('No Library Tokens.'));
+        return callback(new Error('No Identity Tokens.'));
       }
 
       console.log();
-      console.log(`Here's a list of your available ${chalk.bold('Library Tokens')}.`);
+      console.log(`Here's a list of your available ${chalk.bold('Identity Tokens')}.`);
       console.log(`These are your API keys that provide authentication and access to functions.`);
       console.log();
       console.log(`Here you can ${chalk.bold.red('permanently destroy')} authentication tokens, simply choose from the list.`);
@@ -68,7 +68,7 @@ class TokensDestroyCommand extends Command {
             name: 'libraryToken',
             type: 'list',
             pageSize: 100,
-            message: `Select a Library Token to ${chalk.bold.red('Destroy (Permanently)')}`,
+            message: `Select a Identity Token to ${chalk.bold.red('Destroy (Permanently)')}`,
             choices: tabler(
               ['?', 'Active', 'User', 'Label', 'Token', 'Valid', 'Created'],
               tokens.map(libraryToken => {

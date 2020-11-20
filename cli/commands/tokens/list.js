@@ -16,7 +16,7 @@ class TokensListCommand extends Command {
 
   help() {
     return {
-      description: 'Lists your remotely generated Library Tokens (Authentication)',
+      description: 'Lists your remotely generated Identity Tokens (Authentication)',
       flags: {
         's': 'Silent mode - do not display information',
         'a': 'All - show invalidated tokens as well'
@@ -54,20 +54,20 @@ class TokensListCommand extends Command {
         console.log();
         console.log(chalk.bold.red('Oops!'));
         console.log();
-        console.log(`It doesn't look like you have any remotely generated Library Tokens.`);
+        console.log(`It doesn't look like you have any remotely generated Identity Tokens.`);
         console.log(`This usually means you've removed them.`);
         console.log();
         console.log(`Try typing `);
         console.log(`\t${chalk.bold('lib tokens:create')}`);
         console.log();
-        console.log(`To create a new Library Token (remote).`);
+        console.log(`To create a new Identity Token (remote).`);
         console.log();
         return callback(new Error('No remotely generated tokens.'));
       }
 
       if (!silent) {
         console.log();
-        console.log(`Here's a list of your available ${chalk.bold('Library Tokens')}.`);
+        console.log(`Here's a list of your available ${chalk.bold('Identity Tokens')}.`);
         console.log(`These are your API keys that provide authentication and access to functions.`);
       }
 

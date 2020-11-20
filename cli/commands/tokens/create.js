@@ -18,7 +18,7 @@ class TokensCreateCommand extends Command {
 
   help() {
     return {
-      description: 'Creates a Library Token for API Authentication',
+      description: 'Creates an Identity Token for API Authentication',
     };
   }
 
@@ -33,10 +33,10 @@ class TokensCreateCommand extends Command {
     resource.authorize(config.get('ACCESS_TOKEN'));
 
     console.log();
-    console.log(`We'll now create a ${chalk.bold('Library Token')}.`);
+    console.log(`We'll now create an ${chalk.bold('Identity Token')}.`);
     console.log(`These are your API keys that provide authentication and access to functions.`);
     console.log();
-    console.log(`We first ask that you specify a name (label) for your Library Token.`);
+    console.log(`We first ask that you specify a name (label) for your Identity Token.`);
     console.log(`This should be something descriptive like, "my test token"`);
     console.log();
 

@@ -41,7 +41,7 @@ class GetCommand extends Command {
   help() {
 
     return {
-      description: 'Retrieves and extracts Standard Library package',
+      description: 'Retrieves and extracts Autocode package',
       args: [
         'full service name'
       ],
@@ -58,14 +58,6 @@ class GetCommand extends Command {
   run(params, callback) {
 
     let service = params.args[0] || '';
-    let outputPath = params.flags.o || params.vflags.output || [];
-    outputPath = outputPath[0] || '.';
-
-    let write = params.flags.hasOwnProperty('w') || params.vflags.hasOwnProperty('write-over');
-
-    let pathname = path.join(outputPath, service);
-    pathname = outputPath[0] !== '/' ? path.join(process.cwd(), pathname) : pathname;
-
     if (!service) {
       console.log();
       console.log(chalk.bold.red('Oops!'));
@@ -75,12 +67,24 @@ class GetCommand extends Command {
       return callback(null);
     }
 
+    let outputPath = params.flags.o || params.vflags.output || [];
+    outputPath = outputPath[0] || '.';
+
+    let write = params.flags.hasOwnProperty('w') || params.vflags.hasOwnProperty('write-over');
+
+    if (service) {
+      service = service.replace('.', '/').replace(/[\[\]]/gi, '');
+    }
+
+    let pathname = path.join(outputPath, service);
+    pathname = outputPath[0] !== '/' ? path.join(process.cwd(), pathname) : pathname;
+
     if (!config.location(0)) {
       console.log();
       console.log(chalk.bold.red('Oops!'));
       console.log();
       console.log(`You're trying to retrieve a package,`);
-      console.log(`But you're not in your root Standard Library project directory.`);
+      console.log(`But you're not in your root Autocode project directory.`);
       console.log();
       if (!config.workspace()) {
         console.log(`Initialize a workspace first with:`);
@@ -155,11 +159,11 @@ class GetCommand extends Command {
         if (err) {
           return callback(new Error(`Error decompressing package`));
         }
-  
+
         let files = {};
         let extract = tar.extract();
         let tarStream = new stream.PassThrough();
-  
+
         extract.on('entry', (header, stream, cb) => {
           let buffers = [];
           stream.on('data', data => { buffers.push(data); });
@@ -168,7 +172,7 @@ class GetCommand extends Command {
             return cb();
           });
         });
-  
+
         extract.on('finish', () => {
           Object.keys(files).forEach(filename => {
             let outputPath = path.join(pathname, filename);
@@ -191,10 +195,10 @@ class GetCommand extends Command {
           console.log();
           return callback(null);
         });
-  
+
         tarStream.end(result);
         tarStream.pipe(extract);
-  
+
       });
 
     });
