@@ -7,7 +7,7 @@ const zlib = require('zlib');
 const stream = require('stream');
 
 const Command = require('cmnd').Command;
-const APIResource = require('api-res');
+const Registry = require('../registry.js');
 const config = require('../config.js');
 
 const chalk = require('chalk');
@@ -34,7 +34,7 @@ class GetCommand extends Command {
 
   constructor() {
 
-    super('get');
+    super('download');
 
   }
 
@@ -43,7 +43,7 @@ class GetCommand extends Command {
     return {
       description: 'Retrieves and extracts Autocode package',
       args: [
-        'full service name'
+        'username/name OR username/name@env OR username/name@version'
       ],
       flags: {
         w: 'Write over - overwrite the target directory contents'
@@ -63,6 +63,8 @@ class GetCommand extends Command {
       console.log(chalk.bold.red('Oops!'));
       console.log();
       console.log(`Please specify a service name`);
+      console.log(`Use ${chalk.bold('username/name')} for latest release,`);
+      console.log(`Or ${chalk.bold('username/name@env')} or ${chalk.bold('username/name@version')} for specific environments and versions`);
       console.log();
       return callback(null);
     }
@@ -71,10 +73,6 @@ class GetCommand extends Command {
     outputPath = outputPath[0] || '.';
 
     let write = params.flags.hasOwnProperty('w') || params.vflags.hasOwnProperty('write-over');
-
-    if (service) {
-      service = service.replace('.', '/').replace(/[\[\]]/gi, '');
-    }
 
     let pathname = path.join(outputPath, service);
     pathname = outputPath[0] !== '/' ? path.join(process.cwd(), pathname) : pathname;
@@ -111,7 +109,7 @@ class GetCommand extends Command {
       return callback(null);
     }
 
-    let host = 'registry.stdlib.com';
+    let host = 'packages.stdlib.com';
     let port = 443;
 
     let hostname = (params.flags.h && params.flags.h[0]) || '';
@@ -122,86 +120,107 @@ class GetCommand extends Command {
       port = parseInt((matches[3] || '').substr(1) || (hostname.indexOf('https') === 0 ? 443 : 80));
     }
 
-    let info = params.args[0];
-
-    let resource = new APIResource(host, port);
-    resource.authorize(config.get('ACCESS_TOKEN'));
-
-    let endpoint = `${service}/package.tgz`;
-
     console.log();
-    console.log(`Retrieving ${chalk.bold(host + '/' + endpoint)}...`);
+    console.log(`Retrieving ${chalk.bold(service)}...`);
     console.log();
 
-    return resource.request(endpoint).index({}, (err, response) => {
-
-      if (err) {
-        return callback(err);
+    let registry = new Registry(host, port, config.get('ACCESS_TOKEN'));
+    let name = service.split('@')[0];
+    let environment = service.split('@')[1] || null;
+    let registryParams = {name: name};
+    if (environment) {
+      if (environment.indexOf('.') === -1) {
+        registryParams.environment = environment;
+      } else {
+        registryParams.version = environment;
       }
+    }
+    registryParams.format = 'tgz';
 
-      if (fs.existsSync(pathname)) {
-        rmdir(pathname);
-      }
-
-      let directories = pathname.split(path.sep);
-      for (let i = 1; i < directories.length; i++) {
-        let relpath = pathname.split(path.sep).slice(0, i + 1).join(path.sep);
-        try {
-          !fs.existsSync(relpath) && fs.mkdirSync(relpath);
-        } catch (e) {
-          console.error(e);
-          return callback(new Error(`Could not create directory ${relpath}`));
-        }
-      }
-
-      zlib.gunzip(response, (err, result) => {
+    return registry.request(
+      'download',
+      registryParams,
+      null,
+      (err, response) => {
 
         if (err) {
-          return callback(new Error(`Error decompressing package`));
+
+          return callback(err);
+
+        } else {
+
+          console.log(`${chalk.bold(`${response.name}@${response.environment || response.version}`)} downloaded successfully...`);
+
+          if (err) {
+            return callback(err);
+          }
+
+          if (fs.existsSync(pathname)) {
+            rmdir(pathname);
+          }
+
+          let directories = pathname.split(path.sep);
+          for (let i = 1; i < directories.length; i++) {
+            let relpath = pathname.split(path.sep).slice(0, i + 1).join(path.sep);
+            try {
+              !fs.existsSync(relpath) && fs.mkdirSync(relpath);
+            } catch (e) {
+              console.error(e);
+              return callback(new Error(`Could not create directory ${relpath}`));
+            }
+          }
+
+          zlib.gunzip(response, (err, result) => {
+
+            if (err) {
+              return callback(new Error(`Error decompressing package`));
+            }
+
+            let files = {};
+            let extract = tar.extract();
+            let tarStream = new stream.PassThrough();
+
+            extract.on('entry', (header, stream, cb) => {
+              let buffers = [];
+              stream.on('data', data => { buffers.push(data); });
+              stream.on('end', () => {
+                files[header.name] = Buffer.concat(buffers);
+                return cb();
+              });
+            });
+
+            extract.on('finish', () => {
+              Object.keys(files).forEach(filename => {
+                let outputPath = path.join(pathname, filename);
+                let directories = outputPath.split(path.sep).slice(0, -1);
+                for (let i = 1; i < directories.length; i++) {
+                  let relpath = outputPath.split(path.sep).slice(0, i + 1).join(path.sep);
+                  try {
+                    !fs.existsSync(relpath) && fs.mkdirSync(relpath);
+                  } catch (e) {
+                    console.error(e);
+                    return callback(new Error(`Could not create directory ${relpath}`));
+                  }
+                }
+                fs.writeFileSync(outputPath, files[filename], {mode: 0o777});
+              });
+              console.log(chalk.bold.green('Success!'));
+              console.log();
+              console.log(`${chalk.bold(service)} package retrieved to:`);
+              console.log(`  ${chalk.bold(pathname)}`);
+              console.log();
+              return callback(null);
+            });
+
+            tarStream.end(result);
+            tarStream.pipe(extract);
+
+          });
+
         }
 
-        let files = {};
-        let extract = tar.extract();
-        let tarStream = new stream.PassThrough();
-
-        extract.on('entry', (header, stream, cb) => {
-          let buffers = [];
-          stream.on('data', data => { buffers.push(data); });
-          stream.on('end', () => {
-            files[header.name] = Buffer.concat(buffers);
-            return cb();
-          });
-        });
-
-        extract.on('finish', () => {
-          Object.keys(files).forEach(filename => {
-            let outputPath = path.join(pathname, filename);
-            let directories = outputPath.split(path.sep).slice(0, -1);
-            for (let i = 1; i < directories.length; i++) {
-              let relpath = outputPath.split(path.sep).slice(0, i + 1).join(path.sep);
-              try {
-                !fs.existsSync(relpath) && fs.mkdirSync(relpath);
-              } catch (e) {
-                console.error(e);
-                return callback(new Error(`Could not create directory ${relpath}`));
-              }
-            }
-            fs.writeFileSync(outputPath, files[filename], {mode: 0o777});
-          });
-          console.log(chalk.bold.green('Success!'));
-          console.log();
-          console.log(`${chalk.bold(service)} package retrieved to:`);
-          console.log(`  ${chalk.bold(pathname)}`);
-          console.log();
-          return callback(null);
-        });
-
-        tarStream.end(result);
-        tarStream.pipe(extract);
-
-      });
-
-    });
+      }
+    );
 
   }
 

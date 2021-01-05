@@ -1,7 +1,7 @@
 {
   "name": "lib.cli",
-  "version": "4.12.0",
-  "description": "Command Line Tools for Autocode - autocode.com",
+  "version": "5.0.0",
+  "description": "Command Line tools for Autocode - autocode.com",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -42,7 +42,9 @@
     "inquirer": "^7.3.3",
     "lib": "^4.3.0",
     "ncp": "^2.0.0",
+    "pusher-js": "^7.0.2",
     "stream": "0.0.2",
-    "tar-stream": "^1.5.2"
+    "tar-stream": "^1.5.2",
+    "uuid": "^8.3.2"
   }
 }

@@ -1,7 +1,7 @@
 'use strict';
 
 const Command = require('cmnd').Command;
-const APIResource = require('api-res');
+const Registry = require('../registry.js');
 
 const fs = require('fs');
 const zlib = require('zlib');
@@ -9,6 +9,7 @@ const path = require('path');
 
 const async = require('async');
 const tar = require('tar-stream');
+const chalk = require('chalk');
 
 const config = require('../config.js');
 const serviceConfig = require('../service_config');
@@ -86,23 +87,26 @@ class UpCommand extends Command {
     let environment = params.args[0];
     let release = params.flags.r || params.vflags.release;
     let force = params.flags.f || params.vflags.force;
+    let version = null;
 
     if (environment) {
       if (environment === RELEASE_ENV) {
-        release = [];
+        if (release[0]) {
+          version = release[0];
+        }
       } else if (release) {
         return callback(new Error('Can not release to an environment'));
       }
     } else if (release) {
       environment = RELEASE_ENV;
       if (release[0]) {
-        return callback(new Error('Can only release to the version specified in "package.json"'));
+        version = release[0];
       }
     } else {
       return callback(new Error('Please specify an environment'));
     }
 
-    let host = 'registry.stdlib.com';
+    let host = 'packages.stdlib.com';
     let port = 443;
 
     let hostname = (params.flags.h && params.flags.h[0]) || '';
@@ -121,12 +125,9 @@ class UpCommand extends Command {
       return callback(err);
     }
 
-    if (err) {
-      return callback(err);
-    }
-
-    let resource = new APIResource(host, port);
-    resource.authorize(config.get('ACCESS_TOKEN'));
+    let registry = new Registry(host, port, config.get('ACCESS_TOKEN'));
+    console.log();
+    console.log(`Packaging ${pkg.stdlib.name}@${environment === RELEASE_ENV ? version || pkg.stdlib.version : environment}...`);
 
     !fs.existsSync('/tmp') && fs.mkdirSync('/tmp');
     !fs.existsSync('/tmp/stdlib') && fs.mkdirSync('/tmp/stdlib', 0o777);
@@ -174,9 +175,15 @@ class UpCommand extends Command {
           return callback(err);
         }
 
+        console.log(`Packaging complete, total size is ${result.byteLength} bytes!`);
+        console.log(`Uploading ${chalk.bold(`${pkg.stdlib.name}@${environment === RELEASE_ENV ? version || pkg.stdlib.version : environment}`)} to Autocode at ${host}:${port}...`);
+
         let registryParams = {channel: '1234'};
         if (environment === RELEASE_ENV) {
           registryParams.release = 't';
+          if (version) {
+            registryParams.version = version;
+          }
         } else {
           registryParams.environment = environment;
         }
@@ -185,20 +192,27 @@ class UpCommand extends Command {
           registryParams.force = 't';
         }
 
-        return registryRequest(
+        return registry.request(
           'up/verify',
-          {Authorization: `Bearer ${config.get('ACCESS_TOKEN')}`},
           registryParams,
           result,
           (err, response) => {
 
             if (err) {
+              console.log();
               return callback(err);
             } else {
-              console.log('Service uploaded successfully!');
+              let t = new Date().valueOf() - start;
+              console.log()
+              console.log(`${chalk.bold(`${response.name}@${response.environment || response.version}`)} uploaded successfully in ${t} ms!`);
+              console.log(`${chalk.bold.green('Live URL:')} https://${response.name.split('/')[0]}.api.stdlib.com/${response.name.split('/')[1]}@${response.environment || response.version}/`);
+              console.log();
               return callback(null);
             }
 
+          },
+          (data) => {
+            console.log(`Registry :: ${data.message}`);
           }
         );
 

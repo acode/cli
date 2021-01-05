@@ -21,7 +21,7 @@ class LoginCommand extends Command {
   help() {
 
     return {
-      description: 'Logs in to Autocode in this directory',
+      description: 'Logs in to Autocode',
       vflags: {
         email: 'E-mail',
         password: 'Password'

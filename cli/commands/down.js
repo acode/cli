@@ -1,7 +1,9 @@
 'use strict';
 
 const Command = require('cmnd').Command;
-const APIResource = require('api-res');
+const Registry = require('../registry.js');
+
+const chalk = require('chalk');
 
 const config = require('../config.js');
 const serviceConfig = require('../service_config');
@@ -50,7 +52,7 @@ class DownCommand extends Command {
       environment = null;
     }
 
-    let host = 'registry.stdlib.com';
+    let host = 'packages.stdlib.com';
     let port = 443;
 
     let hostname = (params.flags.h && params.flags.h[0]) || '';
@@ -69,28 +71,25 @@ class DownCommand extends Command {
       return callback(err);
     }
 
-    let resource = new APIResource(host, port);
-    resource.authorize(config.get('ACCESS_TOKEN'));
+    let registry = new Registry(host, port, config.get('ACCESS_TOKEN'));
 
-    let endpoint = environment
-      ? `${pkg.stdlib.name}@${environment}`
-      : `${pkg.stdlib.name}@${version || pkg.stdlib.version}`;
+    let registryParams = {name: pkg.stdlib.name};
+    if (environment) {
+      registryParams.environment = environment;
+    } else {
+      registryParams.version = version;
+    }
 
-    return resource.request(endpoint).stream(
-      'DELETE',
+    return registry.request(
+      'down',
+      registryParams,
       null,
-      (data) => {
-        data.length > 1 && process.stdout.write(data.toString());
-      },
       (err, response) => {
 
         if (err) {
           return callback(err);
-        }
-
-        if (response[response.length - 1] === 1) {
-          return callback(new Error('There was an error processing your request, try logging in again.'));
         } else {
+          console.log(`${chalk.bold(`${response.name}@${response.environment || response.version}`)} torn down successfully!`);
           return callback(null);
         }
 

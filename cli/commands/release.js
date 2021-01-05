@@ -24,7 +24,7 @@ class ReleaseCommand extends Command {
 
   run(params, callback) {
 
-    params.flags.r = true;
+    params.flags.r = [];
     params.args = [];
     UpCommand.prototype.run.call(this, params, callback);
 

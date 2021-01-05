@@ -1,5 +1,5 @@
 # <img src="https://content.public.files.stdlib.com/shared/static/branding/autocode-logo-wordmark.svg" width="300">
-## [Autocode is an API Development, Hosting and Integration Platform](https://stdlib.com)
+## [Autocode allows you to instantly build and host Webhooks, Scripts and APIs](https://autocode.com)
 
 **Autocode Setup** |
 [Node](https://github.com/stdlib/lib-node) |
@@ -10,12 +10,12 @@
 # Introduction
 
 
-Autocode is the *fastest, easiest* way to build infinitely scalable APIs.
-The Autocode platform consists of three components:
+Autocode is the *fastest, easiest* way to build web services and APIs that
+respond to external events. The Autocode CLI allows you to interact seamlessly
+with the following components of Autocode:
 
-1. A central registry and standard library for APIs
-2. A scalable, serverless hosting platform
-3. Simple command line tooling for building and managing API development
+1. Autocode Standard Library: A central registry for APIs
+2. Our scalable, serverless hosting platform
 
 Autocode is based on Function as a Service ("serverless") architecture,
 initially popularized by AWS Lambda. You can use Autocode to build modular, scalable APIs
@@ -228,15 +228,15 @@ An existing app would call a function (username.bestTrekChar with version 0.2.1)
 ```javascript
 const lib = require('lib');
 
-lib.username.bestTrekChar['@0.2.1']({name: 'spock'}, function (err, result) {
+let result;
 
-  if (err) {
-    // handle it
-  }
+try {
+  result = await lib.username.bestTrekChar['@0.2.1']({name: 'spock'});
+} catch (err) {
+  // handle error
+}
 
-  // do something with result
-
-});
+// do something with result
 ```
 
 Which would speak to your API...
@@ -280,87 +280,6 @@ module.exports = async (name = 'world') => {
 };
 ```
 
-# Running Your APIs as Background Workers
-
-To run any Autocode service as a background worker (immediately returns a
-  response, runs function after), simply append ":bg" to the URL before
-  the HTTP query parameters (search portion of the URL), for example (from
-  above):
-
-```
-https://username.api.stdlib.com/liveService@1.12.2/:bg?name=BATMAN
-```
-
-To do so from the `lib-node` library, use:
-
-```javascript
-lib({bg: true}).username.liveService['@1.12.2'](...);
-```
-
-## Background Responses
-
-The default background response will be a content type of `text/plain` with a
-string indicating the function name you're executing. There are currently
-three different options for background responses that you define before you
-deploy your function.
-
-### info (DEFAULT)
-
-Set `@bg info` in your comment definition like so:
-
-```javascript
-/**
-* Hello World
-* @bg info
-* @param {string} name
-* @returns {string}
-*/
-module.exports = async (name = 'world') => {
-  return `Hello ${name}`;
-};
-```
-
-This is the default as well (if nothing is specified).
-
-### empty
-
-Set `@bg empty` in your comment definition like so:
-
-```javascript
-/**
-* Hello World
-* @bg empty
-* @param {string} name
-* @returns {string}
-*/
-module.exports = async (name = 'world') => {
-  return `Hello ${name}`;
-};
-```
-
-Will return an empty (0 length) response.
-
-### params
-
-Set `@bg params` in your comment definition like so:
-
-```javascript
-/**
-* Hello World
-* @bg params
-* @param {string} name
-* @returns {string}
-*/
-module.exports = async (name = 'world') => {
-  return `Hello ${name}`;
-};
-```
-
-This will return `{"name":"world"}` in this example (if no other parameters are
-  specified) as this parameter has a default value. This will spit back any
-  and all parameters sent to the function, even if they're not part of the
-  function signature.
-
 # Version Control and Package Management
 
 A quick note on version control - Autocode is *not* a replacement for normal
@@ -368,8 +287,7 @@ git-based workflows, it is a supplement focused around service creation and
 execution.
 
 You have unlimited access to any release (that hasn't been torn down)
-with `lib pkg <serviceIdentifier>` to download the tarball (`.tgz`) and
-`lib get <serviceIdentifier>` to automatically download and unpack the
+with `lib download <serviceIdentifier>` to download and unpack the
 tarball to a working directory.
 
 Tarballs (and package contents) are *closed-source*.
@@ -410,12 +328,10 @@ Limit the number of lines to show with the `-l` argument (or `--lines`).
 
 # Additional Functionality
 
-Autocode comes packed with a bunch of other goodies - if your service goes down
-for any reason (the service platform is acting up), use `lib restart`.
-Similarly, as we roll out updates to the platform the builds we're using on
-AWS Lambda may change. You can update your service to our latest build using
-`lib rebuild`. We may recommend this from time-to-time, so pay attention
-to e-mails and the community.
+Autocode comes packed with a bunch of other goodies - as we roll out updates to
+the platform the serverless builds we're using may change. You can update
+your service to our latest build using `lib rebuild`. If for any reason your
+service goes down and is unrecoverable, you can fix it with this command.
 
 To see a full list of commands available for the CLI tools, type:
 
@@ -426,20 +342,19 @@ $ lib help
 We've conveniently copy-and-pasted the output here for you to peruse;
 
 ```
-* [all arguments converted to parameters]
+*
 	-b                   Execute as a Background Function
-	-d                   Specify debug mode (prints Gateway logs)
-	-t                   Specify a Identity Token
-	-w                   Specify a Webhook (Deprecated)
+	-d                   Specify debug mode (prints Gateway logs locally, response logs remotely)
+	-i                   Specify information mode (prints tar packing and execution request progress)
+	-t                   Specify an Identity Token to use manually
+	-x                   Unauthenticated - Execute without a token (overrides active token and -t flag)
 	--*                  all verbose flags converted to named keyword parameters
 
-	Runs a Autocode function, i.e. "lib user.service[@ver]" (remote) or "lib ." (local)
+	Runs an Autocode function, i.e. "lib user.service[@env]" (remote) or "lib ." (local)
 
 create [service]
-	-f                   Force command if not in root directory
 	-n                   No login - don't require an internet connection
 	-w                   Write over - overwrite the current directory contents
-	--force              Force command if not in root directory
 	--no-login           No login - don't require an internet connection
 	--write-over         Write over - overwrite the current directory contents
 
@@ -451,27 +366,26 @@ down [environment]
 
 	Removes Autocode package from registry and cloud environment
 
-function:create [name] [description] [param_1] [param_2] [...] [param_n]
-	-n                   New directory: Create as a __main__.js file, with the name representing the directory
-	--new                New directory: Create as a __main__.js file, with the name representing the directory
-
-	Creates a new function for a service, locally
-
-get [full service name]
-	-f                   Force command if not in root directory
+download [username/name OR username/name@env OR username/name@version]
 	-w                   Write over - overwrite the target directory contents
-	--force              Force command if not in root directory
 	--write-over         Write over - overwrite the target directory contents
 
 	Retrieves and extracts Autocode package
 
-hosts
+endpoints:create [name] [description] [param_1] [param_2] [...] [param_n]
+	-n                   New directory: Create as a __main__.js file, with the name representing the directory
+	--new                New directory: Create as a __main__.js file, with the name representing the directory
+
+	Creates a new endpoint for a service
+
+hostnames:add [source] [target]
+	Adds a new hostname route from a source custom hostname to a target service you own.
+	Accepts wildcards wrapped in curly braces ("{}") or "*" at the front of the hostname.
+
+hostnames:list
 	Displays created hostname routes from source custom hostnames to target services you own
 
-hosts:add [source] [target]
-	Adds a new hostname route from a source custom hostname to a target service you own
-
-hosts:remove [source]
+hostnames:remove
 	Removes a hostname route from a source custom hostname to a target service you own
 
 http
@@ -479,9 +393,6 @@ http
 	--port               Port (default 8170)
 
 	Creates HTTP Server for Current Service
-
-info [username | full service name]
-	Retrieves information about a user or package
 
 init [environment]
 	-f                   Force command to overwrite existing workspace
@@ -492,12 +403,15 @@ init [environment]
 	Initializes Autocode workspace
 
 login
-	--email              E-Mail
+	--email              E-mail
 	--password           Password
 
-	Logs in to Autocode in this directory
+	Logs in to Autocode
 
 logout
+	-f                   Force - clears information even if current Access Token invalid
+	--force              Force - clears information even if current Access Token invalid
+
 	Logs out of Autocode in this workspace
 
 logs [service]
@@ -508,14 +422,6 @@ logs [service]
 
 	Retrieves logs for a given service
 
-pkg [full service name]
-	-f                   Force command if not in root directory
-	-o                   Output path for the .tgz package
-	--force              Force command if not in root directory
-	--output             Output path for the .tgz package
-
-	Downloads Autocode tarball (.tgz)
-
 rebuild [environment]
 	-r                   Rebuild a release package
 	--release            Rebuild a release package
@@ -525,19 +431,24 @@ rebuild [environment]
 release
 	Pushes release of Autocode package to registry and cloud (Alias of `lib up -r`)
 
-restart [environment]
-	-b                   Rebuild service fully
-	-r                   Restart a release package
-	--build              Rebuild service fully
-	--release            Restart a release package
+tokens
+	Selects an active Identity Token for API Authentication
 
-	Restarts a Autocode service (if necessary)
+tokens:add-to-env
+	Sets STDLIB_SECRET_TOKEN in env.json "local" field to the value of an existing token
 
-rollback
-	Rolls back (removes) release of Autocode package (alias of `lib down -r`)
+tokens:list
+	-a                   All - show invalidated tokens as well
+	-s                   Silent mode - do not display information
+	--all                All - show invalidated tokens as well
+	--silent             Silent mode - do not display information
+
+	Lists your remotely generated Identity Tokens (Authentication)
 
 up [environment]
+	-f                   Force deploy
 	-r                   Upload a release package
+	--force              Force deploy
 	--release            Upload a release package
 
 	Pushes Autocode package to registry and cloud environment
@@ -574,12 +485,17 @@ can read more about service hosting and keep track of official updates on
 
 # Acknowledgements
 
-Autocode is a product of and &copy; 2020 Polybit Inc.
+Autocode is a product of and &copy; 2021 Polybit Inc.
 
 We'd love for you to pay attention to [@AutocodeHQ](https://twitter.com/AutocodeHQ) and
 what we're building next! If you'd consider joining the team, [shoot us an e-mail](mailto:careers@autocode.com).
 
-You can also follow me, the original author, on Twitter: [@keithwhor](https://twitter.com/keithwhor).
+You can also follow our team on Twitter:
+
+- [@keithwhor (Keith Horwood)](https://twitter.com/keithwhor)
+- [@hacubu (Jacob Lee)](https://twitter.com/hacubu)
+- [@YusufMusleh (Yusuf Musleh)](https://twitter.com/YusufMusleh)
+- [@threesided (Scott Gamble)](https://twitter.com/threesided)
 
 Issues encouraged, PRs welcome, and we're happy to have you on board!
 Enjoy and happy building :)
