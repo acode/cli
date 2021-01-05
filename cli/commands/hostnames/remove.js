@@ -6,14 +6,14 @@ const chalk = require('chalk');
 const inquirer = require('inquirer');
 
 const config = require('../../config.js');
-const ListCommand = require('./_.js');
+const ListCommand = require('./list.js');
 const tabler = require('../../tabler.js');
 
-class HostsRemoveCommand extends Command {
+class HostnamesRemoveCommand extends Command {
 
   constructor() {
 
-    super('hosts', 'remove');
+    super('hostnames', 'remove');
 
   }
 
@@ -90,7 +90,7 @@ class HostsRemoveCommand extends Command {
           }
         ]
       );
-      
+
       if (!answers.verify || answers.route === 0) {
         return callback(null);
       }
@@ -113,4 +113,4 @@ class HostsRemoveCommand extends Command {
 
 }
 
-module.exports = HostsRemoveCommand;
+module.exports = HostnamesRemoveCommand;

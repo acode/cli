@@ -59,7 +59,7 @@ class UserCommand extends Command {
 
   }
 
-  run(params, callback) {
+  async run(params, callback) {
 
     let host = 'api.autocode.com';
     let port = 443;
@@ -91,7 +91,7 @@ class UserCommand extends Command {
     }
 
     if (params.vflags['new-password']) {
-      
+
       let promptResult = await inquirer.prompt(
         [
           {

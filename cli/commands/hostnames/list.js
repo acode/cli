@@ -5,11 +5,11 @@ const APIResource = require('api-res');
 const config = require('../../config.js');
 const tabler = require('../../tabler.js');
 
-class HostsCommand extends Command {
+class HostnamesListCommand extends Command {
 
   constructor() {
 
-    super('hosts');
+    super('hostnames', 'list');
 
   }
 
@@ -64,4 +64,4 @@ class HostsCommand extends Command {
 
 }
 
-module.exports = HostsCommand;
+module.exports = HostnamesListCommand;

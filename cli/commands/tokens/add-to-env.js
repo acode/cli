@@ -14,15 +14,15 @@ const serviceConfig = require('../../service_config');
 
 const TokensListCommand = require('./list.js');
 
-class TokensRetrieveCommand extends Command {
+class TokensAddToEnvCommand extends Command {
 
   constructor() {
-    super('tokens', 'retrieve');
+    super('tokens', 'add-to-env');
   }
 
   help() {
     return {
-      description: 'Retrieve an Identity Token for use in the local environment of the current service',
+      description: 'Sets STDLIB_SECRET_TOKEN in env.json "local" field to the value of an existing token',
     };
   }
 
@@ -139,15 +139,22 @@ class TokensRetrieveCommand extends Command {
 
         // If we didn't cancel...
         if (libraryToken !== 0) {
-
+          let newEnv = {
+            local: env.local || {}
+          };
+          Object.keys(env).forEach((key) => {
+            newEnv[key] = env[key];
+          });
+          newEnv.local.STDLIB_SECRET_TOKEN = libraryToken.token;
+          fs.writeFileSync(path.join(process.cwd(), 'env.json'), JSON.stringify(newEnv, null, 2));
           console.log();
-          console.log(`Your Development Identity Token value is:`);
+          console.log(chalk.bold.green('Success!'));
           console.log();
-          console.log(chalk.bold(libraryToken.token));
+          console.log(`Added the Development Identity Token "${chalk.bold(libraryToken.Label)}"\nto your local "env.json" file as ${chalk.bold('STDLIB_SECRET_TOKEN')}.`);
           console.log();
-          console.log(`Please add it to your local "env.json" file.`);
+          console.log(`Your API will now use this token when you test locally with ${chalk.bold('lib .')}`);
           console.log();
-
+          return callback();
         }
 
         return callback();
@@ -159,4 +166,4 @@ class TokensRetrieveCommand extends Command {
   }
 }
 
-module.exports = TokensRetrieveCommand;
+module.exports = TokensAddToEnvCommand;
