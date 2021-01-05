@@ -41,7 +41,6 @@ You can view services published by our large and growing developer community
 1. [Connecting Service Endpoints](#connecting-service-endpoints)
 1. [Accessing Your APIs From Other Applications](#accessing-your-apis-from-other-applications)
 1. [Accessing Your APIs Over HTTP](#accessing-your-apis-over-http)
-1. [Running Your APIs as Background Workers](#running-your-apis-as-background-workers)
 1. [Version Control and Package Management](#version-control-and-package-management)
 1. [Logging](#logging)
 1. [Additional Functionality](#additional-functionality)
