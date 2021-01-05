@@ -34,20 +34,20 @@ You can view services published by our large and growing developer community
 
 ![lib-process](https://content.public.files.stdlib.com/shared/static/images/lib-usage.gif)
 
-# Table of Contents
+# Table of contents
 
-1. [Getting Started](#getting-started)
-1. [Creating Your First Service](#creating-your-first-service)
-1. [Connecting Service Endpoints](#connecting-service-endpoints)
-1. [Accessing Your APIs From Other Applications](#accessing-your-apis-from-other-applications)
-1. [Accessing Your APIs Over HTTP](#accessing-your-apis-over-http)
-1. [Version Control and Package Management](#version-control-and-package-management)
+1. [Getting started](#getting-started)
+1. [Creating your first service](#creating-your-first-service)
+1. [Connecting service endpoints](#connecting-service-endpoints)
+1. [Accessing your APIs from other applications](#accessing-your-apis-from-other-applications)
+1. [Accessing your APIs over HTTP](#accessing-your-apis-over-http)
+1. [Version control and package management](#version-control-and-package-management)
 1. [Logging](#logging)
-1. [Additional Functionality](#additional-functionality)
+1. [Additional functionality](#additional-functionality)
 1. [Acknowledgements](#acknowledgements)
 1. [Contact](#contact)
 
-# Getting Started
+# Getting started
 
 To get started with Autocode, first make sure you have Node 8.x or later installed,
 [available from the official Node.js website](https://nodejs.org). Next install
@@ -59,7 +59,7 @@ $ npm install lib.cli -g
 
 And you're now ready to start building!
 
-# Creating Your First Service
+# Creating your first service
 
 The first thing you'll want to do is create a workspace. Create a new directory
 you intend to build your services in and initialize the workspace.
@@ -138,7 +138,7 @@ Note that `context` is a magic parameter (automatically populated with
   so these **don't need to be documented** and **can not be specified as
   parameters when executing the function**.
 
-## Pushing to the Cloud
+## Pushing to the cloud
 
 To push your function to a development environment in the cloud...
 
@@ -178,7 +178,7 @@ are *mutable* and can be replaced indefinitely. Releases (`lib release`) are
 with `lib down <environment>` or `lib down -r <version>` (but releases
 	can't be replaced once removed, to prevent mistakes and / or bad actors).
 
-# Connecting Service Endpoints
+# Connecting service endpoints
 
 You'll notice that you can create more than one function per service. While
 you can structure your project however you'd like internally, it should also
@@ -215,7 +215,7 @@ will return `6`. The `context` magic parameter is used for its
 in the case of local execution, `"your_username.your_service[@ENV]"` when deployed to an
 environment or release (where `ENV` is your environment name or semver).
 
-# Accessing Your APIs From Other Applications
+# Accessing your APIs from other applications
 
 As mentioned in the previous section, you can use the NPM `lib` package that's
 [available on GitHub and NPM](https://github.com/stdlib/lib-node) to access your
@@ -254,7 +254,7 @@ module.exports = async (name = 'kirk') => {
 };
 ```
 
-# Accessing Your APIs Over HTTP
+# Accessing your APIs over HTTP
 
 We definitely recommend using the [lib library on NPM](https://github.com/stdlib/lib-node)
 to make API calls as specified above, but you can also make HTTPS
@@ -279,7 +279,7 @@ module.exports = async (name = 'world') => {
 };
 ```
 
-# Version Control and Package Management
+# Version control and package management
 
 A quick note on version control - Autocode is *not* a replacement for normal
 git-based workflows, it is a supplement focused around service creation and
@@ -325,7 +325,7 @@ The default log type is `stdout`, though you can specify `stderr` with
 
 Limit the number of lines to show with the `-l` argument (or `--lines`).
 
-# Additional Functionality
+# Additional functionality
 
 Autocode comes packed with a bunch of other goodies - as we roll out updates to
 the platform the serverless builds we're using may change. You can update
@@ -464,7 +464,7 @@ version
 	Returns currently installed version of Autocode command line tools
 ```
 
-# Upgrading From Previous Versions
+# Upgrading from previous versions
 
 If you're running a previous version and are having issues with the CLI,
 try cleaning up the old CLI binary links first;
