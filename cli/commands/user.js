@@ -61,7 +61,7 @@ class UserCommand extends Command {
 
   run(params, callback) {
 
-    let host = 'api.polybit.com';
+    let host = 'api.autocode.com';
     let port = 443;
 
     let hostname = (params.flags.h && params.flags.h[0]) || '';
@@ -91,7 +91,8 @@ class UserCommand extends Command {
     }
 
     if (params.vflags['new-password']) {
-      return inquirer.prompt(
+      
+      let promptResult = await inquirer.prompt(
         [
           {
             name: 'old_password',
@@ -111,39 +112,39 @@ class UserCommand extends Command {
             default: '',
             message: 'Repeat Password'
           }
-        ],
-        (promptResult) => {
-
-          resource.request('v1/users').index({me: true}, (err, response) => {
-
-            if (err) {
-              return callback(err);
-            }
-
-            let user = response.data[0];
-            if (!user) {
-              return callback(new Error('We couldn\'t retrieve your user data. Try again shortly.'));
-            }
-
-            resource.request('v1/users').update(user.id, {}, promptResult, (err, response) => {
-
-              if (err) {
-                return callback(err);
-              }
-
-              let user = response.data[0];
-              if (!user) {
-                return callback(new Error('We couldn\'t change your password. Try again shortly.'));
-              }
-
-              return callback(null, 'Password changed successfully.');
-
-            });
-
-          });
-
-        }
+        ]
       );
+
+      resource.request('v1/users').index({me: true}, (err, response) => {
+
+        if (err) {
+          return callback(err);
+        }
+
+        let user = response.data[0];
+        if (!user) {
+          return callback(new Error('We couldn\'t retrieve your user data. Try again shortly.'));
+        }
+
+        resource.request('v1/users').update(user.id, {}, promptResult, (err, response) => {
+
+          if (err) {
+            return callback(err);
+          }
+
+          let user = response.data[0];
+          if (!user) {
+            return callback(new Error('We couldn\'t change your password. Try again shortly.'));
+          }
+
+          return callback(null, 'Password changed successfully.');
+
+        });
+
+      });
+
+      return;
+
     }
 
     let set = params.vflags.set || params.flags.s || [];

@@ -28,7 +28,7 @@ class TokensRetrieveCommand extends Command {
 
   run(params, callback) {
 
-    let host = params.flags.h ? params.flags.h[0] : 'https://api.polybit.com';
+    let host = params.flags.h ? params.flags.h[0] : 'https://api.autocode.com';
     let port = params.flags.p && params.flags.p[0];
 
     let resource = new APIResource(host, port);
@@ -56,7 +56,7 @@ class TokensRetrieveCommand extends Command {
     resource.authorize(config.get('ACCESS_TOKEN'));
     resource.request('/v1/library_tokens').index({
       environment: 'dev'
-    }, (err, response) => {
+    }, async (err, response) => {
 
       if (err) {
         return callback(err);
@@ -95,7 +95,7 @@ class TokensRetrieveCommand extends Command {
         console.log(`Please select one from this list that you would like to use with ${chalk.bold(serviceName)}:`);
         console.log();
 
-        inquirer.prompt(
+        let answers = await inquirer.prompt(
           [
             {
               name: 'libraryToken',
@@ -132,28 +132,26 @@ class TokensRetrieveCommand extends Command {
                 }
               )
             }
-          ],
-          answers => {
-
-            let libraryToken = answers.libraryToken;
-
-            // If we didn't cancel...
-            if (libraryToken !== 0) {
-
-              console.log();
-              console.log(`Your Development Identity Token value is:`);
-              console.log();
-              console.log(chalk.bold(libraryToken.token));
-              console.log();
-              console.log(`Please add it to your local "env.json" file.`);
-              console.log();
-
-            }
-
-            return callback();
-
-          }
+          ]
         );
+
+        let libraryToken = answers.libraryToken;
+
+        // If we didn't cancel...
+        if (libraryToken !== 0) {
+
+          console.log();
+          console.log(`Your Development Identity Token value is:`);
+          console.log();
+          console.log(chalk.bold(libraryToken.token));
+          console.log();
+          console.log(`Please add it to your local "env.json" file.`);
+          console.log();
+
+        }
+
+        return callback();
+
       }
 
     });

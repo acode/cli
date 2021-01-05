@@ -30,7 +30,7 @@ class HostsAddCommand extends Command {
 
   run(params, callback) {
 
-    let host = 'api.polybit.com';
+    let host = 'api.autocode.com';
     let port = 443;
 
     let source = params.args[0] || '';

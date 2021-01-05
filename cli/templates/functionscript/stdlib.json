@@ -1,0 +1,5 @@
+{
+  "name": "username/service",
+  "version": "0.0.0",
+  "timeout": 10000
+}

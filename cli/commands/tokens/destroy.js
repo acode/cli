@@ -26,13 +26,13 @@ class TokensDestroyCommand extends Command {
 
     let activeToken = config.get('ACTIVE_LIBRARY_TOKEN');
 
-    let host = params.flags.h ? params.flags.h[0] : 'https://api.polybit.com';
+    let host = params.flags.h ? params.flags.h[0] : 'https://api.autocode.com';
     let port = params.flags.p && params.flags.p[0];
 
     let resource = new APIResource(host, port);
 
     resource.authorize(config.get('ACCESS_TOKEN'));
-    resource.request('/v1/library_tokens').index({}, (err, response) => {
+    resource.request('/v1/library_tokens').index({}, async (err, response) => {
 
       if (err) {
         return callback(err);
@@ -62,7 +62,7 @@ class TokensDestroyCommand extends Command {
       console.log(`Here you can ${chalk.bold.red('permanently destroy')} authentication tokens, simply choose from the list.`);
       console.log();
 
-      inquirer.prompt(
+      let answers = await inquirer.prompt(
         [
           {
             name: 'libraryToken',
@@ -109,38 +109,35 @@ class TokensDestroyCommand extends Command {
             },
             when: (answers) => !!answers.libraryToken
           }
-        ],
-        answers => {
+        ]
+      );
 
-          let libraryToken = answers.libraryToken;
+      let libraryToken = answers.libraryToken;
 
-          // If we cancelled or didn't verify.
-          if (!libraryToken || !answers.verify) {
-            // set silent flag.
-            params.flags.s = [];
-            return TokensListCommand.prototype.run.call(this, params, callback);
+      // If we cancelled or didn't verify.
+      if (!libraryToken || !answers.verify) {
+        // set silent flag.
+        params.flags.s = [];
+        return TokensListCommand.prototype.run.call(this, params, callback);
+      }
+
+      resource.authorize(config.get('ACCESS_TOKEN'));
+      resource.request('/v1/library_tokens').destroy(
+        null,
+        {token: libraryToken.token},
+        (err, response) => {
+
+          if (err) {
+            console.log('There was an error destroying your token.');
+            return callback(err);
           }
 
-          resource.authorize(config.get('ACCESS_TOKEN'));
-          resource.request('/v1/library_tokens').destroy(
-            null,
-            {token: libraryToken.token},
-            (err, response) => {
+          if (libraryToken.token === activeToken) {
+            config.save('ACTIVE_LIBRARY_TOKEN', '');
+          }
 
-              if (err) {
-                console.log('There was an error destroying your token.');
-                return callback(err);
-              }
-
-              if (libraryToken.token === activeToken) {
-                config.save('ACTIVE_LIBRARY_TOKEN', '');
-              }
-
-              params.flags.s = [];
-              return TokensListCommand.prototype.run.call(this, params, callback);
-
-            }
-          );
+          params.flags.s = [];
+          return TokensListCommand.prototype.run.call(this, params, callback);
 
         }
       );

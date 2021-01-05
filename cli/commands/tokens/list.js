@@ -32,7 +32,7 @@ class TokensListCommand extends Command {
 
     let activeToken = config.get('ACTIVE_LIBRARY_TOKEN');
 
-    let host = params.flags.h ? params.flags.h[0] : 'https://api.polybit.com';
+    let host = params.flags.h ? params.flags.h[0] : 'https://api.autocode.com';
     let port = params.flags.p && params.flags.p[0];
     let silent = !!(params.flags.s || params.vflags.silent);
     let all = !!(params.flags.a || params.vflags.all);

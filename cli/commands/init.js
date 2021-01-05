@@ -36,9 +36,9 @@ class InitCommand extends Command {
 
   }
 
-  run(params, callback) {
+  async run (params, callback) {
 
-    let host = params.flags.h ? params.flags.h[0] : 'https://api.polybit.com';
+    let host = params.flags.h ? params.flags.h[0] : 'https://api.autocode.com';
     let port = params.flags.p && params.flags.p[0];
 
     let force = params.flags.hasOwnProperty('f') || params.vflags.hasOwnProperty('force');
@@ -86,7 +86,8 @@ class InitCommand extends Command {
     console.log();
     console.log(`To use the ${chalk.bold('Autocode')} registry, you must have a registered account.`);
     console.log(`It will allow you to push your services to the cloud and manage environments.`);
-    console.log(`If you don\'t have an account, it\'s ${chalk.bold.underline.green('free')} to sign up! Please go to https://autocode.com/ to get started.`);
+    console.log(`If you don\'t have an account, it\'s ${chalk.bold.underline.green('free')} to sign up!`)
+    console.log(`Please go to https://autocode.com/signup to get started.`);
     console.log();
     console.log(`If you already have an account, please enter your e-mail to login.`);
     console.log();
@@ -100,33 +101,31 @@ class InitCommand extends Command {
       message: 'E-mail'
     });
 
-    inquirer.prompt(questions, (promptResult) => {
+    let promptResult = await inquirer.prompt(questions);
 
-      let email = promptResult.email;
+    let email = promptResult.email;
 
-      let resource = new APIResource(host, port);
-      resource.request('v1/user_exists').index({email: email}, (err, response) => {
+    let resource = new APIResource(host, port);
+    resource.request('v1/user_exists').index({email: email}, (err, response) => {
 
-        if (err) {
-          return callback(err);
-        }
+      if (err) {
+        return callback(err);
+      }
 
-        params.flags.e = [email];
-        params.vflags.email = [email];
+      params.flags.e = [email];
+      params.vflags.email = [email];
 
-        if (!response.data.length) {
-          console.log();
-          console.log(`It appears you do not yet have an account.`);
-          require('./register.js').prototype.run(params, cb);
-        } else {
-          console.log();
-          console.log(`Welcome back, ${chalk.bold.green(response.data[0].username)}!`);
-          console.log('Please enter your password.');
-          console.log();
-          require('./login.js').prototype.run(params, cb);
-        }
-
-      });
+      if (!response.data.length) {
+        console.log();
+        console.log(`It appears you do not yet have an account.`);
+        return cb(new Error(`It appears you do not yet have an account.`));
+      } else {
+        console.log();
+        console.log(`Welcome back, ${chalk.bold.green(response.data[0].username)}!`);
+        console.log('Please enter your password.');
+        console.log();
+        require('./login.js').prototype.run(params, cb);
+      }
 
     });
 

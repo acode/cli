@@ -26,13 +26,13 @@ class TokensCommand extends Command {
 
     let activeToken = config.get('ACTIVE_LIBRARY_TOKEN');
 
-    let host = params.flags.h ? params.flags.h[0] : 'https://api.polybit.com';
+    let host = params.flags.h ? params.flags.h[0] : 'https://api.autocode.com';
     let port = params.flags.p && params.flags.p[0];
 
     let resource = new APIResource(host, port);
 
     resource.authorize(config.get('ACCESS_TOKEN'));
-    resource.request('/v1/library_tokens').index({}, (err, response) => {
+    resource.request('/v1/library_tokens').index({}, async (err, response) => {
 
       if (err) {
         return callback(err);
@@ -62,7 +62,7 @@ class TokensCommand extends Command {
       console.log(`Here you can change your active authentication token, simply choose from the list.`);
       console.log();
 
-      inquirer.prompt(
+      let answers = await inquirer.prompt(
         [
           {
             name: 'libraryToken',
@@ -102,23 +102,20 @@ class TokensCommand extends Command {
               }
             )
           }
-        ],
-        answers => {
-
-          let libraryToken = answers.libraryToken;
-
-          // If we didn't cancel...
-          if (libraryToken !== 0) {
-            activeToken = libraryToken ? libraryToken.token : '';
-            config.save('ACTIVE_LIBRARY_TOKEN', activeToken);
-          }
-
-          // set silent flag.
-          params.flags.s = [];
-          TokensListCommand.prototype.run.call(this, params, callback);
-
-        }
+        ]
       );
+
+      let libraryToken = answers.libraryToken;
+
+      // If we didn't cancel...
+      if (libraryToken !== 0) {
+        activeToken = libraryToken ? libraryToken.token : '';
+        config.save('ACTIVE_LIBRARY_TOKEN', activeToken);
+      }
+
+      // set silent flag.
+      params.flags.s = [];
+      TokensListCommand.prototype.run.call(this, params, callback);
 
     });
 

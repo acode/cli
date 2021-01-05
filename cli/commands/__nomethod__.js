@@ -301,11 +301,9 @@ class __nomethod__Command extends Command {
         if (headers) {
           let content = headers['content-type'];
           let size = headers['content-length'];
-          let time = headers['x-stdlib-time'];
           let data = [
             `Content-Type:    ${content}`,
-            `Content-Length:  ${size} bytes`,
-            `X-StdLib-Time:   ${time} milliseconds`
+            `Content-Length:  ${size} bytes`
           ];
           let separator = Array(Math.max.apply(null, data.map(s => s.length)) + 1).join('-')
           debugLog(`${responseMessage}${localityFormatted}`);

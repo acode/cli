@@ -27,7 +27,7 @@ class HostsRemoveCommand extends Command {
 
   run(params, callback) {
 
-    let host = 'api.polybit.com';
+    let host = 'api.autocode.com';
     let port = 443;
 
     let listCommandFlags = {
@@ -43,14 +43,14 @@ class HostsRemoveCommand extends Command {
       port = parseInt((matches[3] || '').substr(1) || (hostname.indexOf('https') === 0 ? 443 : 80));
     }
 
-    ListCommand.prototype.run.call(this, {flags: listCommandFlags, vflags: {json: true}}, (err, results) => {
+    ListCommand.prototype.run.call(this, {flags: listCommandFlags, vflags: {json: true}}, async (err, results) => {
 
       if (err) {
         return callback(err);
       }
 
       let ids = results.map(host => host.id);
-      inquirer.prompt(
+      let answers = await inquirer.prompt(
         [
           {
             name: 'route',
@@ -88,25 +88,24 @@ class HostsRemoveCommand extends Command {
             },
             when: answers => !!answers.route
           }
-        ],
-        answers => {
-          if (!answers.verify || answers.route === 0) {
-            return callback(null);
-          }
-
-          let resource = new APIResource(host, port);
-          resource.authorize(config.get('ACCESS_TOKEN'));
-          resource.request('/v1/hostname_routes').destroy(answers.route.value, {}, (err, response) => {
-            if (err) {
-              return callback(err);
-            }
-            console.log();
-            console.log('Route successfully deleted');
-            console.log();
-            return callback(null);
-          });
-        }
+        ]
       );
+      
+      if (!answers.verify || answers.route === 0) {
+        return callback(null);
+      }
+
+      let resource = new APIResource(host, port);
+      resource.authorize(config.get('ACCESS_TOKEN'));
+      resource.request('/v1/hostname_routes').destroy(answers.route.value, {}, (err, response) => {
+        if (err) {
+          return callback(err);
+        }
+        console.log();
+        console.log('Route successfully deleted');
+        console.log();
+        return callback(null);
+      });
 
     });
 

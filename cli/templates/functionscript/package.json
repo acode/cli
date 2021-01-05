@@ -1,0 +1,10 @@
+{
+  "name": "autocode webservice",
+  "description": "",
+  "author": "Author",
+  "main": "functions/__main__.js",
+  "dependencies": {
+    "lib": "latest"
+  },
+  "publish": false
+}

@@ -22,11 +22,11 @@ class TokensCreateCommand extends Command {
     };
   }
 
-  run(params, callback) {
+  async run(params, callback) {
 
     let activeToken = config.get('ACTIVE_LIBRARY_TOKEN');
 
-    let host = params.flags.h ? params.flags.h[0] : 'https://api.polybit.com';
+    let host = params.flags.h ? params.flags.h[0] : 'https://api.autocode.com';
     let port = params.flags.p && params.flags.p[0];
 
     let resource = new APIResource(host, port);
@@ -40,43 +40,40 @@ class TokensCreateCommand extends Command {
     console.log(`This should be something descriptive like, "my test token"`);
     console.log();
 
-    inquirer.prompt(
+    let answers = await inquirer.prompt(
       [
         {
           name: 'label',
           type: 'input',
           message: `Enter a Label`
         }
-      ],
-      answers => {
+      ]
+    );
 
-        let label = answers.label;
+    let label = answers.label;
 
-        resource.request('/v1/library_tokens').create(
-          {},
-          {label: label},
-          (err, response) => {
+    resource.request('/v1/library_tokens').create(
+      {},
+      {label: label},
+      (err, response) => {
 
-            if (err) {
-              console.log('There was an error creating your token.');
-              return callback(err);
-            }
+        if (err) {
+          console.log('There was an error creating your token.');
+          return callback(err);
+        }
 
-            let token = (response && response.data && response.data[0]) || null;
+        let token = (response && response.data && response.data[0]) || null;
 
-            if (!token) {
-              return callback(new Error('There was a problem fetching your created token.'));
-            }
+        if (!token) {
+          return callback(new Error('There was a problem fetching your created token.'));
+        }
 
-            if (!activeToken) {
-              config.save('ACTIVE_LIBRARY_TOKEN', token.token);
-            }
+        if (!activeToken) {
+          config.save('ACTIVE_LIBRARY_TOKEN', token.token);
+        }
 
-            params.flags.s = [];
-            return TokensListCommand.prototype.run.call(this, params, callback);
-
-          }
-        );
+        params.flags.s = [];
+        return TokensListCommand.prototype.run.call(this, params, callback);
 
       }
     );

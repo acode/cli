@@ -26,31 +26,7 @@ class ReleaseCommand extends Command {
 
     params.flags.r = true;
     params.args = [];
-
-    if (fs.existsSync('source.json')) {
-
-      console.log();
-      console.log('You\'re calling lib release in a directory with a source.json file');
-      console.log();
-
-      inquirer.prompt([{
-        name: 'continue',
-        message: 'Do you want to continue?',
-        type: 'confirm'}], (answer) => {
-
-        if (!answer.continue) {
-          process.exit();
-        }
-
-        UpCommand.prototype.run.call(this, params, callback);
-
-      });
-
-    } else {
-
-      UpCommand.prototype.run.call(this, params, callback);
-
-    }
+    UpCommand.prototype.run.call(this, params, callback);
 
   }
 

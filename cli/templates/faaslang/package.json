@@ -1,7 +1,0 @@
-{
-  "name": "My New Service",
-  "description": "",
-  "author": "Author",
-  "main": "functions/__main__.js",
-  "dependencies": {}
-}

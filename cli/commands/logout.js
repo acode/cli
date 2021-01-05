@@ -31,7 +31,7 @@ class LogoutCommand extends Command {
 
   run(params, callback) {
 
-    let host = params.flags.h ? params.flags.h[0] : 'https://api.polybit.com';
+    let host = params.flags.h ? params.flags.h[0] : 'https://api.autocode.com';
     let port = params.flags.p && params.flags.p[0];
 
     let force = !!(params.flags.f || params.vflags.force);
