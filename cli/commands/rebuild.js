@@ -1,7 +1,6 @@
 'use strict';
 
 const Command = require('cmnd').Command;
-const RestartCommand = require('./restart.js');
 
 class RebuildCommand extends Command {
 
@@ -30,9 +29,7 @@ class RebuildCommand extends Command {
 
   run(params, callback) {
 
-    params.flags.b = [];
-
-    RestartCommand.prototype.run.call(this, params, callback);
+    // do a thing
 
   }
 

@@ -11,7 +11,6 @@ const async = require('async');
 const tar = require('tar-stream');
 
 const config = require('../config.js');
-const scripts = require('../scripts.js');
 const serviceConfig = require('../service_config');
 
 const RELEASE_ENV = 'release';
@@ -122,106 +121,86 @@ class UpCommand extends Command {
       return callback(err);
     }
 
-    scripts.run(pkg, 'preup', environment, {version: pkg.stdlib.version}, err => {
+    if (err) {
+      return callback(err);
+    }
+
+    let resource = new APIResource(host, port);
+    resource.authorize(config.get('ACCESS_TOKEN'));
+
+    !fs.existsSync('/tmp') && fs.mkdirSync('/tmp');
+    !fs.existsSync('/tmp/stdlib') && fs.mkdirSync('/tmp/stdlib', 0o777);
+    let serviceName = (pkg.stdlib.name).replace(/\//g, '.');
+    let tmpPath = `/tmp/stdlib/${serviceName}.${new Date().valueOf()}.tar.gz`;
+
+    let start = new Date().valueOf();
+
+    let tarball = fs.createWriteStream(tmpPath, {mode: 0o777});
+
+    let pack = tar.pack();
+
+    let data = readFiles(
+      process.cwd(),
+      {ignore: ['/node_modules', '/.stdlib', '/.git', '.DS_Store']}
+    );
+
+    // pipe the pack stream to your file
+    pack.pipe(tarball);
+
+    // Run everything in parallel...
+
+    async.parallel(data.map((file) => {
+      return (callback) => {
+        pack.entry({name: file.filename}, file.buffer, callback);
+      };
+    }), (err) => {
 
       if (err) {
         return callback(err);
       }
 
-      let resource = new APIResource(host, port);
-      resource.authorize(config.get('ACCESS_TOKEN'));
+      pack.finalize();
 
-      !fs.existsSync('/tmp') && fs.mkdirSync('/tmp');
-      !fs.existsSync('/tmp/stdlib') && fs.mkdirSync('/tmp/stdlib', 0o777);
-      let serviceName = (pkg.stdlib.name).replace(/\//g, '.');
-      let tmpPath = `/tmp/stdlib/${serviceName}.${new Date().valueOf()}.tar.gz`;
+    });
 
-      let start = new Date().valueOf();
+    tarball.on('close', () => {
 
-      let tarball = fs.createWriteStream(tmpPath, {mode: 0o777});
+      let buffer = fs.readFileSync(tmpPath);
+      fs.unlinkSync(tmpPath);
 
-      let pack = tar.pack();
-
-      let defignore = ['/node_modules', '/.stdlib', '/.git', '.DS_Store'];
-      let libignore = fs.existsSync('.libignore') ? fs.readFileSync('.libignore').toString() : '';
-      libignore = libignore.split('\n').map(v => v.replace(/^\s(.*)\s$/, '$1')).filter(v => v);
-      while (defignore.length) {
-        let ignore = defignore.pop();
-        (libignore.indexOf(ignore) === -1) && libignore.push(ignore);
-      }
-
-      let data = readFiles(
-        process.cwd(),
-        {ignore: libignore}
-      );
-
-      // pipe the pack stream to your file
-      pack.pipe(tarball);
-
-      // Run everything in parallel...
-
-      async.parallel(data.map((file) => {
-        return (callback) => {
-          pack.entry({name: file.filename}, file.buffer, callback);
-        };
-      }), (err) => {
+      zlib.gzip(buffer, (err, result) => {
 
         if (err) {
           return callback(err);
         }
 
-        pack.finalize();
+        let registryParams = {channel: '1234'};
+        if (environment === RELEASE_ENV) {
+          registryParams.release = 't';
+        } else {
+          registryParams.environment = environment;
+        }
 
-      });
+        if (force) {
+          registryParams.force = 't';
+        }
 
-      tarball.on('close', () => {
+        return registryRequest(
+          'up/verify',
+          {Authorization: `Bearer ${config.get('ACCESS_TOKEN')}`},
+          registryParams,
+          result,
+          (err, response) => {
 
-        let buffer = fs.readFileSync(tmpPath);
-        fs.unlinkSync(tmpPath);
+            if (err) {
+              return callback(err);
+            } else {
+              console.log('Service uploaded successfully!');
+              return callback(null);
+            }
 
-        zlib.gzip(buffer, (err, result) => {
-
-          if (err) {
-            return callback(err);
           }
-
-          let t = new Date().valueOf() - start;
-
-          let endpoint = environment === RELEASE_ENV
-            ? `${pkg.stdlib.name}@${pkg.stdlib.version}`
-            : `${pkg.stdlib.name}@${environment}`;
-
-          if (force) {
-            endpoint += '?force=true';
-          }
-
-          let build = pkg.stdlib.build;
-
-          return resource
-            .request(endpoint)
-            .headers({'X-Stdlib-Build': build || ''})
-            .stream(
-              'POST',
-              result,
-              (data) => {
-                data.length > 1 && process.stdout.write(data.toString());
-              },
-              (err, response) => {
-
-                if (err) {
-                  return callback(err);
-                }
-
-                if (response[response.length - 1] === 1) {
-                  return callback(new Error('There was an error processing your request, try logging in again.'));
-                } else {
-                  scripts.run(pkg, 'postup', environment, {version: pkg.stdlib.version}, err => callback(err));
-                }
-
-              }
-            );
-
-        });
+        );
 
       });
 
