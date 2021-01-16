@@ -10,6 +10,7 @@ const path = require('path');
 const async = require('async');
 const tar = require('tar-stream');
 const chalk = require('chalk');
+const minimatch = require('minimatch');
 
 const config = require('../config.js');
 const serviceConfig = require('../service_config');
@@ -22,7 +23,7 @@ function readFiles(base, properties, dir, data) {
   data = data || [];
   properties = properties || {};
 
-  let ignore = properties.ignore || {};
+  let ignore = properties.ignore || [];
 
   return fs.readdirSync(path.join(base, dir)).reduce((data, f) => {
 
@@ -30,14 +31,10 @@ function readFiles(base, properties, dir, data) {
     let fullpath = path.join(base, pathname);
 
     for (let i = 0; i < ignore.length; i++) {
-      if (ignore[i][0] === '/') {
-        if (pathname.split(path.sep).join('/') === ignore[i]) {
-          return data;
-        }
-      } else {
-        if (f === ignore[i]) {
-          return data;
-        }
+      let filename = pathname.split(path.sep).join('/').slice(1);
+      let pattern = ignore[i];
+      if (minimatch(filename, pattern, {matchBase: true, dot: true})) {
+        return data;
       }
     }
 
@@ -140,9 +137,20 @@ class UpCommand extends Command {
 
     let pack = tar.pack();
 
+    let ignore = ['node_modules/', '.stdlib', '.git', '.DS_Store'];
+    if (fs.existsSync(path.join(process.cwd(), '.acignore'))) {
+      ignore = ignore.concat(
+        fs.readFileSync(path.join(process.cwd(), '.acignore')).toString()
+          .split('\n')
+          .map(line => line.trim())
+          .filter(line => !!line)
+      );
+    }
+    ignore = ignore.map(v => v.endsWith('/') ? `${v}*` : v);
+
     let data = readFiles(
       process.cwd(),
-      {ignore: ['/node_modules', '/.stdlib', '/.git', '.DS_Store']}
+      {ignore: ignore}
     );
 
     // pipe the pack stream to your file
