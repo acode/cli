@@ -10,7 +10,8 @@ const config = require('../config.js');
 const VALID_LOG_TYPES = ['stdout', 'stderr'];
 const LOG_TYPE_COLORS = {
   'stdout': 'grey',
-  'stderr': 'red'
+  'stderr': 'red',
+  'result': 'grey'
 };
 
 class LogsCommand extends Command {
@@ -70,7 +71,7 @@ class LogsCommand extends Command {
     if (!serviceFilter) {
       return callback(new Error('Please enter a service to check logs for in the format: username.service[@environment].*'));
     }
-    
+
     let wildcard = serviceFilter && serviceFilter[serviceFilter.length - 1] === '*';
     if (wildcard) {
       serviceFilter = serviceFilter.substr(0, serviceFilter.length -1);
@@ -115,7 +116,7 @@ class LogsCommand extends Command {
           let date = log.created_at.split('T');
           date[1] = date[1].slice(0, date[1].length - 1);
           date = date.join(' ');
-          let color = LOG_TYPE_COLORS[log.log_type];
+          let color = LOG_TYPE_COLORS[log.log_type] || 'grey';
           let service = chalk.cyan(log.service_name.replace('/', '.')) +
             chalk.green('[@' + (log.version || log.environment) + ']') +
             chalk.yellow(log.function_name ? ('.' + log.function_name.replace('/', '.')) : '');
