@@ -179,7 +179,7 @@ class __nomethod__Command extends Command {
         try {
           gateway.service(names.join('/'));
           gateway.environment(env.local || {});
-          gateway.define(fp.load(process.cwd(), 'functions'));
+          gateway.define(fp.load(process.cwd(), 'functions', 'www'));
         } catch (e) {
           return callback(e);
         }

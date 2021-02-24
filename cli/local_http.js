@@ -40,7 +40,7 @@ if (cluster.isMaster) {
   try {
     gateway.service(ROUTE);
     gateway.environment(env.local || {});
-    gateway.define(functionParser.load(process.cwd(), 'functions'));
+    gateway.define(functionParser.load(process.cwd(), 'functions', 'www'));
   } catch (err) {
     console.error(err);
     process.exit(1);
