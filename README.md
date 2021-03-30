@@ -2,20 +2,19 @@
 ## [Autocode allows you to instantly build and host Webhooks, Scripts and APIs](https://autocode.com)
 
 **Autocode Setup** |
-[Node](https://github.com/stdlib/lib-node) |
-[Python](https://github.com/stdlib/lib-python) |
-[Ruby](https://github.com/stdlib/lib-ruby) |
-[Web](https://github.com/stdlib/lib-js)
+[Node](https://github.com/acode/lib-node) |
+[Python](https://github.com/acode/lib-python) |
+[Ruby](https://github.com/acode/lib-ruby) |
+[Web](https://github.com/acode/lib-js)
 
 # Introduction
-
 
 Autocode is the *fastest, easiest* way to build web services and APIs that
 respond to external events. The Autocode CLI allows you to interact seamlessly
 with the following components of Autocode:
 
-1. Autocode Standard Library: A central registry for APIs
-2. Our scalable, serverless hosting platform
+1. Executing APIs on the Autocode standard library
+2. Uploading new APIs / web services to Autocode's hosting platform
 
 Autocode is based on Function as a Service ("serverless") architecture,
 initially popularized by AWS Lambda. You can use Autocode to build modular, scalable APIs
@@ -25,12 +24,12 @@ has never been easier - focus on writing code you love, let Autocode handle
 everything else.
 
 Autocode uses an **open specification** called
-[FunctionScript](https://github.com/FunctionScript/FunctionScript) for function definitions and
+[FunctionScript](https://github.com/acode/FunctionScript) for function definitions and
 execution. If you run into concerns or questions as you're building from this
 guide, please reference the FunctionScript repository. :)
 
 You can view services published by our large and growing developer community
-[on the Autocode Standard Library page](https://autocode.com/lib).
+[on the Autocode standard library page](https://autocode.com/lib).
 
 ![lib-process](https://content.public.files.stdlib.com/shared/static/images/lib-usage.gif)
 
