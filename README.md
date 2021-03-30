@@ -1,5 +1,4 @@
 # <img src="https://content.public.files.stdlib.com/shared/static/branding/autocode-logo-wordmark.svg" width="300">
-## [Autocode allows you to instantly build and host Webhooks, Scripts and APIs](https://autocode.com)
 
 **Autocode Setup** |
 [Node](https://github.com/acode/lib-node) |
@@ -9,9 +8,11 @@
 
 # Introduction
 
-Autocode is the *fastest, easiest* way to build web services and APIs that
-respond to external events. The Autocode CLI allows you to interact seamlessly
-with the following components of Autocode:
+[Autocode](https://autocode.com) is a fastest and easy way to build web
+services and APIs that respond to external SaaS events. The Autocode ecosystem
+treats external SaaS APIs as single-line function calls with the use of the
+[lib](https://github.com/acode/lib-node) package in NPM. The Autocode CLI allows
+you to interact seamlessly with the following components of Autocode:
 
 1. Executing APIs on the Autocode standard library
 2. Uploading new APIs / web services to Autocode's hosting platform
