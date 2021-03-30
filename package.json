@@ -26,7 +26,7 @@
   "author": "Keith Horwood",
   "repository": {
     "type": "git",
-    "url": "git://github.com/acode/lib.git"
+    "url": "git://github.com/acode/cli.git"
   },
   "license": "MIT",
   "bin": {

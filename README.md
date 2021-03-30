@@ -2,9 +2,9 @@
 
 **Autocode Setup** |
 [Node](https://github.com/acode/lib-node) |
-[Python](https://github.com/acode/lib-python) |
-[Ruby](https://github.com/acode/lib-ruby) |
-[Web](https://github.com/acode/lib-js)
+[Web](https://github.com/acode/lib-js) |
+[Python (alpha)](https://github.com/acode/lib-python) |
+[Ruby (alpha)](https://github.com/acode/lib-ruby)
 
 # Introduction
 
