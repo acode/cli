@@ -104,7 +104,7 @@ class GetCommand extends Command {
       console.log();
       console.log(`Try removing the existing directory first.`);
       console.log();
-      console.log(`Use ${chalk.bold('lib get ' + service + ' --write-over')} to override.`);
+      console.log(`Use ${chalk.bold('lib download ' + service + ' --write-over')} to override.`);
       console.log();
       return callback(null);
     }
