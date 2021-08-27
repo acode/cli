@@ -68,7 +68,7 @@ class InitCommand extends Command {
       console.log(`Your Autocode development environment has been initialized.`);
       console.log();
       console.log(`Use ${chalk.bold('lib create <service>')} to create a new (local) service package.`);
-      console.log(`or type ${chalk.bold('lib get <service>')} to download an existing service package.`);
+      console.log(`or type ${chalk.bold('lib download <service>')} to download an existing service package.`);
       console.log()
       console.log(`Additionally, use ${chalk.bold('lib help')} to see more commands.`)
       console.log();
