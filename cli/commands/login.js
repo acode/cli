@@ -108,7 +108,7 @@ class LoginCommand extends Command {
 
         if (!!response.data[0].factor_identifier) {
           console.log();
-          console.log(`Your account has two-factor authentication enabled. Please enter a valid authentication code to finish logging in.`);
+          console.log(`Your account has two-factor authentication enabled. Please enter a valid verification code from your device to finish logging in.`);
           console.log();
           inquirer.prompt({
             name: 'verificationCode',
