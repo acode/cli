@@ -49,7 +49,7 @@ class HostnamesRemoveCommand extends Command {
         return callback(err);
       }
 
-      let ids = results.map(host => host.id);
+      let sids = results.map(host => host.sid);
       let answers = await inquirer.prompt(
         [
           {
@@ -65,7 +65,7 @@ class HostnamesRemoveCommand extends Command {
                   Hostname: hostnameRoute.formatted_hostname,
                   Target: hostnameRoute.target,
                   'Created At': hostnameRoute.created_at,
-                  value: ids[index]
+                  value: sids[index]
                 };
               }),
               true,
@@ -97,7 +97,9 @@ class HostnamesRemoveCommand extends Command {
 
       let resource = new APIResource(host, port);
       resource.authorize(config.get('ACCESS_TOKEN'));
-      resource.request('/v1/hostname_routes').destroy(answers.route.value, {}, (err, response) => {
+      resource.request('/v1/hostname_routes').destroy(null, {
+        sid: answers.route.value
+      }, (err, response) => {
         if (err) {
           return callback(err);
         }
