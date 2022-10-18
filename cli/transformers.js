@@ -53,7 +53,7 @@ class Transformers {
       console.log(`\n[Transformer: ${name}] Execution starting`);
       console.log(
         `[Transformer: ${name}] Using config from stdlib.json: ` +
-        `transformers[].config.local\n` +
+        `transformers[].config['${this.environment}']\n` +
         `${JSON.stringify(transformer.config, null, 2)}`
       );
       let files = transformer.compile(process.cwd(), this.env[this.environment]);
