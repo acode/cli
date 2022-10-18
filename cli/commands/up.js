@@ -2,6 +2,7 @@
 
 const Command = require('cmnd').Command;
 const Registry = require('../registry.js');
+const Transformers = require('../transformers.js');
 
 const fs = require('fs');
 const zlib = require('zlib');
@@ -17,7 +18,7 @@ const serviceConfig = require('../service_config');
 
 const RELEASE_ENV = 'release';
 
-function readFiles(base, properties, dir, data) {
+function readFiles (base, properties, dir, data) {
 
   dir = dir || '/';
   data = data || [];
@@ -148,17 +149,53 @@ class UpCommand extends Command {
     }
     ignore = ignore.map(v => v.endsWith('/') ? `${v}*` : v);
 
+    // Load transformers
+    let env, stdlib;
+    
+    try {
+      env = require(path.join(process.cwd(), 'env.json'));
+    } catch (e) {
+      console.error(e);
+      console.error(new Error('Invalid env.json in this directory'));
+      process.exit(1);
+    }
+
+    try {
+      stdlib = require(path.join(process.cwd(), 'stdlib.json'));
+    } catch (e) {
+      console.error(e);
+      console.error(new Error('Invalid stdlib.json in this directory'));
+      process.exit(1);
+    }
+
+    const transformers = new Transformers(env, stdlib, environment);
+    let preloadFiles = transformers.compile();
+
     let data = readFiles(
       process.cwd(),
-      {ignore: ignore}
+      {ignore: ignore},
     );
+
+    data.forEach(file => {
+      if (preloadFiles[file.filename]) {
+        throw new Error(
+          `Error with file "${file.filename}":` +
+          `This file was preloaded as part of a transformer, ` +
+          `it can not be overwritten.`
+        );
+      }
+    });
+
+    Object.keys(preloadFiles).forEach(filename => {
+      data.push({filename: filename, buffer: preloadFiles[filename]});
+    });
 
     // pipe the pack stream to your file
     pack.pipe(tarball);
 
     // Run everything in parallel...
 
-    async.parallel(data.map((file) => {
+    async.parallel(data.map(file => {
       return (callback) => {
         pack.entry({name: file.filename}, file.buffer, callback);
       };

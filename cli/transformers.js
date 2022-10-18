@@ -7,6 +7,7 @@ class Transformers {
     this.stdlib = stdlib;
     this.environment = environment;
     this.list = [];
+    this.load();
   }
 
   load () {

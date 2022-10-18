@@ -24,6 +24,8 @@ if (cluster.isMaster) {
 
 } else {
 
+  let env, stdlib;
+
   try {
     env = require(path.join(process.cwd(), 'env.json'));
   } catch (e) {
@@ -41,7 +43,6 @@ if (cluster.isMaster) {
   }
 
   const transformers = new Transformers(env, stdlib, 'local');
-  transformers.load();
 
   // Cluster to Gateway
   let gateway = new LocalGateway({
