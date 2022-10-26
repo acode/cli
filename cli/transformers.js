@@ -1,4 +1,5 @@
 const path = require('path');
+const fs = require('fs');
 
 class Transformers {
 
@@ -33,7 +34,7 @@ class Transformers {
           if (!config[this.environment] || typeof config[this.environment] !== 'object') {
             throw new Error(`"stdlib.json": "transformers[].config['${this.environment}']" must be empty or contain an object`);
           }
-          transformer = new Transformer(config[this.environment]);
+          transformer = new Transformer(config[this.environment], stdlib, this.environment);
           transformer.config = transformerData.config[this.environment];
         } catch (e) {
           console.error(e);
@@ -45,9 +46,11 @@ class Transformers {
     return this.list = transformers;
   }
 
-  compile () {
+  async compile () {
     let preloadFiles = {};
-    this.list.forEach(transformer => {
+    let metadata = {};
+    for (let i = 0; i < this.list.length; i++) {
+      let transformer = this.list[i];
       let name = transformer.name || transformer.constructor.name;
       let t = new Date().valueOf();
       console.log(`\n[Transformer: ${name}] Execution starting`);
@@ -56,17 +59,22 @@ class Transformers {
         `transformers[].config['${this.environment}']\n` +
         `${JSON.stringify(transformer.config, null, 2)}`
       );
-      let files = transformer.compile(process.cwd(), this.env[this.environment]);
+      let result = await transformer.compile(process.cwd(), this.env[this.environment], metadata);
+      let files = result.files || {};
+      metadata = result.metadata || {};
       Object.keys(files).forEach(pathname => {
         if (preloadFiles[pathname]) {
           throw new Error(`[Transformer: ${name}]: Previous Transformer has already defined "${pathname}"`);
         } else {
           preloadFiles[pathname] = files[pathname];
         }
+        if (!pathname.startsWith('www/') && !pathname.startsWith('functions/')) {
+          throw new Error(`[Transformer: ${name}]: Invalid pathname "${pathname}", can only add endpoints in "functions/" and "www/"`);
+        }
       });
       let t0 = new Date().valueOf() - t;
       console.log(`[Transformer: ${name}] Executed in ${t0} ms`);
-    });
+    };
     return preloadFiles;
   }
 

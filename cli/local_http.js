@@ -51,33 +51,34 @@ if (cluster.isMaster) {
     debug: true
   });
   let functionParser = new FunctionParser();
-  try {
-    let preloadFiles = transformers.compile();
-    gateway.service(ROUTE);
-    gateway.environment(env.local || {});
-    gateway.define(
-      functionParser.load(
-        process.cwd(),
-        'functions',
-        'www',
-        null,
-        preloadFiles
-      ),
-      preloadFiles
+  transformers.compile()
+    .then(
+      preloadFiles => {
+        gateway.service(ROUTE);
+        gateway.environment(env.local || {});
+        gateway.define(
+          functionParser.load(
+            process.cwd(),
+            'functions',
+            'www',
+            null,
+            preloadFiles
+          ),
+          preloadFiles
+        );
+        gateway.listen(PORT);
+        console.log();
+        console.log(`Autocode API:`);
+        console.log(`\t${chalk.bold.blue(NAME)}`);
+        console.log();
+        console.log(`Running on:`);
+        console.log(`\t${chalk.bold.green(`localhost:${PORT}${ROUTE}`)}`);
+        console.log();
+      },
+      err => {
+        console.error(err),
+        process.exit(1);
+      }
     );
-  } catch (err) {
-    console.error(err);
-    process.exit(1);
-  }
-
-  gateway.listen(PORT);
-
-  console.log();
-  console.log(`Autocode API:`);
-  console.log(`\t${chalk.bold.blue(NAME)}`);
-  console.log();
-  console.log(`Running on:`);
-  console.log(`\t${chalk.bold.green(`localhost:${PORT}${ROUTE}`)}`);
-  console.log();
 
 }

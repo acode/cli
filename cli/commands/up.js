@@ -151,7 +151,7 @@ class UpCommand extends Command {
 
     // Load transformers
     let env, stdlib;
-    
+
     try {
       env = require(path.join(process.cwd(), 'env.json'));
     } catch (e) {
@@ -169,101 +169,109 @@ class UpCommand extends Command {
     }
 
     const transformers = new Transformers(env, stdlib, environment);
-    let preloadFiles = transformers.compile();
+    transformers.compile()
+      .then(
+        preloadFiles => {
 
-    let data = readFiles(
-      process.cwd(),
-      {ignore: ignore},
-    );
+          let data = readFiles(
+            process.cwd(),
+            {ignore: ignore},
+          );
 
-    data.forEach(file => {
-      if (preloadFiles[file.filename]) {
-        throw new Error(
-          `Error with file "${file.filename}":` +
-          `This file was preloaded as part of a transformer, ` +
-          `it can not be overwritten.`
-        );
-      }
-    });
+          data.forEach(file => {
+            if (preloadFiles[file.filename]) {
+              throw new Error(
+                `Error with file "${file.filename}":` +
+                `This file was preloaded as part of a transformer, ` +
+                `it can not be overwritten.`
+              );
+            }
+          });
 
-    Object.keys(preloadFiles).forEach(filename => {
-      data.push({filename: filename, buffer: preloadFiles[filename]});
-    });
+          Object.keys(preloadFiles).forEach(filename => {
+            data.push({filename: filename, buffer: preloadFiles[filename]});
+          });
 
-    // pipe the pack stream to your file
-    pack.pipe(tarball);
+          // pipe the pack stream to your file
+          pack.pipe(tarball);
 
-    // Run everything in parallel...
+          // Run everything in parallel...
 
-    async.parallel(data.map(file => {
-      return (callback) => {
-        pack.entry({name: file.filename}, file.buffer, callback);
-      };
-    }), (err) => {
-
-      if (err) {
-        return callback(err);
-      }
-
-      pack.finalize();
-
-    });
-
-    tarball.on('close', () => {
-
-      let buffer = fs.readFileSync(tmpPath);
-      fs.unlinkSync(tmpPath);
-
-      zlib.gzip(buffer, (err, result) => {
-
-        if (err) {
-          return callback(err);
-        }
-
-        console.log(`Packaging complete, total size is ${result.byteLength} bytes!`);
-        console.log(`Uploading ${chalk.bold(`${pkg.stdlib.name}@${environment === RELEASE_ENV ? version || pkg.stdlib.version : environment}`)} to Autocode at ${host}:${port}...`);
-
-        let registryParams = {channel: '1234'};
-        if (environment === RELEASE_ENV) {
-          registryParams.release = 't';
-          if (version) {
-            registryParams.version = version;
-          }
-        } else {
-          registryParams.environment = environment;
-        }
-
-        if (force) {
-          registryParams.force = 't';
-        }
-
-        return registry.request(
-          'up/verify',
-          registryParams,
-          result,
-          (err, response) => {
+          async.parallel(data.map(file => {
+            return (callback) => {
+              pack.entry({name: file.filename}, file.buffer, callback);
+            };
+          }), (err) => {
 
             if (err) {
-              console.log();
               return callback(err);
-            } else {
-              let t = new Date().valueOf() - start;
-              console.log()
-              console.log(`${chalk.bold(`${response.name}@${response.environment || response.version}`)} uploaded successfully in ${t} ms!`);
-              console.log(`${chalk.bold.green('Live URL:')} https://${response.name.split('/')[0]}.api.stdlib.com/${response.name.split('/')[1]}@${response.environment || response.version}/`);
-              console.log();
-              return callback(null);
             }
 
-          },
-          (data) => {
-            console.log(`Registry :: ${data.message}`);
-          }
-        );
+            pack.finalize();
 
-      });
+          });
 
-    });
+          tarball.on('close', () => {
+
+            let buffer = fs.readFileSync(tmpPath);
+            fs.unlinkSync(tmpPath);
+
+            zlib.gzip(buffer, (err, result) => {
+
+              if (err) {
+                return callback(err);
+              }
+
+              console.log(`Packaging complete, total size is ${result.byteLength} bytes!`);
+              console.log(`Uploading ${chalk.bold(`${pkg.stdlib.name}@${environment === RELEASE_ENV ? version || pkg.stdlib.version : environment}`)} to Autocode at ${host}:${port}...`);
+
+              let registryParams = {channel: '1234'};
+              if (environment === RELEASE_ENV) {
+                registryParams.release = 't';
+                if (version) {
+                  registryParams.version = version;
+                }
+              } else {
+                registryParams.environment = environment;
+              }
+
+              if (force) {
+                registryParams.force = 't';
+              }
+
+              return registry.request(
+                'up/verify',
+                registryParams,
+                result,
+                (err, response) => {
+
+                  if (err) {
+                    console.log();
+                    return callback(err);
+                  } else {
+                    let t = new Date().valueOf() - start;
+                    console.log()
+                    console.log(`${chalk.bold(`${response.name}@${response.environment || response.version}`)} uploaded successfully in ${t} ms!`);
+                    console.log(`${chalk.bold.green('Live URL:')} https://${response.name.split('/')[0]}.api.stdlib.com/${response.name.split('/')[1]}@${response.environment || response.version}/`);
+                    console.log();
+                    return callback(null);
+                  }
+
+                },
+                (data) => {
+                  console.log(`Registry :: ${data.message}`);
+                }
+              );
+
+            });
+
+          });
+
+        },
+        (err) => {
+          callback(err);
+        }
+      );
 
   }
 
