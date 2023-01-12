@@ -10,6 +10,7 @@ class LocalGateway extends Gateway {
   constructor (cfg) {
     cfg = cfg || {};
     cfg.name = 'LocalGateway';
+    cfg.defaultTimeout = 120000;
     super(cfg);
     this._maxResultLogLength = 128;
   }
