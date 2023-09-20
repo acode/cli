@@ -60,7 +60,9 @@ class __nomethod__Command extends Command {
         d: 'Specify debug mode (prints Gateway logs locally, response logs remotely)',
         t: 'Specify an Identity Token to use manually',
         x: 'Unauthenticated - Execute without a token (overrides active token and -t flag)',
-        i: 'Specify information mode (prints tar packing and execution request progress)'
+        i: 'Specify information mode (prints tar packing and execution request progress)',
+        h: 'Specify headers in format key1 value1 key2 value2 ...',
+        a: 'Specify header "Authorization: Bearer [token]" token'
       },
       vflags: {
         '*': 'all verbose flags converted to named keyword parameters'
@@ -197,6 +199,22 @@ class __nomethod__Command extends Command {
       for (let i = 0; i < keys.length; i++) {
         let key = keys[i];
         kwargs[key] = await parseFileFromArg(params.vflags[key].join(' '), infoMode);
+      }
+      if (params.flags.a) {
+        kwargs['__headers'] = kwargs['__headers'] || {};
+        kwargs['__headers']['Authorization'] = `Bearer ${params.flags.a.join(' ')}`;
+      }
+      if (params.flags.h) {
+        let headerPairs = params.flags.h;
+        while (headerPairs.length) {
+          kwargs['__headers'] = kwargs['__headers'] || {};
+          let key = (headerPairs.shift() || '')
+            .split('-')
+            .map(str => str[0].toUpperCase() + str.slice(1))
+            .join('-');
+          let value = headerPairs.shift() || '';
+          kwargs['__headers'][key] = value;
+        }
       }
     };
 

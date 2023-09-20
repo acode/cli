@@ -1,6 +1,6 @@
 {
   "name": "lib.cli",
-  "version": "5.6.1",
+  "version": "5.7.0",
   "description": "Command Line tools for Autocode - autocode.com",
   "main": "index.js",
   "scripts": {
@@ -40,7 +40,7 @@
     "cmnd": "~0.3.0",
     "functionscript": "^2.10.5",
     "inquirer": "^7.3.3",
-    "lib": "^5.0.1",
+    "lib": "^5.1.0",
     "minimatch": "^3.0.4",
     "ncp": "^2.0.0",
     "pusher-js": "^7.0.2",
